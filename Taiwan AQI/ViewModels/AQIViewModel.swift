@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import MapKit
+import Combine
 
 class AQIViewModel: ObservableObject {
     @Published var aqiRecords: [AQIRecord] = []
@@ -9,13 +10,25 @@ class AQIViewModel: ObservableObject {
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     
-    private let locationManager = LocationManager()
+    let locationManager = LocationManager()
+    private var cancellables = Set<AnyCancellable>()
     
     init() {
         fetchAQIData()
+        
         locationManager.$userLocation
             .compactMap { $0 }
-            .assign(to: &$region.center)
+            .sink { [weak self] newLocation in
+                // Update region to user's location with 10 km radius
+                let latitudeDelta = 10 / 111.0  // Rough conversion from km to degrees (latitude)
+                let longitudeDelta = 10 / 111.0 // Same for longitude, depending on location
+                
+                self?.region = MKCoordinateRegion(
+                    center: newLocation,
+                    span: MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
+                )
+            }
+            .store(in: &cancellables)
     }
     
     func fetchAQIData() {

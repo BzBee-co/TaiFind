@@ -8,10 +8,13 @@
 import SwiftUI
 
 @main
-struct Taiwan_AQIApp: App {
+struct AirQualityMapAppApp: App {
+    @StateObject private var viewModel = AQIViewModel()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(viewModel)
         }
     }
 }

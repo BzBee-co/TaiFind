@@ -10,49 +10,154 @@ import MapKit
 
 struct MapView: View {
     @EnvironmentObject var viewModel: AQIViewModel
+
+    enum MapStyleOption: String, CaseIterable {
+        case standard = "Standard"
+        case imagery = "Satellite"
+        case hybrid = "Hybrid"
+        
+        var style: MapStyle {
+            switch self {
+            case .standard: return .standard
+            case .imagery: return .imagery
+            case .hybrid: return .hybrid
+            }
+        }
+    }
     
-    // Calculate scale factor based on latitude delta
+    @State private var selectedMapStyle: MapStyleOption = .hybrid
+    @State private var showAnnotations: Bool = true
+
     private func scaleFactor(for region: MKCoordinateRegion) -> CGFloat {
-        // You can adjust this formula to get the desired scaling effect
         let zoomLevel = max(region.span.latitudeDelta, region.span.longitudeDelta)
-        let scale = min(20 / zoomLevel, 1) // Set a cap for the max circle size
+        let scale = min(50 / zoomLevel, 1)
         return scale
     }
     
     var body: some View {
-        Map(coordinateRegion: $viewModel.region, annotationItems: viewModel.aqiRecords) { record in
-            MapAnnotation(coordinate: record.coordinate) {
-                // Scale the circle size based on the zoom level
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            gradient: Gradient(colors: [colorForAQI(record.aqi), colorForAQI(record.aqi).opacity(0)]),
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: 50 // Adjust this value to control how far the fade reaches
+        ZStack {
+            // Map as background
+            Map(coordinateRegion: $viewModel.region,
+                showsUserLocation: true,
+                annotationItems: showAnnotations ? viewModel.aqiRecords : []) { record in
+                MapAnnotation(coordinate: record.coordinate) {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                gradient: Gradient(colors: [colorForAQI(record.aqi), colorForAQI(record.aqi).opacity(0)]),
+                                center: .center,
+                                startRadius: 10,
+                                endRadius: 50
+                            )
                         )
-                    )
-                    .frame(width: 100 * scaleFactor(for: viewModel.region), height: 100 * scaleFactor(for: viewModel.region))
-                    .opacity(0.6)
+                        .frame(width: 100 * scaleFactor(for: viewModel.region), height: 100 * scaleFactor(for: viewModel.region))
+                        .opacity(0.6)
+                }
             }
-        }
-        .edgesIgnoringSafeArea(.all)
-        .onAppear {
-            viewModel.fetchAQIData()
+            .mapStyle(selectedMapStyle.style)
+            .edgesIgnoringSafeArea(.all)
+            .onAppear {
+                viewModel.fetchAQIData()
+            }
+            
+            VStack {
+                Spacer()
+                HStack(alignment: .bottom) {
+                    Spacer()
+                    if showAnnotations {
+                        AQILegend()
+                            .padding(.top, 50)
+                    }
+                    VStack {
+                        // Toggle Annotations Button
+                        Button(action: {
+                            showAnnotations.toggle()
+                        }) {
+                            Image(systemName: showAnnotations ? "eye.fill" : "eye.slash.fill")
+                                .font(.system(size: 16))
+                                .foregroundStyle(.black)
+                                .padding()
+                                .background(Circle().fill(Color.white.opacity(0.6)))
+                        }
+                        
+                        // Refresh data button
+                        Button(action: {
+                            viewModel.fetchAQIData()
+                        }) {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.system(size: 16))
+                                .foregroundStyle(.black)
+                                .padding()
+                                .background(Circle().fill(Color.white.opacity(0.6)))
+                        }
+                        
+                        // Map Style Menu
+                        Menu {
+                            ForEach(MapStyleOption.allCases, id: \ .self) { option in
+                                Button(action: {
+                                    selectedMapStyle = option
+                                }) {
+                                    Label(option.rawValue, systemImage: selectedMapStyle == option ? "checkmark" : "")
+                                }
+                            }
+                        } label: {
+                            Image(systemName: "map")
+                                .font(.system(size: 16))
+                                .foregroundStyle(.black)
+                                .padding()
+                                .background(Circle().fill(Color.white.opacity(0.6)))
+                        }
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.top, 50)
+                }
+                .padding(.leading, 50)
+                .padding(.bottom, 30)
+            }
+            .shadow(radius: 10)
         }
     }
     
     private func colorForAQI(_ aqi: Int) -> Color {
         switch aqi {
-        case 0..<50: return Color.green
-        case 50..<100: return Color.yellow
-        case 100..<150: return Color.orange
-        case 150..<200: return Color.red
+        case 0..<25: return Color.blue
+        case 25..<50: return Color.green
+        case 50..<75: return Color.yellow
+        case 75..<100: return Color.orange
+        case 100..<150: return Color.red
+        case 150..<200: return Color.purple
         default: return Color.purple
         }
     }
 }
 
-#Preview {
-    MapView()
+struct AQILegend: View {
+    let colors: [Color] = [.blue, .green, .yellow, .orange, .red, .purple]
+    let values: [Int] = [25, 50, 75, 100, 150, 200]
+    
+    var body: some View {
+        ZStack {
+            // Colored blocks
+            HStack(spacing: 0) {
+                ForEach(colors, id: \ .self) { color in
+                    Rectangle()
+                        .fill(color)
+                        .frame(maxWidth: .infinity, minHeight: 20, maxHeight: 20)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .frame(height: 20)
+            
+            // AQI Threshold Labels
+            HStack {
+                ForEach(values, id: \ .self) { value in
+                    Text("\(value)")
+                        .font(.caption)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+    }
 }
