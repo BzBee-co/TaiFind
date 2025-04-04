@@ -111,7 +111,7 @@ struct MapView: View {
                     .padding(.trailing, 20)
                     .padding(.top, 50)
                 }
-                .padding(.leading, 50)
+//                .padding(.leading, 50)
                 .padding(.bottom, 30)
             }
             .shadow(radius: 10)
@@ -125,39 +125,8 @@ struct MapView: View {
         case 50..<75: return Color.yellow
         case 75..<100: return Color.orange
         case 100..<150: return Color.red
-        case 150..<200: return Color.purple
+        case 150..<200: return Color.crimson
         default: return Color.purple
         }
-    }
-}
-
-struct AQILegend: View {
-    let colors: [Color] = [.blue, .green, .yellow, .orange, .red, .purple]
-    let values: [Int] = [25, 50, 75, 100, 150, 200]
-    
-    var body: some View {
-        ZStack {
-            // Colored blocks
-            HStack(spacing: 0) {
-                ForEach(colors, id: \ .self) { color in
-                    Rectangle()
-                        .fill(color)
-                        .frame(maxWidth: .infinity, minHeight: 20, maxHeight: 20)
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .frame(height: 20)
-            
-            // AQI Threshold Labels
-            HStack {
-                ForEach(values, id: \ .self) { value in
-                    Text("\(value)")
-                        .font(.caption)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity, alignment: .bottomTrailing)
-                }
-            }
-        }
-        .padding(.horizontal, 20)
     }
 }
