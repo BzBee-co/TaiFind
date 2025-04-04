@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "TWAQI2.png",
+      "filename" : "appIcon3Light.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "TWAQI-dark.png",
+      "filename" : "appIcon3Dark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
