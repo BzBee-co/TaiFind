@@ -65,7 +65,7 @@ struct MapView: View {
 				Spacer()
 				HStack(alignment: .bottom) {
 					Spacer()
-					if showAnnotations {
+					if selectedMeasurement != .none && showAnnotations {
 						LegendView(type: selectedMeasurement)
 							.padding(.top, 50)
 					}
@@ -127,7 +127,8 @@ struct MapView: View {
 
 	private func colorFor(record: AQIRecord) -> Color {
 		switch selectedMeasurement {
-		case .aqi: return colorForAQI(record.aqi)
+		case .none: return Color.gray.opacity(0.0)
+		case .aqi: return color(for: Double(record.aqi), thresholds: [50, 100, 150, 200, 300, 500])
 		case .so2: return color(for: record.so2 ?? 0.0, thresholds: [0.4, 0.8, 1.5, 2.5, 3.6, 5.0])
 		case .co:  return color(for: record.co ?? 0.0, thresholds: [0.2, 0.4, 0.6, 0.8, 1.0, 1.2])
 		case .o3:  return color(for: record.o3 ?? 0.0, thresholds: [20, 35, 50, 70, 85, 100])
@@ -139,25 +140,13 @@ struct MapView: View {
 
 	private func color(for value: Double, thresholds: [Double]) -> Color {
 		switch value {
-		case ..<thresholds[0]: return .blue
-		case ..<thresholds[1]: return .green
-		case ..<thresholds[2]: return .yellow
-		case ..<thresholds[3]: return .orange
-		case ..<thresholds[4]: return .red
+		case ..<thresholds[0]: return .green
+		case ..<thresholds[1]: return .yellow
+		case ..<thresholds[2]: return .orange
+		case ..<thresholds[3]: return .red
+		case ..<thresholds[4]: return .purple
 		case ..<thresholds[5]: return .crimson
 		default: return .gray.opacity(0.0)
-		}
-	}
-
-	private func colorForAQI(_ aqi: Int) -> Color {
-		switch aqi {
-		case 0..<25: return Color.blue
-		case 25..<50: return Color.green
-		case 50..<75: return Color.yellow
-		case 75..<100: return Color.orange
-		case 100..<150: return Color.red
-		case 150..<200: return Color.crimson
-		default: return Color.gray.opacity(0.0)
 		}
 	}
 }

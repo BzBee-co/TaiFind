@@ -11,13 +11,13 @@ struct LegendView: View {
 	let type: MeasurementType
 
 	var colors: [Color] {
-		[.blue, .green, .yellow, .orange, .red, .crimson]
+		[.green, .yellow, .orange, .red, .purple, .crimson]
 	}
 
 	var values: [String] {
 		switch type {
-//		case .none: return [25, 50, 75, 100, 150, 200].map { "\($0)" }
-		case .aqi: return [25, 50, 75, 100, 150, 200].map { "\($0)" }
+		case .none: return []
+		case .aqi: return [50, 100, 150, 200, 300, 500].map { "\($0)" }
 		case .so2: return [0.4, 0.8, 1.5, 2.5, 3.6, 5.0].map { String(format: "%.1f", $0) }
 		case .co: return [0.2, 0.4, 0.6, 0.8, 1.0, 1.2].map { String(format: "%.1f", $0) }
 		case .o3: return [20, 35, 50, 70, 85, 100].map { "\($0)" }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum MeasurementType: String, CaseIterable, Identifiable {
-//	case none = "None"
+	case none = "None"
 	case aqi = "AQI"
 	case so2 = "SO₂"
 	case co = "CO"
@@ -21,7 +21,7 @@ enum MeasurementType: String, CaseIterable, Identifiable {
 
 	var unit: String {
 		switch self {
-		case .aqi: return ""
+		case .none, .aqi: return ""
 		case .so2, .co: return "ppm"
 		case .o3, .no2: return "ppb"
 		case .pm10, .pm2_5: return "µg/m³"
