@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum MeasurementType: String, CaseIterable, Identifiable {
-	case none = "None"
+	case none = "no layer"
 	case aqi = "AQI"
 	case so2 = "SO₂"
 	case co = "CO"
@@ -16,9 +16,22 @@ enum MeasurementType: String, CaseIterable, Identifiable {
 	case pm10 = "PM₁₀"
 	case pm2_5 = "PM₂.₅"
 	case no2 = "NO₂"
-
+	
 	var id: String { rawValue }
-
+	
+	var fullName: String {
+		switch self {
+		case .none: return "Just the map"
+		case .aqi: return "Air Quality Index"
+		case .so2: return "Sulfur Dioxide"
+		case .co: return "Carbon Monoxide"
+		case .o3: return "Ozone"
+		case .pm10: return "Particulate Matter 10 µm"
+		case .pm2_5: return "Particulate Matter 2.5 µm"
+		case .no2: return "Nitrogen Dioxide"
+		}
+	}
+	
 	var unit: String {
 		switch self {
 		case .none, .aqi: return ""

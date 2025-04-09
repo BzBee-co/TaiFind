@@ -4,10 +4,9 @@ class APIService {
 	static func fetchAQI(completion: @escaping ([AQIRecord]) -> Void) {
 		let urlString = "https://data.moenv.gov.tw/api/v2/aqx_p_432?language=en&offset=0&limit=100&api_key=fedc878f-e137-4b20-ac10-af92e2a43926"
 		guard let url = URL(string: urlString) else { return }
-
+		
 		URLSession.shared.dataTask(with: url) { data, response, error in
 			guard let data = data, error == nil else { return }
-			
 			do {
 				let decodedResponse = try JSONDecoder().decode(AQIData.self, from: data)
 				let records = decodedResponse.records.map { record in
@@ -56,7 +55,7 @@ struct APIRecord: Codable {
 	let pm2_5: String?
 	let no2: String?
 	let publishtime: String
-
+	
 	// Use CodingKeys to match JSON keys to Swift properties if needed.
 	enum CodingKeys: String, CodingKey {
 		case sitename, county, latitude, longitude, aqi, pollutant, status, so2, co, o3, pm10, no2, publishtime

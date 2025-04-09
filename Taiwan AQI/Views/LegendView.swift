@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LegendView: View {
+	@Binding var displayMode: DisplayMode // Binding to the DisplayMode in MapView
 	let type: MeasurementType
 
 	var colors: [Color] {
@@ -17,22 +18,35 @@ struct LegendView: View {
 	var values: [String] {
 		switch type {
 		case .none: return []
-		case .aqi: return [50, 100, 150, 200, 300, 500].map { "\($0)" }
-		case .so2: return [0.4, 0.8, 1.5, 2.5, 3.6, 5.0].map { String(format: "%.1f", $0) }
-		case .co: return [0.2, 0.4, 0.6, 0.8, 1.0, 1.2].map { String(format: "%.1f", $0) }
-		case .o3: return [20, 35, 50, 70, 85, 100].map { "\($0)" }
-		case .pm10: return [20, 40, 60, 80, 100, 120].map { "\($0)" }
-		case .pm2_5: return [10, 20, 30, 40, 50, 60].map { "\($0)" }
-		case .no2: return [1, 2.5, 4, 6, 8, 10].map { String(format: "%.1f", $0) }
+		case .aqi: return [50, 100, 150, 200, 300, 400].map { "\($0)" }
+		case .so2: return [8.0, 65.0, 160.0, 304.0, 604.0, 804.0].map { String(format: "%.1f", $0) }
+		case .co: return [4.4, 9.4, 12.4, 15.4, 30.4, 40.4].map { String(format: "%.1f", $0) }
+		case .o3: return [54, 70, 134, 204, 404, 504].map { "\($0)" }
+		case .pm10: return [30, 75, 190, 354, 424, 504].map { "\($0)" }
+		case .pm2_5: return [12.4, 30.4, 50.4, 125.4, 225.4, 325.4].map { "\($0)" }
+		case .no2: return [21, 100, 360, 649, 1249, 1649].map { "\($0)" }
 		}
 	}
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 4) {
-			Text(type == .aqi ? type.rawValue : "\(type.rawValue) (\(type.unit))")
-				.font(.caption)
-				.fontWeight(.semibold)
-				.foregroundStyle(.white)
+			HStack {
+				Text(type == .aqi ? type.rawValue : "\(type.rawValue) (\(type.unit))")
+					.foregroundStyle(.primary)
+					.font(.caption)
+					.fontWeight(.semibold)
+
+				Spacer()
+				Picker("Display Mode", selection: $displayMode) {
+					ForEach(DisplayMode.allCases, id: \.self) { mode in
+						Text(mode.rawValue)
+							.tag(mode)
+					}
+				}
+				.pickerStyle(.segmented)
+				.frame(maxWidth: 150)
+			}
+
 
 			ZStack {
 				// Colored blocks
@@ -59,11 +73,12 @@ struct LegendView: View {
 			}
 		}
 		.padding(6)
-		.background(Color.black.opacity(0.6))
+		.background(Color(.secondarySystemBackground).opacity(0.6))
 		.cornerRadius(8)
 	}
 }
 
 #Preview {
-	LegendView(type: .co)
+	@Previewable @State var previewDisplayMode: DisplayMode = .heatmap
+	return LegendView(displayMode: $previewDisplayMode, type: .so2)
 }
