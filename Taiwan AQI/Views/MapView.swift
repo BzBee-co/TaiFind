@@ -17,13 +17,15 @@ struct MapView: View {
 	@EnvironmentObject var viewModel: AQIViewModel
 	@Environment(\.dismiss) var dismiss
 	@State var isShowingInfo: Bool = false
-	@State private var displayMode: DisplayMode = .heatmap // State to control display mode
-
+	@State private var displayMode: DisplayMode = .heatmap
+	@State private var selectedMeasurement: MeasurementType = .aqi
+	@State private var selectedRecord: AQIRecord?
+	
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
 		case imagery = "Satellite"
 		case hybrid = "Hybrid"
-
+		
 		var style: MapStyle {
 			switch self {
 			case .standard: .standard
@@ -32,11 +34,10 @@ struct MapView: View {
 			}
 		}
 	}
-
+	
 	@State private var selectedMapStyle: MapStyleOption = .standard
 	@State private var showAnnotations = true
-	@State private var selectedMeasurement: MeasurementType = .aqi
-
+	
 	var body: some View {
 		ZStack {
 			mapLayer
@@ -45,8 +46,13 @@ struct MapView: View {
 		.onAppear {
 			viewModel.fetchAQIData()
 		}
+		.sheet(item: $selectedRecord) { record in
+			LocationDetailsView(record: record)
+				.presentationDragIndicator(.visible)
+				.presentationDetents([.medium])
+		}
 	}
-
+	
 	// MARK: - Map Layer
 	private var mapLayer: some View {
 		Map(
@@ -74,11 +80,15 @@ struct MapView: View {
 							.opacity(0.6)
 					} else if displayMode == .pins {
 						if !valueForPin(record: record).isEmpty {
-							PinView(color: color, value: valueForPin(record: record))
+							Button {
+								selectedRecord = record
+							} label: {
+								PinView(color: color, value: valueForPin(record: record))
+							}
+							.buttonStyle(.plain)
 						}
 					}
 				}
-				.animation(.easeInOut(duration: 0.3), value: displayMode) // Add animation for smoother transition
 			}
 		}
 		.mapStyle(selectedMapStyle.style)
@@ -88,18 +98,19 @@ struct MapView: View {
 				.presentationDragIndicator(.visible)
 		}
 	}
-
+	
 	// MARK: - Controls
 	private var overlayControls: some View {
 		VStack {
 			Spacer()
 			HStack(alignment: .bottom) {
 				Spacer()
-				if selectedMeasurement != .none && showAnnotations {
-					LegendView(displayMode: $displayMode, type: selectedMeasurement) // Pass the binding
+				if showAnnotations {
+					LegendView(displayMode: $displayMode, selectedMeasurement: $selectedMeasurement)
 				}
-
+				
 				VStack(spacing: 2) {
+					twButton
 					menuButton
 					refreshButton
 					infoButton
@@ -111,10 +122,22 @@ struct MapView: View {
 		}
 		.shadow(radius: 10)
 	}
-
+	
 	// MARK: - Control Buttons
 	private var menuButton: some View {
 		Menu {
+			ForEach(MeasurementType.allCases.reversed(), id: \.rawValue) { layer in
+				Button {
+					selectedMeasurement = layer
+				} label: {
+					HStack {
+						Image(systemName: layer == selectedMeasurement ? "checkmark" : "")
+							.font(.caption)
+						Text(layer.fullName)
+					}
+				}
+			}
+			Divider()
 			Picker("Map style", selection: $selectedMapStyle) {
 				ForEach(MapStyleOption.allCases.sorted(by: { $0.rawValue < $1.rawValue }), id: \.rawValue) { mapType in
 					Text(mapType.rawValue)
@@ -122,21 +145,32 @@ struct MapView: View {
 				}
 			}
 			.pickerStyle(.menu)
-
-			Picker("Layer to display", selection: $selectedMeasurement) {
-				ForEach(MeasurementType.allCases, id: \.self) { measurementType in
-					Text("\(measurementType.fullName) (\(measurementType.rawValue))")
-						.font(.caption)
-						.tag(measurementType)
-				}
-			}
-			.pickerStyle(.menu)
-
+			
 		} label: {
 			ControlButton(iconName: "square.3.layers.3d", fontSize: 14, padding: 11)
 		}
 	}
-
+	
+	private var twButton: some View {
+		Button {
+			withAnimation {
+				viewModel.region = MKCoordinateRegion(
+					center: CLLocationCoordinate2D(latitude: 25.033964, longitude: 121.564468),
+					span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1) // adjust for zoom level
+				)
+			}
+		} label: {
+			Image("twSilhouette")
+				.resizable()
+				.scaledToFit()
+				.frame(width: 24, height: 24)
+				.padding(8)
+				.background(Circle().fill(Color(.secondarySystemBackground).opacity(0.6)))
+				.clipShape(Circle())
+				.padding(.bottom, 2)
+		}
+	}
+	
 	private var refreshButton: some View {
 		Button {
 			viewModel.fetchAQIData()
@@ -144,7 +178,7 @@ struct MapView: View {
 			ControlButton(iconName: "arrow.clockwise", fontSize: 14, padding: 12)
 		}
 	}
-
+	
 	private var infoButton: some View {
 		Button {
 			isShowingInfo.toggle()
@@ -152,21 +186,21 @@ struct MapView: View {
 			ControlButton(iconName:"info", fontSize: 18, padding: 14)
 		}
 	}
-
-
+	
+	
 	// MARK: - Helpers
-
+	
 	private func scaleFactor(for region: MKCoordinateRegion) -> CGFloat {
 		let zoomLevel = max(region.span.latitudeDelta, region.span.longitudeDelta)
 		return min(50 / zoomLevel, 1)
 	}
-
+	
 	private func colorFor(record: AQIRecord) -> Color {
 		let value: Double
 		let thresholds: [Double]
-
-		switch selectedMeasurement {
-		case .none: return .clear
+		
+		switch selectedMeasurement { // Use the bound selectedMeasurement
+			//        case .none: return .clear
 		case .aqi:
 			value = Double(record.aqi)
 			thresholds = [50, 100, 150, 200, 300, 400]
@@ -189,10 +223,10 @@ struct MapView: View {
 			value = record.no2 ?? 0
 			thresholds = [21, 100, 360, 649, 1249, 1649]
 		}
-
+		
 		return color(for: value, thresholds: thresholds)
 	}
-
+	
 	private func color(for value: Double, thresholds: [Double]) -> Color {
 		switch value {
 		case ..<thresholds[0]: return .green
@@ -204,9 +238,9 @@ struct MapView: View {
 		default: return .clear
 		}
 	}
-
+	
 	private func valueForPin(record: AQIRecord) -> String {
-		switch selectedMeasurement {
+		switch selectedMeasurement { // Use the bound selectedMeasurement
 		case .aqi: return "\(record.aqi)"
 		case .so2: return record.so2.map { String(format: "%.1f", $0) } ?? ""
 		case .co: return record.co.map { String(format: "%.1f", $0) } ?? ""
@@ -214,7 +248,7 @@ struct MapView: View {
 		case .pm10: return record.pm10.map { String(format: "%.0f", $0) } ?? ""
 		case .pm2_5: return record.pm2_5.map { String(format: "%.1f", $0) } ?? ""
 		case .no2: return record.no2.map { String(format: "%.0f", $0) } ?? ""
-		case .none: return "-"
+			//        case .none: return "-"
 		}
 	}
 }

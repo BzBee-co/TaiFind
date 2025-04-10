@@ -8,16 +8,20 @@
 import SwiftUI
 
 struct LegendView: View {
-	@Binding var displayMode: DisplayMode // Binding to the DisplayMode in MapView
-	let type: MeasurementType
-
+	@Binding var displayMode: DisplayMode
+	@Binding var selectedMeasurement: MeasurementType
+	
 	var colors: [Color] {
-		[.green, .yellow, .orange, .red, .purple, .crimson]
+		switch selectedMeasurement {
+			//			case .none: return []
+		case .aqi, .so2, .co, .o3, .pm10, .pm2_5, .no2:
+			return [.green, .yellow, .orange, .red, .purple, .crimson]
+		}
 	}
-
+	
 	var values: [String] {
-		switch type {
-		case .none: return []
+		switch selectedMeasurement {
+			//			case .none: return []
 		case .aqi: return [50, 100, 150, 200, 300, 400].map { "\($0)" }
 		case .so2: return [8.0, 65.0, 160.0, 304.0, 604.0, 804.0].map { String(format: "%.1f", $0) }
 		case .co: return [4.4, 9.4, 12.4, 15.4, 30.4, 40.4].map { String(format: "%.1f", $0) }
@@ -27,15 +31,14 @@ struct LegendView: View {
 		case .no2: return [21, 100, 360, 649, 1249, 1649].map { "\($0)" }
 		}
 	}
-
+	
 	var body: some View {
 		VStack(alignment: .leading, spacing: 4) {
-			HStack {
-				Text(type == .aqi ? type.rawValue : "\(type.rawValue) (\(type.unit))")
-					.foregroundStyle(.primary)
-					.font(.caption)
+			HStack(alignment: .bottom) {
+				
+				Text("\(selectedMeasurement.rawValue) \(selectedMeasurement.unit)")
+					.font(.subheadline)
 					.fontWeight(.semibold)
-
 				Spacer()
 				Picker("Display Mode", selection: $displayMode) {
 					ForEach(DisplayMode.allCases, id: \.self) { mode in
@@ -46,8 +49,9 @@ struct LegendView: View {
 				.pickerStyle(.segmented)
 				.frame(maxWidth: 150)
 			}
-
-
+			.padding(.bottom, 2)
+			
+			
 			ZStack {
 				// Colored blocks
 				HStack(spacing: 0) {
@@ -59,7 +63,7 @@ struct LegendView: View {
 				}
 				.clipShape(RoundedRectangle(cornerRadius: 10))
 				.frame(height: 20)
-
+				
 				// Threshold labels
 				HStack {
 					ForEach(values.indices, id: \.self) { index in
@@ -80,5 +84,6 @@ struct LegendView: View {
 
 #Preview {
 	@Previewable @State var previewDisplayMode: DisplayMode = .heatmap
-	return LegendView(displayMode: $previewDisplayMode, type: .so2)
+	@Previewable @State var previewSelectedMeasurement: MeasurementType = .aqi
+	return LegendView(displayMode: $previewDisplayMode, selectedMeasurement: $previewSelectedMeasurement)
 }
