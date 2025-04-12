@@ -9,15 +9,15 @@ import SwiftUI
 import MapKit
 
 enum DisplayMode: String, CaseIterable {
-	case heatmap = "Heatmap"
 	case pins = "Pins"
+	case heatmap = "Heatmap"
 }
 
 struct MapView: View {
 	@EnvironmentObject var viewModel: AQIViewModel
 	@Environment(\.dismiss) var dismiss
 	@State var isShowingInfo: Bool = false
-	@State private var displayMode: DisplayMode = .heatmap
+	@State private var displayMode: DisplayMode = .pins
 	@State private var selectedMeasurement: MeasurementType = .aqi
 	@State private var selectedRecord: AQIRecord?
 	
