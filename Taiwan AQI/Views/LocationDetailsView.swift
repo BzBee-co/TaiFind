@@ -30,11 +30,33 @@ struct LocationDetailsView: View {
 	var body: some View {
 		NavigationStack {
 			ScrollView {
-				VStack(alignment: .leading, spacing: 20) {
+				VStack(alignment: .leading) {
+					VStack(alignment: .leading, spacing: 10) {
+						Text(MeasurementType.aqi.fullName)
+							.font(.headline)
+						HStack(alignment: .bottom) {
+							Text(record.value(for: .aqi) ?? "-")
+								.font(.title2)
+								.fontWeight(.bold)
+							Text(record.status)
+								.font(.caption)
+								.fontWeight(.bold)
+								.offset(x: -4, y: -2)
+						}
+						.foregroundStyle(colorForValue(value: record.value(for: .aqi), type: .aqi))
+						
+					}
+					.padding(.horizontal, 8)
+					.padding(.vertical, 8)
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.background(colorForValue(value: record.value(for: .aqi), type: .aqi).opacity(0.2))
+					.clipShape(RoundedRectangle(cornerRadius: 8))
 					
 					
 					LazyVGrid(columns: columns, spacing: 10) {
-						ForEach(MeasurementType.allCases, id: \.self) { type in
+						
+						
+						ForEach(MeasurementType.allCases.filter { $0 != .aqi }, id: \.self) { type in
 							let value = record.value(for: type)
 							let color = colorForValue(value: value, type: type)
 							
@@ -67,12 +89,13 @@ struct LocationDetailsView: View {
 					ToolbarItem(placement: .topBarLeading) {
 						VStack(alignment: .leading) {
 							Text(record.siteName)
-								.font(.title2)
+								.font(.title)
 								.fontWeight(.bold)
-							
-							HStack {
-								Text(record.county)
-									.font(.subheadline)
+							HStack(spacing: 4) {
+								if !record.county.isEmpty {
+									Text(record.county)
+										.font(.subheadline)
+								}
 								Text("(last updated: \(formattedDateTime))")
 									.font(.caption)
 									.foregroundStyle(.secondary)

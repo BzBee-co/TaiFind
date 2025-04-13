@@ -1,7 +1,7 @@
 import Foundation
 import CoreLocation
 
-struct AQIRecord: Identifiable {
+struct AQIRecord: Identifiable, Equatable {
 	let id = UUID()
 	let siteName: String
 	let county: String

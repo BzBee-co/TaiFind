@@ -20,6 +20,7 @@ struct MapView: View {
 	@State private var displayMode: DisplayMode = .pins
 	@State private var selectedMeasurement: MeasurementType = .aqi
 	@State private var selectedRecord: AQIRecord?
+	@State private var recordToCenter: AQIRecord?
 	
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
@@ -46,7 +47,9 @@ struct MapView: View {
 		.onAppear {
 			viewModel.fetchAQIData()
 		}
-		.sheet(item: $selectedRecord) { record in
+		.sheet(item: $selectedRecord, onDismiss: {
+			recordToCenter = nil
+		}) { record in
 			LocationDetailsView(record: record)
 				.presentationDragIndicator(.visible)
 				.presentationDetents([.medium])
@@ -81,11 +84,17 @@ struct MapView: View {
 					} else if displayMode == .pins {
 						if !valueForPin(record: record).isEmpty {
 							Button {
-								selectedRecord = record
+								withAnimation {
+									recordToCenter = record
+								}
 							} label: {
 								PinView(color: color, value: valueForPin(record: record))
+									.scaleEffect(recordToCenter == record ? 1.6 : 1.0)
+									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: recordToCenter == record)
+
 							}
 							.buttonStyle(.plain)
+
 						}
 					}
 				}
@@ -97,6 +106,27 @@ struct MapView: View {
 			InfoView()
 				.presentationDragIndicator(.visible)
 		}
+		
+		.onChange(of: recordToCenter) { oldRecord, newRecord in
+			if let record = newRecord {
+				withAnimation {
+					viewModel.region = MKCoordinateRegion(
+						center: CLLocationCoordinate2D(
+							latitude: record.coordinate.latitude - 0.010,  // Shift upward
+							longitude: record.coordinate.longitude
+						),
+						span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+					)
+				}
+
+				// Delay sheet presentation to give the map time to animate
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+					selectedRecord = record
+				}
+			}
+		}
+
+		
 	}
 	
 	// MARK: - Controls
