@@ -2,7 +2,7 @@ import Foundation
 
 class APIService {
 	static func fetchAQI(completion: @escaping ([AQIRecord]) -> Void) {
-		let urlString = "https://data.moenv.gov.tw/api/v2/aqx_p_432?language=en&offset=0&limit=100&api_key=fedc878f-e137-4b20-ac10-af92e2a43926"
+		let urlString = "https://twaqicache.chabuduo.workers.dev"
 		guard let url = URL(string: urlString) else { return }
 		
 		URLSession.shared.dataTask(with: url) { data, response, error in
