@@ -2,7 +2,8 @@ import Foundation
 
 class APIService {
 	static func fetchAQI(completion: @escaping ([AQIRecord]) -> Void) {
-		let urlString = "https://twaqicache.chabuduo.workers.dev"
+//		let urlString = "https://twaqicache.chabuduo.workers.dev"
+		let urlString = "https://air-quality-proxy.antoimn.workers.dev"
 		guard let url = URL(string: urlString) else { return }
 		
 		URLSession.shared.dataTask(with: url) { data, response, error in

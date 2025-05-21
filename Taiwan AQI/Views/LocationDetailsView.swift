@@ -30,6 +30,20 @@ struct LocationDetailsView: View {
 	var body: some View {
 		NavigationStack {
 			ScrollView {
+				if let pollutant = record.pollutant {
+					if !pollutant.isEmpty {
+						HStack {
+							Text("main pollutant: \(pollutant)")
+								.font(.caption)
+								.fontWeight(.bold)
+								.foregroundStyle(.secondary)
+								.padding(.horizontal)
+								.padding(.top, 4)
+
+							Spacer()
+						}
+					}
+				}
 				GeometryReader { geometry in
 					VStack(alignment: .leading) {
 						VStack(alignment: .leading, spacing: 10) {
@@ -48,11 +62,12 @@ struct LocationDetailsView: View {
 						}
 						.padding(.horizontal, 8)
 						.padding(.vertical, 8)
-						.frame(width: geometry.size.width - 32, alignment: .leading) // Two-column width minus padding
+						.frame(maxWidth: .infinity, alignment: .leading)
 						.background(colorForValue(value: record.value(for: .aqi), type: .aqi).opacity(0.2))
 						.clipShape(RoundedRectangle(cornerRadius: 8))
 
 						LazyVGrid(columns: columns, spacing: 10) {
+							
 							ForEach(MeasurementType.allCases.filter { $0 != .aqi }, id: \.self) { type in
 								let value = record.value(for: type)
 								let color = colorForValue(value: value, type: type)
@@ -85,9 +100,12 @@ struct LocationDetailsView: View {
 			.toolbar {
 				ToolbarItem(placement: .topBarLeading) {
 					VStack(alignment: .leading) {
-						Text(record.siteName)
-							.font(.title)
-							.fontWeight(.bold)
+						HStack(alignment: .bottom) {
+							Text(record.siteName)
+								.font(.title)
+								.fontWeight(.bold)
+							
+						}
 						HStack(alignment: .bottom, spacing: 4) {
 							if !record.county.isEmpty {
 								Text(record.county)
@@ -95,7 +113,6 @@ struct LocationDetailsView: View {
 							}
 							Text("(last updated: \(formattedDateTime))")
 								.font(.caption)
-								.foregroundStyle(.secondary)
 						}
 					}
 				}
