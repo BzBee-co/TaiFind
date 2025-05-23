@@ -102,18 +102,17 @@ struct LocationDetailsView: View {
 					VStack(alignment: .leading) {
 						HStack(alignment: .bottom) {
 							Text(record.siteName)
-								.font(.title)
+								.font(.title2)
 								.fontWeight(.bold)
 							
 						}
 						HStack(alignment: .bottom, spacing: 4) {
 							if !record.county.isEmpty {
 								Text(record.county)
-									.font(.subheadline)
 							}
 							Text("(last updated: \(formattedDateTime))")
-								.font(.caption)
 						}
+						.font(.caption)
 					}
 				}
 			}

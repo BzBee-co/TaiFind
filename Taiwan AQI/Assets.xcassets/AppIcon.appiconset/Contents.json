@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "appIcon6Light.png",
+      "filename" : "Taiwan AQI icon light.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "appIcon6Dark.png",
+      "filename" : "Taiwan AQI icon dark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

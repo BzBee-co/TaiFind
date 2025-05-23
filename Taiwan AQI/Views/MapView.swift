@@ -52,7 +52,7 @@ struct MapView: View {
 		}) { record in
 			LocationDetailsView(record: record)
 				.presentationDragIndicator(.visible)
-				.presentationDetents([.medium])
+				.presentationDetents([.medium, .large])
 		}
 	}
 	
@@ -105,6 +105,7 @@ struct MapView: View {
 		.sheet(isPresented: $isShowingInfo) {
 			InfoView()
 				.presentationDragIndicator(.visible)
+				.presentationDetents([.medium, .large])
 		}
 		
 		.onChange(of: recordToCenter) { oldRecord, newRecord in
