@@ -17,6 +17,7 @@ struct AQIRecord: Identifiable, Equatable {
 	let pm2_5: Double?
 	let no2: Double?
 	let publishtime: String
+	let siteID: String
 	
 	var coordinate: CLLocationCoordinate2D {
 		CLLocationCoordinate2D(latitude: latitude, longitude: longitude)

@@ -180,7 +180,8 @@ extension AQIRecord {
 		pm10: 25.0,
 		pm2_5: 8.0,
 		no2: 15.0,
-		publishtime: "2025-04-10 11:00"
+		publishtime: "2025-04-10 11:00",
+		siteID: "201"
 	)
 	return LocationDetailsView(record: sampleRecord)
 		.environmentObject(AQIViewModel())

@@ -105,7 +105,6 @@ struct MapView: View {
 		.sheet(isPresented: $isShowingInfo) {
 			InfoView()
 				.presentationDragIndicator(.visible)
-				.presentationDetents([.medium, .large])
 		}
 		
 		.onChange(of: recordToCenter) { oldRecord, newRecord in

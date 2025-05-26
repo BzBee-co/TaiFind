@@ -4,6 +4,7 @@ struct InfoView: View {
 	var body: some View {
 		List {
 			Section {
+				
 				VStack(alignment: .leading, spacing: 15) {
 					Text("The Air Quality Index (AQI) developed by Taiwan's Ministry of Environment runs on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.")
 					Text("The AQI reflects the highest concentration of the major pollutants. It provides a single number and a corresponding category to communicate the level of air pollution and its potential health effects.")
@@ -35,6 +36,7 @@ struct InfoView: View {
 					}
 				}
 				.padding(.top, 8)
+				
 			} header: {
 				Text("Understanding Taiwan's AQI")
 					.font(.headline)
@@ -49,6 +51,22 @@ struct InfoView: View {
 						.font(.headline)
 						.fontWeight(.bold)
 				}
+			}
+			
+			Section {
+				VStack(alignment: .leading) {
+					Text("Disclaimer")
+						.fontWeight(.semibold)
+					Text("While we strive to keep all information accurate and up-to-date, this app makes no guarantees about the accuracy, completeness, or reliability of the data provided. The original data is provided by third parties (including the Taiwan government) and may contain errors or become outdated. Use of this data is at your own risk.")
+
+					Text("Data Sources")
+						.fontWeight(.semibold)
+						.padding(.top, 8)
+					Text("This app uses datasets provided by the Taiwan Government Open Data Platform at https://data.moenv.gov.tw/")
+					Text("Licensed under: Open Government Data License v1.0")
+						.font(.caption)
+				}
+				
 			}
 
 		}
