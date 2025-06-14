@@ -2,75 +2,86 @@ import SwiftUI
 
 struct InfoView: View {
 	var body: some View {
-		List {
-			Section {
-				
-				VStack(alignment: .leading, spacing: 15) {
-					Text("The Air Quality Index (AQI) developed by Taiwan's Ministry of Environment runs on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.")
-					Text("The AQI reflects the highest concentration of the major pollutants. It provides a single number and a corresponding category to communicate the level of air pollution and its potential health effects.")
-					Link(destination: URL(string: "https://airtw.moenv.gov.tw/ENG/Information/Standard/AirQualityIndicator.aspx")!, label: {
-						HStack {
-							Text("Learn more on Taiwan MoE's website")
-							Image(systemName: "arrow.up.forward")
-						}
-					})
-						.font(.subheadline)
-				}
-
-				VStack(alignment: .leading) {
-					Text("AQI levels:")
-						.font(.headline)
-						.padding(.bottom, 5)
-					ForEach(sortedAQILevels, id: \.0) { range, description in
-						HStack {
-							Circle()
-								.fill(colorForAQIRange(range: range))
-								.frame(width: 12, height: 12)
-							Text(range)
-								.fontWeight(.semibold)
-							Spacer()
-							Text(description)
-								.foregroundStyle(.secondary)
-						}
-						.padding(.vertical, 2)
-					}
-				}
-				.padding(.top, 8)
-				
-			} header: {
-				Text("Understanding Taiwan's AQI")
-					.font(.headline)
-					.fontWeight(.bold)
-			}
-
-			ForEach(sortedPollutants, id: \.0) { name, description in
+		NavigationStack {
+			List {
 				Section {
-					Text(description)
+					
+					VStack(alignment: .leading, spacing: 15) {
+						Text("The Air Quality Index (AQI) developed by Taiwan's Ministry of Environment runs on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.")
+						Text("The AQI reflects the highest concentration of the major pollutants. It provides a single number and a corresponding category to communicate the level of air pollution and its potential health effects.")
+						Link(destination: URL(string: "https://airtw.moenv.gov.tw/ENG/Information/Standard/AirQualityIndicator.aspx")!, label: {
+							HStack {
+								Text("Learn more on Taiwan MoE's website")
+								Image(systemName: "arrow.up.forward")
+							}
+						})
+						.font(.subheadline)
+					}
+					
+					VStack(alignment: .leading) {
+						Text("AQI levels:")
+							.font(.headline)
+							.padding(.bottom, 5)
+						ForEach(sortedAQILevels, id: \.0) { range, description in
+							HStack {
+								Circle()
+									.fill(colorForAQIRange(range: range))
+									.frame(width: 12, height: 12)
+								Text(range)
+									.fontWeight(.semibold)
+								Spacer()
+								Text(description)
+									.foregroundStyle(.secondary)
+							}
+							.padding(.vertical, 2)
+						}
+					}
+					.padding(.top, 8)
+					
 				} header: {
-					Text(name)
+					Text("Understanding Taiwan's AQI")
 						.font(.headline)
 						.fontWeight(.bold)
 				}
-			}
-			
-			Section {
-				VStack(alignment: .leading) {
-					Text("Disclaimer")
-						.fontWeight(.semibold)
-					Text("While we strive to keep all information accurate and up-to-date, this app makes no guarantees about the accuracy, completeness, or reliability of the data provided. The original data is provided by third parties (including the Taiwan government) and may contain errors or become outdated. Use of this data is at your own risk.")
-
-					Text("Data Sources")
-						.fontWeight(.semibold)
-						.padding(.top, 8)
-					Text("This app uses datasets provided by the Taiwan Government Open Data Platform at https://data.moenv.gov.tw/")
-					Text("Licensed under: Open Government Data License v1.0")
-						.font(.caption)
+				
+				ForEach(sortedPollutants, id: \.0) { name, description in
+					Section {
+						Text(description)
+					} header: {
+						Text(name)
+							.font(.headline)
+							.fontWeight(.bold)
+					}
+				}
+				
+				Section {
+					VStack(alignment: .leading) {
+						Text("Disclaimer")
+							.fontWeight(.semibold)
+						Text("While we strive to keep all information accurate and up-to-date, this app makes no guarantees about the accuracy, completeness, or reliability of the data provided. The original data is provided by third parties (including the Taiwan government) and may contain errors or become outdated. Use of this data is at your own risk.")
+						
+						Text("Data Sources")
+							.fontWeight(.semibold)
+							.padding(.top, 8)
+						Text("This app uses datasets provided by the Taiwan Government Open Data Platform:")
+						
+						Link(destination: URL(string: "https://data.moenv.gov.tw/")!, label: {
+							HStack {
+								Text("visit link")
+								Image(systemName: "arrow.up.forward")
+							}
+						})
+						Text("Licensed under: Open Government Data License v1.0")
+							.font(.caption)
+							.padding(.top, 2)
+					}
+					
 				}
 				
 			}
-
+			.fontDesign(.rounded)
+			.navigationTitle("Information")
 		}
-		.fontDesign(.rounded)
 	}
 
 	private let AQIlevels: [String: String] = [
