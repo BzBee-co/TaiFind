@@ -45,6 +45,43 @@ class APIService {
 			}
 		}.resume()
 	}
+	
+	// MARK: - Taipei Trashcan Data Fetching
+	static func fetchAllTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {
+		let baseURL = "https://data.taipei/api/v1/dataset/267d550f-c6ec-46e0-b8af-fd5a464eb098?scope=resourceAquire"
+		let limit = 200
+		var allRecords: [TrashcanRecord] = []
+		var offset = 0
+		
+		func fetchPage() {
+			let urlString = "\(baseURL)&limit=\(limit)&offset=\(offset)"
+			guard let url = URL(string: urlString) else {
+				completion(allRecords)
+				return
+			}
+			URLSession.shared.dataTask(with: url) { data, response, error in
+				guard let data = data, error == nil else {
+					completion(allRecords)
+					return
+				}
+				do {
+					let decoded = try JSONDecoder().decode(TaipeiTrashcanResponse.self, from: data)
+					let results = decoded.result.results
+					allRecords.append(contentsOf: results)
+					if results.count == limit {
+						offset += limit
+						fetchPage()
+					} else {
+						completion(allRecords)
+					}
+				} catch {
+					print("Failed to decode trashcan JSON: \(error)")
+					completion(allRecords)
+				}
+			}.resume()
+		}
+		fetchPage()
+	}
 }
 
 // MARK: - Decodable Data Structures
@@ -74,5 +111,32 @@ struct APIRecord: Codable {
 		case sitename, county, latitude, longitude, aqi, pollutant, status, so2, co, o3, pm10, no2, publishtime
 		case pm2_5 = "pm2.5"
 		case siteID = "siteid"
+	}
+}
+
+// MARK: - Taipei Trashcan Data Structures
+struct TaipeiTrashcanResponse: Codable {
+	let result: TaipeiTrashcanResult
+}
+
+struct TaipeiTrashcanResult: Codable {
+	let results: [TrashcanRecord]
+}
+
+struct TrashcanRecord: Codable {
+	let id: Int
+	let district: String
+	let address: String
+	let longitude: String
+	let latitude: String
+	let note: String
+	
+	enum CodingKeys: String, CodingKey {
+		case id = "_id"
+		case district = "行政區"
+		case address = "地址"
+		case longitude = "經度"
+		case latitude = "緯度"
+		case note = "備註"
 	}
 }

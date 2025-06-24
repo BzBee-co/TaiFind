@@ -21,6 +21,8 @@ struct MapView: View {
 	@State private var selectedMeasurement: MeasurementType = .aqi
 	@State private var selectedRecord: AQIRecord?
 	@State private var recordToCenter: AQIRecord?
+	@State private var cameraPosition: MapCameraPosition = .automatic
+
 	
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
@@ -29,9 +31,9 @@ struct MapView: View {
 		
 		var style: MapStyle {
 			switch self {
-			case .standard: .standard
-			case .imagery: .imagery
-			case .hybrid: .hybrid
+			case .standard: .standard(elevation: .realistic)
+			case .imagery: .imagery(elevation: .realistic)
+			case .hybrid: .hybrid(elevation: .realistic)
 			}
 		}
 	}
@@ -43,6 +45,13 @@ struct MapView: View {
 		ZStack {
 			mapLayer
 			overlayControls
+			if viewModel.showTrashcans && viewModel.trashcanLoading {
+				Color.black.opacity(0.2).ignoresSafeArea()
+				ProgressView("Loading locations…")
+					.padding(30)
+					.background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
+					.shadow(radius: 10)
+			}
 		}
 		.onAppear {
 			viewModel.fetchAQIData()
@@ -54,47 +63,64 @@ struct MapView: View {
 				.presentationDragIndicator(.visible)
 				.presentationDetents([.medium, .large])
 		}
+		.mapControls {
+
+			MapUserLocationButton()
+		}
 	}
 	
 	// MARK: - Map Layer
 	private var mapLayer: some View {
-		Map(
-			coordinateRegion: $viewModel.region,
-			showsUserLocation: true,
-			annotationItems: showAnnotations ? viewModel.aqiRecords : []
-		) { record in
-			MapAnnotation(coordinate: record.coordinate) {
-				let color = colorFor(record: record)
-				Group {
-					if displayMode == .heatmap {
-						Circle()
-							.fill(
-								RadialGradient(
-									gradient: Gradient(colors: [color, color.opacity(0)]),
-									center: .center,
-									startRadius: 10,
-									endRadius: 50
-								)
-							)
-							.frame(
-								width: 100 * scaleFactor(for: viewModel.region),
-								height: 100 * scaleFactor(for: viewModel.region)
-							)
-							.opacity(0.6)
-					} else if displayMode == .pins {
-						if !valueForPin(record: record).isEmpty {
-							Button {
-								withAnimation {
-									recordToCenter = record
+		Group {
+			if viewModel.showTrashcans {
+				let clusters = viewModel.trashcanAnnotations(for: viewModel.region)
+				Map(
+					coordinateRegion: $viewModel.region,
+					showsUserLocation: true,
+					annotationItems: clusters
+				) { cluster in
+					MapAnnotation(coordinate: cluster.coordinate) {
+						TrashcanPinView(count: cluster.count)
+					}
+				}
+			} else {
+				Map(
+					coordinateRegion: $viewModel.region,
+					showsUserLocation: true,
+					annotationItems: viewModel.aqiRecords
+				) { record in
+					MapAnnotation(coordinate: record.coordinate) {
+						let color = colorFor(record: record)
+						Group {
+							if displayMode == .heatmap {
+								Circle()
+									.fill(
+										RadialGradient(
+											gradient: Gradient(colors: [color, color.opacity(0)]),
+											center: .center,
+											startRadius: 10,
+											endRadius: 50
+										)
+									)
+									.frame(
+										width: 100 * scaleFactor(for: viewModel.region),
+										height: 100 * scaleFactor(for: viewModel.region)
+									)
+									.opacity(0.6)
+							} else if displayMode == .pins {
+								if !valueForPin(record: record).isEmpty {
+									Button {
+										withAnimation {
+											recordToCenter = record
+										}
+									} label: {
+										PinView(color: color, value: valueForPin(record: record))
+											.scaleEffect(recordToCenter == record ? 1.6 : 1.0)
+											.animation(.spring(response: 0.3, dampingFraction: 0.3), value: recordToCenter == record)
+									}
+									.buttonStyle(.plain)
 								}
-							} label: {
-								PinView(color: color, value: valueForPin(record: record))
-									.scaleEffect(recordToCenter == record ? 1.6 : 1.0)
-									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: recordToCenter == record)
-
 							}
-							.buttonStyle(.plain)
-
 						}
 					}
 				}
@@ -125,8 +151,6 @@ struct MapView: View {
 				}
 			}
 		}
-
-		
 	}
 	
 	// MARK: - Controls
@@ -140,9 +164,9 @@ struct MapView: View {
 				}
 				
 				VStack(spacing: 2) {
-					twButton
 					menuButton
 					refreshButton
+					twButton
 					infoButton
 				}
 				.padding(.trailing, 8)
@@ -159,12 +183,28 @@ struct MapView: View {
 			ForEach(MeasurementType.allCases.reversed(), id: \.rawValue) { layer in
 				Button {
 					selectedMeasurement = layer
+					viewModel.showTrashcans = false
+					showAnnotations = true
 				} label: {
 					HStack {
-						Image(systemName: layer == selectedMeasurement ? "checkmark" : "")
+						Image(systemName: (!viewModel.showTrashcans && layer == selectedMeasurement) ? "checkmark" : "")
 							.font(.caption)
 						Text(layer.fullName)
 					}
+				}
+			}
+			Divider()
+			Button {
+				if !viewModel.showTrashcans {
+					viewModel.fetchTrashcanData()
+				}
+				viewModel.showTrashcans = true
+				showAnnotations = false
+			} label: {
+				HStack {
+					Image(systemName: viewModel.showTrashcans ? "checkmark" : "")
+						.font(.caption)
+					Text("Public trash cans")
 				}
 			}
 			Divider()
@@ -175,31 +215,40 @@ struct MapView: View {
 				}
 			}
 			.pickerStyle(.menu)
-			
 		} label: {
-			ControlButton(iconName: "square.3.layers.3d", fontSize: 14, padding: 11)
+			ControlButton(iconName: "square.3.layers.3d", fontSize: 15, padding: 11)
 		}
 	}
 	
 	private var twButton: some View {
 		Button {
 			withAnimation {
-				viewModel.region = MKCoordinateRegion(
-					center: CLLocationCoordinate2D(latitude: 25.033964, longitude: 121.564468),
-					span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1) // adjust for zoom level
-				)
+				if let userLocation = viewModel.locationManager.userLocation {
+					viewModel.region = MKCoordinateRegion(
+						center: userLocation,
+						span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+					)
+				} else {
+					viewModel.region = MKCoordinateRegion(
+						center: CLLocationCoordinate2D(latitude: 25.033964, longitude: 121.564468),
+						span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+					)
+				}
 			}
 		} label: {
-			Image("twSilhouette")
-				.resizable()
-				.scaledToFit()
-				.frame(width: 24, height: 24)
-				.padding(8)
-				.background(Circle().fill(Color(.secondarySystemBackground).opacity(0.6)))
-				.clipShape(Circle())
-				.padding(.bottom, 2)
+			ControlButton(iconName: "location", fontSize: 16, padding: 11)
 		}
 	}
+//			Image("twSilhouette")
+//				.resizable()
+//				.scaledToFit()
+//				.frame(width: 24, height: 24)
+//				.padding(8)
+//				.background(Circle().fill(Color(.secondarySystemBackground).opacity(0.6)))
+//				.clipShape(Circle())
+//				.padding(.bottom, 2)
+//		}
+//	}
 	
 	private var refreshButton: some View {
 		Button {
@@ -286,4 +335,14 @@ struct MapView: View {
 #Preview {
 	MapView()
 		.environmentObject(AQIViewModel())
+}
+
+// Add Identifiable and Hashable conformance to TrashcanRecord
+extension TrashcanRecord: Identifiable, Hashable {
+	static func == (lhs: TrashcanRecord, rhs: TrashcanRecord) -> Bool {
+		lhs.id == rhs.id
+	}
+	func hash(into hasher: inout Hasher) {
+		hasher.combine(id)
+	}
 }
