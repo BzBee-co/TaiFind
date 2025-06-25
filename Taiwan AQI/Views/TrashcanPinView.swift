@@ -10,15 +10,15 @@ import SwiftUI
 struct TrashcanPinView: View {
 	@EnvironmentObject var viewModel: AQIViewModel
 	var count: Int? = nil
-
+	
 	var body: some View {
 		VStack {
 			ZStack {
-				Image(systemName: "circle.fill")
+				Image(systemName: "bubble.middle.bottom.fill")
 					.resizable()
 					.scaledToFit()
-					.frame(width: 30, height: 30)
-					.foregroundStyle(.gray)
+					.frame(width: 32, height: 32)
+					.foregroundStyle(.teal)
 					.padding(6)
 				if let count = count, count > 1 {
 					Text("\(count)")
@@ -26,23 +26,16 @@ struct TrashcanPinView: View {
 						.font(.caption)
 						.fontWeight(.heavy)
 						.fontDesign(.rounded)
+						.offset(y: -2)
 				} else {
-				Image(systemName: "trash")
-					.foregroundStyle(.white)
-					.font(.caption)
-					.fontWeight(.heavy)
-					.fontDesign(.rounded)
+					Image(systemName: "trash")
+						.foregroundStyle(.white)
+						.font(.caption)
+						.fontWeight(.heavy)
+						.fontDesign(.rounded)
+						.offset(y: -3)
+				}
 			}
-			}
-			let triangleOffset: CGFloat = (count ?? 1) > 1 ? -18 : -14
-			Image(systemName: "triangle.fill")
-				.resizable()
-				.scaledToFit()
-				.foregroundStyle(.gray)
-				.frame(width: 10, height: 10)
-				.rotationEffect(.degrees(180))
-				.offset(y: triangleOffset)
-				.padding(.bottom, 40)
 		}
 		.frame(width: 40, height: 40)
 		.offset(y: 10)
@@ -50,5 +43,5 @@ struct TrashcanPinView: View {
 }
 
 #Preview {
-    TrashcanPinView(count: 2)
+	TrashcanPinView(count: 0)
 }

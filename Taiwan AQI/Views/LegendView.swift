@@ -77,7 +77,7 @@ struct LegendView: View {
 			}
 		}
 		.padding(6)
-		.background(Color(.secondarySystemBackground).opacity(0.6))
+		.background(Color(.secondarySystemBackground).opacity(0.8))
 		.cornerRadius(8)
 	}
 }

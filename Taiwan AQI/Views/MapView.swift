@@ -22,7 +22,7 @@ struct MapView: View {
 	@State private var selectedRecord: AQIRecord?
 	@State private var recordToCenter: AQIRecord?
 	@State private var cameraPosition: MapCameraPosition = .automatic
-
+	
 	
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
@@ -62,10 +62,6 @@ struct MapView: View {
 			LocationDetailsView(record: record)
 				.presentationDragIndicator(.visible)
 				.presentationDetents([.medium, .large])
-		}
-		.mapControls {
-
-			MapUserLocationButton()
 		}
 	}
 	
@@ -144,7 +140,7 @@ struct MapView: View {
 						span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
 					)
 				}
-
+				
 				// Delay sheet presentation to give the map time to animate
 				DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
 					selectedRecord = record
@@ -165,10 +161,14 @@ struct MapView: View {
 				
 				VStack(spacing: 2) {
 					menuButton
-					refreshButton
+					if showAnnotations {
+						refreshButton
+					}
 					twButton
 					infoButton
 				}
+				.animation(.easeInOut(duration: 0.25), value: showAnnotations)
+
 				.padding(.trailing, 8)
 				.buttonStyle(.plain)
 			}
@@ -195,11 +195,13 @@ struct MapView: View {
 			}
 			Divider()
 			Button {
-				if !viewModel.showTrashcans {
-					viewModel.fetchTrashcanData()
+				withAnimation {
+					if !viewModel.showTrashcans {
+						viewModel.fetchTrashcanData()
+					}
+					viewModel.showTrashcans = true
+					showAnnotations = false
 				}
-				viewModel.showTrashcans = true
-				showAnnotations = false
 			} label: {
 				HStack {
 					Image(systemName: viewModel.showTrashcans ? "checkmark" : "")
@@ -226,7 +228,7 @@ struct MapView: View {
 				if let userLocation = viewModel.locationManager.userLocation {
 					viewModel.region = MKCoordinateRegion(
 						center: userLocation,
-						span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+						span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
 					)
 				} else {
 					viewModel.region = MKCoordinateRegion(
@@ -239,16 +241,16 @@ struct MapView: View {
 			ControlButton(iconName: "location", fontSize: 16, padding: 11)
 		}
 	}
-//			Image("twSilhouette")
-//				.resizable()
-//				.scaledToFit()
-//				.frame(width: 24, height: 24)
-//				.padding(8)
-//				.background(Circle().fill(Color(.secondarySystemBackground).opacity(0.6)))
-//				.clipShape(Circle())
-//				.padding(.bottom, 2)
-//		}
-//	}
+	//			Image("twSilhouette")
+	//				.resizable()
+	//				.scaledToFit()
+	//				.frame(width: 24, height: 24)
+	//				.padding(8)
+	//				.background(Circle().fill(Color(.secondarySystemBackground).opacity(0.6)))
+	//				.clipShape(Circle())
+	//				.padding(.bottom, 2)
+	//		}
+	//	}
 	
 	private var refreshButton: some View {
 		Button {
@@ -307,16 +309,15 @@ struct MapView: View {
 	}
 	
 	private func color(for value: Double, thresholds: [Double]) -> Color {
-		switch value {
-		case ..<thresholds[0]: return .green
-		case ..<thresholds[1]: return .yellow
-		case ..<thresholds[2]: return .orange
-		case ..<thresholds[3]: return .red
-		case ..<thresholds[4]: return .purple
-		case ..<thresholds[5]: return .crimson
-		default: return .clear
-		}
+		if value <= thresholds[0] { return .green }
+		else if value <= thresholds[1] { return .yellow }
+		else if value <= thresholds[2] { return .orange }
+		else if value <= thresholds[3] { return .red }
+		else if value <= thresholds[4] { return .purple }
+		else if value <= thresholds[5] { return .crimson }
+		else { return .clear }
 	}
+
 	
 	private func valueForPin(record: AQIRecord) -> String {
 		switch selectedMeasurement { // Use the bound selectedMeasurement

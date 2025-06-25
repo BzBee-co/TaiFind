@@ -70,8 +70,8 @@ struct TrashcanCluster: Identifiable {
 extension AQIViewModel {
     // Returns either clusters or individual pins based on zoom/region
     func trashcanAnnotations(for region: MKCoordinateRegion) -> [TrashcanCluster] {
-        let latGrid = region.span.latitudeDelta / 5
-        let lonGrid = region.span.longitudeDelta / 5
+        let latGrid = region.span.latitudeDelta / 10
+        let lonGrid = region.span.longitudeDelta / 10
         var clusters: [String: [TrashcanRecord]] = [:]
         for record in trashcanRecords {
             guard let lat = Double(record.latitude), let lon = Double(record.longitude) else { continue }

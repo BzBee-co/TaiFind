@@ -16,7 +16,7 @@ struct ControlButton: View {
         Image(systemName: iconName)
 			.font(.system(size: fontSize))
 			.padding(padding)
-			.background(Circle().fill(Color(.secondarySystemBackground).opacity(0.6)))
+			.background(Circle().fill(Color(.secondarySystemBackground).opacity(0.8)))
 			.frame(width: 44, height: 44)
     }
 }

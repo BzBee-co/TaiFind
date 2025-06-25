@@ -139,16 +139,15 @@ struct LocationDetailsView: View {
 	}
 
 	private func color(for value: Double, thresholds: [Double]) -> Color {
-		switch value {
-		case ..<thresholds[0]: return .green
-		case ..<thresholds[1]: return .yellow
-		case ..<thresholds[2]: return .orange
-		case ..<thresholds[3]: return .red
-		case ..<thresholds[4]: return .purple
-		case ..<thresholds[5]: return .crimson
-		default: return .clear
-		}
+		if value <= thresholds[0] { return .green }
+		else if value <= thresholds[1] { return .yellow }
+		else if value <= thresholds[2] { return .orange }
+		else if value <= thresholds[3] { return .red }
+		else if value <= thresholds[4] { return .purple }
+		else if value <= thresholds[5] { return .crimson }
+		else { return .clear }
 	}
+
 }
 
 extension AQIRecord {
