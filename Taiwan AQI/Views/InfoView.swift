@@ -5,10 +5,8 @@ struct InfoView: View {
 		NavigationStack {
 			List {
 				Section {
-					
 					VStack(alignment: .leading, spacing: 15) {
-						Text("The Air Quality Index (AQI) developed by Taiwan's Ministry of Environment runs on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.")
-						Text("The AQI reflects the highest concentration of the major pollutants. It provides a single number and a corresponding category to communicate the level of air pollution and its potential health effects.")
+						Text("Think of AQI (Air Quality Index) as a way to measure the quality of the air you breathe, like a score based on the amounts of various pollutants in the air (typically those listed below). The values shown in this app are given by Taiwan's Ministry of Environment and run on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.")
 						Link(destination: URL(string: "https://airtw.moenv.gov.tw/ENG/Information/Standard/AirQualityIndicator.aspx")!, label: {
 							HStack {
 								Text("Learn more on Taiwan MoE's website")
@@ -19,9 +17,9 @@ struct InfoView: View {
 					}
 					
 					VStack(alignment: .leading) {
-						Text("AQI levels:")
-							.font(.headline)
-							.padding(.bottom, 5)
+						Text("AQI levels")
+							.font(.title3)
+							.fontWeight(.bold)
 						ForEach(sortedAQILevels, id: \.0) { range, description in
 							HStack {
 								Circle()
@@ -33,36 +31,47 @@ struct InfoView: View {
 								Text(description)
 									.foregroundStyle(.secondary)
 							}
+						}
+					}
+					
+					VStack(alignment: .leading) {
+						Text("Pollutants")
+							.font(.title3)
+							.fontWeight(.bold)
+							
+						ForEach(sortedPollutants, id: \.0) { name, description in
+							VStack(alignment: .leading) {
+								Text(name)
+									.font(.headline)
+									.fontWeight(.bold)
+								Text(description)
+							}
 							.padding(.vertical, 2)
 						}
 					}
-					.padding(.top, 8)
 					
 				} header: {
-					Text("Understanding Taiwan's AQI")
-						.font(.headline)
+					Text("Air Quality in Taiwan")
+						.font(.title2)
 						.fontWeight(.bold)
-				}
-				
-				ForEach(sortedPollutants, id: \.0) { name, description in
-					Section {
-						Text(description)
-					} header: {
-						Text(name)
-							.font(.headline)
-							.fontWeight(.bold)
-					}
 				}
 				
 				Section {
 					VStack(alignment: .leading) {
-						Text("Disclaimer")
-							.fontWeight(.semibold)
-						Text("While we strive to keep all information accurate and up-to-date, this app makes no guarantees about the accuracy, completeness, or reliability of the data provided. The original data is provided by third parties (including the Taiwan government) and may contain errors or become outdated. Use of this data is at your own risk.")
+						Text("Finding a public trash can in Taipei City can be challenging. This app displays their location so you can easily find those nearest to you.")
+							.padding(.bottom, 4)
+						Text("Disposing of domestic waste in these trash cans is not allowed and doing so may result in fines.")
+							.font(.caption)
+					}
+				} header: {
+					Text("Public trash cans")
+						.font(.title2)
+						.fontWeight(.bold)
+				}
+				
+				Section {
+					VStack(alignment: .leading) {
 						
-						Text("Data Sources")
-							.fontWeight(.semibold)
-							.padding(.top, 8)
 						Text("This app uses datasets provided by the Taiwan Government Open Data Platform:")
 						
 						Link(destination: URL(string: "https://data.moenv.gov.tw/")!, label: {
@@ -71,11 +80,25 @@ struct InfoView: View {
 								Image(systemName: "arrow.up.forward")
 							}
 						})
+						
 						Text("Licensed under: Open Government Data License v1.0")
 							.font(.caption)
 							.padding(.top, 2)
+						
+						Text("Disclaimer")
+							.font(.title3)
+							.fontWeight(.bold)
+							.padding(.top, 8)
+
+						Text("While we strive to keep all information accurate and up-to-date, this app makes no guarantees about the accuracy, completeness, or reliability of the data provided. The original data is provided by third parties (including the Taiwan government) and may contain errors or become outdated. Use of this data is at your own risk.")
+							.padding(.bottom, 8)
+						
 					}
-					
+
+				} header: {
+					Text("Data Sources")
+						.font(.title2)
+						.fontWeight(.bold)
 				}
 				
 			}
