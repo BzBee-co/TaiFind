@@ -1,20 +1,14 @@
 import SwiftUI
 
 struct InfoView: View {
+	@Environment(\.dismiss) var dismiss
+	
 	var body: some View {
 		NavigationStack {
 			List {
 				Section {
-					VStack(alignment: .leading, spacing: 15) {
-						Text("Think of AQI (Air Quality Index) as a way to measure the quality of the air you breathe, like a score based on the amounts of various pollutants in the air (typically those listed below). The values shown in this app are given by Taiwan's Ministry of Environment and run on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.")
-						Link(destination: URL(string: "https://airtw.moenv.gov.tw/ENG/Information/Standard/AirQualityIndicator.aspx")!, label: {
-							HStack {
-								Text("Learn more on Taiwan MoE's website")
-								Image(systemName: "arrow.up.forward")
-							}
-						})
-						.font(.subheadline)
-					}
+					
+						Text("The AQI (Air Quality Index) is a way to measure the quality of the air you breathe, like a score based on the amounts of various pollutants in the air (typically those listed below). The values shown in this app are given by Taiwan's Ministry of Environment and run on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.*")
 					
 					VStack(alignment: .leading) {
 						Text("AQI levels")
@@ -33,6 +27,14 @@ struct InfoView: View {
 							}
 						}
 					}
+					
+					Link(destination: URL(string: "https://airtw.moenv.gov.tw/ENG/Information/Standard/AirQualityIndicator.aspx")!, label: {
+						HStack {
+							Text("Learn more on Taiwan MoE's website")
+							Image(systemName: "arrow.up.forward")
+						}
+					})
+					.font(.subheadline)
 					
 					VStack(alignment: .leading) {
 						Text("Pollutants")
@@ -57,8 +59,16 @@ struct InfoView: View {
 				}
 				
 				Section {
+					Text("See the number of available bikes and open parking docks at each YouBike 2.0 station in Taipei City.*")
+				} header: {
+					Text("YouBike")
+						.font(.title2)
+						.fontWeight(.bold)
+				}
+				
+				Section {
 					VStack(alignment: .leading) {
-						Text("Finding a public trash can in Taipei City can be challenging. This app displays their location so you can easily find those nearest to you.")
+						Text("Finding a public trash can in Taipei City can be challenging. This app displays their location so you can easily find those closest to you.*")
 							.padding(.bottom, 4)
 						Text("Disposing of domestic waste in these trash cans is not allowed and doing so may result in fines.")
 							.font(.caption)
@@ -70,30 +80,35 @@ struct InfoView: View {
 				}
 				
 				Section {
+					Text("This app uses datasets provided by the Taiwan Government Open Data Platform and by the Taipei City Government Open Data Platform, licensed under: Open Government Data License v1.0.")
+					
+					Link(destination: URL(string: "https://data.moenv.gov.tw/")!) {
+						HStack {
+							Text("Taiwan Government Open Data")
+							Image(systemName: "arrow.up.forward")
+						}
+						.font(.subheadline)
+					}
+					
+					Link(destination: URL(string: "https://data.taipei")!) {
+						HStack {
+							Text("Open Taipei")
+							Image(systemName: "arrow.up.forward")
+						}
+						.font(.subheadline)
+					}
+					
 					VStack(alignment: .leading) {
-						
-						Text("This app uses datasets provided by the Taiwan Government Open Data Platform:")
-						
-						Link(destination: URL(string: "https://data.moenv.gov.tw/")!, label: {
-							HStack {
-								Text("visit link")
-								Image(systemName: "arrow.up.forward")
-							}
-						})
-						
-						Text("Licensed under: Open Government Data License v1.0")
-							.font(.caption)
-							.padding(.top, 2)
-						
-						Text("Disclaimer")
+						Text("* Disclaimer")
 							.font(.title3)
 							.fontWeight(.bold)
 							.padding(.top, 8)
-
 						Text("While we strive to keep all information accurate and up-to-date, this app makes no guarantees about the accuracy, completeness, or reliability of the data provided. The original data is provided by third parties (including the Taiwan government) and may contain errors or become outdated. Use of this data is at your own risk.")
 							.padding(.bottom, 8)
-						
 					}
+					
+						
+					
 
 				} header: {
 					Text("Data Sources")
@@ -104,6 +119,17 @@ struct InfoView: View {
 			}
 			.fontDesign(.rounded)
 			.navigationTitle("Information")
+			.navigationBarTitleDisplayMode(.inline)
+			
+			.toolbar {
+				ToolbarItem(placement: .navigationBarTrailing) {
+					Button {
+						dismiss()
+					} label: {
+						Image(systemName: "xmark.circle")
+					}
+				}
+			}
 		}
 	}
 

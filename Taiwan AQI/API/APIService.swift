@@ -82,6 +82,28 @@ class APIService {
 		}
 		fetchPage()
 	}
+	
+	// MARK: - YouBike Data Fetching
+	static func fetchYouBikeStations(completion: @escaping ([YouBikeStation]) -> Void) {
+		let urlString = "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
+		guard let url = URL(string: urlString) else {
+			completion([])
+			return
+		}
+		URLSession.shared.dataTask(with: url) { data, response, error in
+			guard let data = data, error == nil else {
+				completion([])
+				return
+			}
+			do {
+				let stations = try JSONDecoder().decode([YouBikeStation].self, from: data)
+				completion(stations)
+			} catch {
+				print("Failed to decode YouBike JSON: \(error)")
+				completion([])
+			}
+		}.resume()
+	}
 }
 
 // MARK: - Decodable Data Structures
@@ -138,5 +160,24 @@ struct TrashcanRecord: Codable {
 		case longitude = "經度"
 		case latitude = "緯度"
 		case note = "備註"
+	}
+}
+
+// MARK: - YouBike Data Structure
+struct YouBikeStation: Codable, Identifiable, Equatable {
+	var id: String { sno }
+	let sno: String
+	let sna: String
+	let snaen: String
+	let longitude: Double
+	let latitude: Double
+	let available_rent_bikes: Int
+	let available_return_bikes: Int
+	let updateTime: String
+	let infoTime: String
+	let srcUpdateTime: String
+
+	enum CodingKeys: String, CodingKey {
+		case sno, sna, snaen, longitude, latitude, available_rent_bikes, available_return_bikes, updateTime, infoTime, srcUpdateTime
 	}
 }

@@ -2,12 +2,22 @@ import Foundation
 import CoreLocation
 import MapKit
 import Combine
+// Ensure YouBikeStation is visible
+// If needed, add the following line if your project setup requires it:
+// import APIService
+
+// Forward declaration (if needed, but should not be necessary if APIService.swift is in the same module):
+// struct YouBikeStation: Codable, Identifiable {}
+// Remove the above if the real struct is available.
 
 class AQIViewModel: ObservableObject {
     @Published var aqiRecords: [AQIRecord] = []
     @Published var trashcanRecords: [TrashcanRecord] = []
+    @Published var youBikeStations: [YouBikeStation] = []
     @Published var showTrashcans: Bool = false
+    @Published var showYouBikes: Bool = false
     @Published var trashcanLoading: Bool = false
+    @Published var youBikeLoading: Bool = false
     @Published var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
@@ -51,6 +61,16 @@ class AQIViewModel: ObservableObject {
             }
         }
     }
+    
+    func fetchYouBikeStations() {
+        youBikeLoading = true
+        APIService.fetchYouBikeStations { [weak self] stations in
+            DispatchQueue.main.async {
+                self?.youBikeStations = stations
+                self?.youBikeLoading = false
+            }
+        }
+    }
 }
 
 extension CLLocationCoordinate2D {
@@ -86,6 +106,54 @@ extension AQIViewModel {
         }
         // Only show individuals if each cluster is a single trashcan
         if clusterList.count == trashcanRecords.count {
+            return clusterList
+        } else {
+            return clusterList
+        }
+    }
+}
+
+struct YouBikeCluster: Identifiable {
+    let id: String
+    let coordinate: CLLocationCoordinate2D
+    let count: Int
+    let availableRentBikes: Int
+    let availableReturnBikes: Int
+    let updateTime: String
+    let infoTime: String
+    let srcUpdateTime: String
+    let name: String
+}
+
+extension AQIViewModel {
+    func youBikeAnnotations(for region: MKCoordinateRegion) -> [YouBikeCluster] {
+        let latGrid = region.span.latitudeDelta / 10
+        let lonGrid = region.span.longitudeDelta / 10
+        var clusters: [String: [YouBikeStation]] = [:]
+        for station in youBikeStations {
+            let key = CLLocationCoordinate2D(latitude: station.latitude, longitude: station.longitude).gridKey(latGrid: latGrid, lonGrid: lonGrid)
+            clusters[key, default: []].append(station)
+        }
+        let clusterList = clusters.map { (key, stations) -> YouBikeCluster in
+            let first = stations[0]
+            let lat = first.latitude
+            let lon = first.longitude
+            let totalRent = stations.reduce(0) { $0 + $1.available_rent_bikes }
+            let totalReturn = stations.reduce(0) { $0 + $1.available_return_bikes }
+            return YouBikeCluster(
+                id: key,
+                coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon),
+                count: stations.count,
+                availableRentBikes: totalRent,
+                availableReturnBikes: totalReturn,
+                updateTime: first.updateTime,
+                infoTime: first.infoTime,
+                srcUpdateTime: first.srcUpdateTime,
+                name: first.snaen
+            )
+        }
+        // Only show individuals if each cluster is a single station
+        if clusterList.count == youBikeStations.count {
             return clusterList
         } else {
             return clusterList

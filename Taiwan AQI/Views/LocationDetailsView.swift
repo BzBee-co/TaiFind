@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LocationDetailsView: View {
+	@Environment(\.dismiss) private var dismiss
 	let record: AQIRecord // Receive the selected AQIRecord
 
 	let columns: [GridItem] = [
@@ -113,6 +114,14 @@ struct LocationDetailsView: View {
 							Text("(last updated: \(formattedDateTime))")
 						}
 						.font(.caption)
+					}
+				}
+				
+				ToolbarItem(placement: .topBarTrailing) {
+					Button {
+						dismiss()
+					} label: {
+						Image(systemName: "xmark.circle")
 					}
 				}
 			}

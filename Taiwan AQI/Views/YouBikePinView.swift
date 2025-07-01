@@ -1,24 +1,24 @@
 //
-//  TrashcanPinView.swift
+//  YouBikePinView.swift
 //  Taiwan AQI
 //
-//  Created by Antoine Moreau on 2025/6/22.
+//  Created by Antoine Moreau on 2025/6/30.
 //
 
 import SwiftUI
 
-struct TrashcanPinView: View {
+struct YouBikePinView: View {
 	@EnvironmentObject var viewModel: AQIViewModel
 	var count: Int? = nil
 	
-	var body: some View {
+    var body: some View {
 		VStack {
 			ZStack {
 				Image(systemName: "bubble.middle.bottom.fill")
 					.resizable()
 					.scaledToFit()
 					.frame(width: 32, height: 32)
-					.foregroundStyle(.teal.gradient)
+					.foregroundStyle(.indigo.gradient)
 					.padding(6)
 				if let count = count, count > 1 {
 					Text("\(count)")
@@ -28,7 +28,7 @@ struct TrashcanPinView: View {
 						.fontDesign(.rounded)
 						.offset(y: -2)
 				} else {
-					Image(systemName: "trash")
+					Image(systemName: "bicycle")
 						.foregroundStyle(.white)
 						.font(.caption)
 						.fontWeight(.heavy)
@@ -37,11 +37,9 @@ struct TrashcanPinView: View {
 				}
 			}
 		}
-		.frame(width: 40, height: 40)
-		.offset(y: 10)
-	}
+    }
 }
 
 #Preview {
-	TrashcanPinView(count: 0)
+    YouBikePinView()
 }
