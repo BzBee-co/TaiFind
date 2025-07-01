@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import CoreLocation
 
 enum DisplayMode: String, CaseIterable {
 	case pins = "Pins"
@@ -24,6 +25,8 @@ struct MapView: View {
 	@State private var cameraPosition: MapCameraPosition = .automatic
 	@State private var selectedYouBikeStation: YouBikeStation?
 	@State private var youBikeStationToCenter: YouBikeStation?
+	@State private var pendingAQIRecord: AQIRecord?
+	@State private var pendingYouBikeStation: YouBikeStation?
 	
 	
 	enum MapStyleOption: String, CaseIterable {
@@ -86,10 +89,16 @@ struct MapView: View {
 		Group {
 			if viewModel.showTrashcans {
 				let clusters = viewModel.trashcanAnnotations(for: viewModel.region)
+				let center = viewModel.region.center
+				let filteredClusters = clusters.filter { cluster in
+					let clusterLocation = CLLocation(latitude: cluster.coordinate.latitude, longitude: cluster.coordinate.longitude)
+					let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
+					return clusterLocation.distance(from: centerLocation) <= 1000
+				}
 				Map(
 					coordinateRegion: $viewModel.region,
 					showsUserLocation: true,
-					annotationItems: clusters
+					annotationItems: filteredClusters
 				) { cluster in
 					MapAnnotation(coordinate: cluster.coordinate) {
 						TrashcanPinView(count: cluster.count)
@@ -97,13 +106,30 @@ struct MapView: View {
 				}
 			} else if viewModel.showYouBikes {
 				let clusters = viewModel.youBikeAnnotations(for: viewModel.region)
+				let center = viewModel.region.center
+				let filteredClusters = clusters.filter { cluster in
+					let clusterLocation = CLLocation(latitude: cluster.coordinate.latitude, longitude: cluster.coordinate.longitude)
+					let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
+					return clusterLocation.distance(from: centerLocation) <= 1000
+				}
 				Map(
 					coordinateRegion: $viewModel.region,
 					showsUserLocation: true,
-					annotationItems: clusters
+					annotationItems: filteredClusters
 				) { cluster in
 					MapAnnotation(coordinate: cluster.coordinate) {
-						youBikePin(for: cluster)
+						if cluster.count == 1, let station = viewModel.youBikeStations.first(where: { $0.latitude == cluster.coordinate.latitude && $0.longitude == cluster.coordinate.longitude }) {
+							Button {
+								pendingYouBikeStation = station
+							} label: {
+								YouBikePinView(count: nil)
+									.scaleEffect(youBikeStationToCenter == station ? 1.6 : 1.0)
+									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: youBikeStationToCenter == station)
+							}
+							.buttonStyle(.plain)
+						} else {
+							YouBikePinView(count: cluster.count)
+						}
 					}
 				}
 			} else {
@@ -133,9 +159,7 @@ struct MapView: View {
 							} else if displayMode == .pins {
 								if !valueForPin(record: record).isEmpty {
 									Button {
-										withAnimation {
-											recordToCenter = record
-										}
+										pendingAQIRecord = record
 									} label: {
 										PinView(color: color, value: valueForPin(record: record))
 											.scaleEffect(recordToCenter == record ? 1.6 : 1.0)
@@ -156,44 +180,84 @@ struct MapView: View {
 				.presentationDragIndicator(.visible)
 		}
 		
+		.onChange(of: pendingAQIRecord) { oldRecord, newRecord in
+			guard let record = newRecord else { return }
+			// Step 1: Center
+			withAnimation(.easeInOut(duration: 0.5)) {
+				viewModel.region = MKCoordinateRegion(
+					center: CLLocationCoordinate2D(
+						latitude: record.coordinate.latitude - 0.010,
+						longitude: record.coordinate.longitude
+					),
+					span: viewModel.region.span
+				)
+			}
+			recordToCenter = record
+		}
 		.onChange(of: recordToCenter) { oldRecord, newRecord in
-			if let record = newRecord {
-				withAnimation {
+			guard let record = newRecord else { return }
+			// Step 2: Zoom
+			let targetSpan = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+			if abs(viewModel.region.span.latitudeDelta - targetSpan.latitudeDelta) > 0.0001 || abs(viewModel.region.span.longitudeDelta - targetSpan.longitudeDelta) > 0.0001 {
+				withAnimation(.easeInOut(duration: 0.5)) {
 					viewModel.region = MKCoordinateRegion(
 						center: CLLocationCoordinate2D(
-							latitude: record.coordinate.latitude - 0.010,  // Shift upward
+							latitude: record.coordinate.latitude - 0.010,
 							longitude: record.coordinate.longitude
 						),
-						span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+						span: targetSpan
 					)
 				}
-				
-				// Delay sheet presentation to give the map time to animate
-				DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-					selectedAirQualityRecord = record
-				}
+			}
+			// Step 3: Present sheet
+			if abs(viewModel.region.span.latitudeDelta - targetSpan.latitudeDelta) < 0.0001 && abs(viewModel.region.span.longitudeDelta - targetSpan.longitudeDelta) < 0.0001 {
+				selectedAirQualityRecord = record
+				pendingAQIRecord = nil
 			}
 		}
+		.onChange(of: selectedAirQualityRecord) { newValue in
+			if newValue == nil {
+				recordToCenter = nil
+			}
+		}
+		.onChange(of: pendingYouBikeStation) { oldStation, newStation in
+			guard let station = newStation else { return }
+			// Step 1: Center
+			withAnimation(.easeInOut(duration: 0.5)) {
+				viewModel.region = MKCoordinateRegion(
+					center: CLLocationCoordinate2D(
+						latitude: station.latitude - 0.002,
+						longitude: station.longitude
+					),
+					span: viewModel.region.span
+				)
+			}
+			youBikeStationToCenter = station
+		}
 		.onChange(of: youBikeStationToCenter) { oldStation, newStation in
-			if let station = newStation {
-				APIService.fetchYouBikeStations { stations in
-					DispatchQueue.main.async {
-						viewModel.youBikeStations = stations
-						withAnimation {
-							viewModel.region = MKCoordinateRegion(
-								center: CLLocationCoordinate2D(
-									latitude: station.latitude - 0.002,  // Shift upward
-									longitude: station.longitude
-								),
-								span: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
-							)
-						}
-						// Delay sheet presentation to give the map time to animate
-						DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-							selectedYouBikeStation = stations.first(where: { $0.sno == station.sno }) ?? station
-						}
-					}
+			guard let station = newStation else { return }
+			// Step 2: Zoom
+			let targetSpan = MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
+			if abs(viewModel.region.span.latitudeDelta - targetSpan.latitudeDelta) > 0.0001 || abs(viewModel.region.span.longitudeDelta - targetSpan.longitudeDelta) > 0.0001 {
+				withAnimation(.easeInOut(duration: 0.5)) {
+					viewModel.region = MKCoordinateRegion(
+						center: CLLocationCoordinate2D(
+							latitude: station.latitude - 0.002,
+							longitude: station.longitude
+						),
+						span: targetSpan
+					)
 				}
+			}
+			// Step 3: Present sheet
+			if abs(viewModel.region.span.latitudeDelta - targetSpan.latitudeDelta) < 0.0001 && abs(viewModel.region.span.longitudeDelta - targetSpan.longitudeDelta) < 0.0001 {
+				selectedYouBikeStation = station
+				pendingYouBikeStation = nil
+			}
+		}
+		.onChange(of: selectedYouBikeStation) { newValue in
+			if newValue == nil {
+				youBikeStationToCenter = nil
 			}
 		}
 	}
@@ -420,8 +484,13 @@ struct MapView: View {
 }
 
 #Preview {
-	MapView()
-		.environmentObject(AQIViewModel())
+	let viewModel = AQIViewModel()
+	viewModel.region = MKCoordinateRegion(
+		center: CLLocationCoordinate2D(latitude: 25.0336, longitude: 121.565),
+		span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+	)
+	return MapView()
+		.environmentObject(viewModel)
 }
 
 // Add Identifiable and Hashable conformance to TrashcanRecord

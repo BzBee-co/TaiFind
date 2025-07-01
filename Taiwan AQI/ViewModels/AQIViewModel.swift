@@ -19,7 +19,7 @@ class AQIViewModel: ObservableObject {
     @Published var trashcanLoading: Bool = false
     @Published var youBikeLoading: Bool = false
     @Published var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
+        center: CLLocationCoordinate2D(latitude: 25.0336, longitude: 121.565),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     
