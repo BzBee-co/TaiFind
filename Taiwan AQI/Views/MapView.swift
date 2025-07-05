@@ -327,7 +327,6 @@ extension MeasurementType {
 	func displayValue(for record: AQIRecord) -> String {
 		let value = value(in: record)
 		switch self {
-		case .pm10, .no2: return String(format: "%.0f", value)
 		case .aqi: return String(Int(value))
 		default: return String(format: "%.1f", value)
 		}
