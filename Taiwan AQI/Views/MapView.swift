@@ -1,9 +1,7 @@
-//
 //  MapView.swift
 //  Taiwan AQI
 //
 //  Created by Antoine Moreau on 2025/3/30.
-//
 
 import SwiftUI
 import MapKit
@@ -41,9 +39,11 @@ struct MapView: View {
 	@State private var cameraPosition: MapCameraPosition = .automatic
 	@State private var selectedYouBikeStation: YouBikeStation?
 	@State private var youBikeStationToCenter: YouBikeStation?
-	@State private var pendingAQIRecord: AQIRecord?
-	@State private var pendingYouBikeStation: YouBikeStation?
 	@State private var selectedLayer: MapLayerType = .aqi
+	@State private var selectedMapStyle: MapStyleOption = .standard
+	@State private var showAnnotations = true
+	@State private var bouncingRecord: AQIRecord?
+	@State private var bouncingYouBikeStation: YouBikeStation?
 
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
@@ -52,15 +52,12 @@ struct MapView: View {
 
 		var style: MapStyle {
 			switch self {
-			case .standard: .standard(elevation: .realistic)
-			case .imagery: .imagery(elevation: .realistic)
-			case .hybrid: .hybrid(elevation: .realistic)
+			case .standard: return .standard(elevation: .realistic)
+			case .imagery: return .imagery(elevation: .realistic)
+			case .hybrid: return .hybrid(elevation: .realistic)
 			}
 		}
 	}
-
-	@State private var selectedMapStyle: MapStyleOption = .standard
-	@State private var showAnnotations = true
 
 	var body: some View {
 		ZStack {
@@ -109,22 +106,27 @@ struct MapView: View {
 			}
 		}
 		.sheet(item: $selectedAirQualityRecord, onDismiss: {
-			recordToCenter = nil
-		}) { record in
-			LocationDetailsView(record: record)
+			withAnimation(.spring(response: 0.3, dampingFraction: 0.3)) {
+				bouncingRecord = nil
+				recordToCenter = nil
+			}
+		}) {
+			LocationDetailsView(record: $0)
 				.presentationDragIndicator(.visible)
 				.presentationDetents([.medium, .large])
 		}
 		.sheet(item: $selectedYouBikeStation, onDismiss: {
-			youBikeStationToCenter = nil
-		}) { station in
-			YouBikeStationDetailsView(station: station)
+			withAnimation(.spring(response: 0.3, dampingFraction: 0.3)) {
+				bouncingYouBikeStation = nil
+				youBikeStationToCenter = nil
+			}
+		}) {
+			YouBikeStationDetailsView(station: $0)
 				.presentationDragIndicator(.visible)
 				.presentationDetents([.medium, .large])
 		}
 	}
 
-	// MARK: - Map Layer
 	private var mapLayer: some View {
 		Group {
 			if viewModel.showTrashcans {
@@ -143,20 +145,12 @@ struct MapView: View {
 		}
 	}
 
-	// MARK: - Smaller map components
-
 	private var trashcanMap: some View {
-		let clusters = viewModel.trashcanAnnotations(for: viewModel.region)
-		let center = viewModel.region.center
-		let filteredClusters = clusters.filter { cluster in
-			let clusterLocation = CLLocation(latitude: cluster.coordinate.latitude, longitude: cluster.coordinate.longitude)
-			let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
-			return clusterLocation.distance(from: centerLocation) <= 1000
-		}
-		return Map(
+		Map(
 			coordinateRegion: $viewModel.region,
 			showsUserLocation: true,
-			annotationItems: filteredClusters
+			annotationItems: viewModel.trashcanAnnotations(for: viewModel.region)
+				.filter { isWithin1km(of: viewModel.region.center, coordinate: $0.coordinate) }
 		) { cluster in
 			MapAnnotation(coordinate: cluster.coordinate) {
 				TrashcanPinView(count: cluster.count)
@@ -165,20 +159,39 @@ struct MapView: View {
 	}
 
 	private var youBikeMap: some View {
-		let clusters = viewModel.youBikeAnnotations(for: viewModel.region)
-		let center = viewModel.region.center
-		let filteredClusters = clusters.filter { cluster in
-			let clusterLocation = CLLocation(latitude: cluster.coordinate.latitude, longitude: cluster.coordinate.longitude)
-			let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
-			return clusterLocation.distance(from: centerLocation) <= 1000
-		}
-		return Map(
+		Map(
 			coordinateRegion: $viewModel.region,
 			showsUserLocation: true,
-			annotationItems: filteredClusters
+			annotationItems: viewModel.youBikeAnnotations(for: viewModel.region)
+				.filter { isWithin1km(of: viewModel.region.center, coordinate: $0.coordinate) }
 		) { cluster in
 			MapAnnotation(coordinate: cluster.coordinate) {
-				youBikePin(for: cluster)
+				if cluster.count == 1,
+					let station = viewModel.youBikeStations.first(where: {
+						abs($0.latitude - cluster.coordinate.latitude) < 0.00001 &&
+						abs($0.longitude - cluster.coordinate.longitude) < 0.00001
+					}) {
+					Button {
+						withAnimation(.easeInOut(duration: 0.5)) {
+							youBikeStationToCenter = station
+							bouncingYouBikeStation = station
+							viewModel.region = MKCoordinateRegion(
+								center: CLLocationCoordinate2D(latitude: station.latitude - 0.002, longitude: station.longitude),
+								span: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
+							)
+						}
+						DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+							selectedYouBikeStation = station
+						}
+					} label: {
+						YouBikePinView(count: nil)
+							.scaleEffect(bouncingYouBikeStation == station ? 1.6 : 1.0)
+							.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingYouBikeStation == station)
+					}
+					.buttonStyle(.plain)
+				} else {
+					YouBikePinView(count: cluster.count)
+				}
 			}
 		}
 	}
@@ -190,42 +203,36 @@ struct MapView: View {
 			annotationItems: viewModel.aqiRecords
 		) { record in
 			MapAnnotation(coordinate: record.coordinate) {
-				let color = colorFor(record: record)
-				Group {
-					if displayMode == .heatmap {
-						Circle()
-							.fill(
-								RadialGradient(
-									gradient: Gradient(colors: [color, color.opacity(0)]),
-									center: .center,
-									startRadius: 10,
-									endRadius: 50
-								)
+				let color = selectedMeasurement.color(for: selectedMeasurement.value(in: record))
+				if displayMode == .heatmap {
+					Circle()
+						.fill(RadialGradient(gradient: Gradient(colors: [color, color.opacity(0)]), center: .center, startRadius: 10, endRadius: 50))
+						.frame(width: 100, height: 100)
+						.opacity(0.6)
+				} else {
+					Button {
+						withAnimation(.easeInOut(duration: 0.5)) {
+							recordToCenter = record
+							bouncingRecord = record
+							viewModel.region = MKCoordinateRegion(
+								center: CLLocationCoordinate2D(latitude: record.coordinate.latitude - 0.010, longitude: record.coordinate.longitude),
+								span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
 							)
-							.frame(
-								width: 100 * scaleFactor(for: viewModel.region),
-								height: 100 * scaleFactor(for: viewModel.region)
-							)
-							.opacity(0.6)
-					} else if displayMode == .pins {
-						if !valueForPin(record: record).isEmpty {
-							Button {
-								pendingAQIRecord = record
-							} label: {
-								PinView(color: color, value: valueForPin(record: record))
-									.scaleEffect(recordToCenter == record ? 1.6 : 1.0)
-									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: recordToCenter == record)
-							}
-							.buttonStyle(.plain)
 						}
+						DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+							selectedAirQualityRecord = record
+						}
+					} label: {
+						PinView(color: color, value: selectedMeasurement.displayValue(for: record))
+							.scaleEffect(bouncingRecord == record ? 1.6 : 1.0)
+							.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingRecord == record)
 					}
+					.buttonStyle(.plain)
 				}
 			}
 		}
 	}
 
-
-	// MARK: - Controls
 	private var overlayControls: some View {
 		VStack {
 			Spacer()
@@ -234,7 +241,6 @@ struct MapView: View {
 				if showAnnotations {
 					LegendView(displayMode: $displayMode, selectedMeasurement: $selectedMeasurement)
 				}
-
 				VStack(spacing: 2) {
 					menuButton
 					if !viewModel.showTrashcans {
@@ -243,35 +249,26 @@ struct MapView: View {
 					locationButton
 					infoButton
 				}
-				.animation(.easeInOut(duration: 0.25), value: showAnnotations)
-				.padding(.trailing, 8)
 				.buttonStyle(.plain)
+				.padding(.trailing, 8)
 			}
 			.padding(.bottom, 30)
 		}
-		.shadow(radius: 10)
 	}
 
-	// MARK: - Control Buttons
 	private var menuButton: some View {
 		Menu {
 			Picker("Layer", selection: $selectedLayer) {
 				ForEach(MapLayerType.allCases) { layer in
-					Label(layer.rawValue, systemImage: layer.icon)
-						.tag(layer)
+					Label(layer.rawValue, systemImage: layer.icon).tag(layer)
 				}
 			}
-
 			Divider()
-
 			Picker("Map style", selection: $selectedMapStyle) {
-				ForEach(MapStyleOption.allCases.sorted(by: { $0.rawValue < $1.rawValue }), id: \.rawValue) { mapType in
-					Text(mapType.rawValue)
-						.tag(mapType)
+				ForEach(MapStyleOption.allCases, id: \.self) { type in
+					Text(type.rawValue).tag(type)
 				}
 			}
-			.pickerStyle(.menu)
-
 		} label: {
 			ControlButton(iconName: "square.3.layers.3d", fontSize: 15, padding: 11)
 		}
@@ -279,18 +276,8 @@ struct MapView: View {
 
 	private var locationButton: some View {
 		Button {
-			withAnimation {
-				if let userLocation = viewModel.locationManager.userLocation {
-					viewModel.region = MKCoordinateRegion(
-						center: userLocation,
-						span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
-					)
-				} else {
-					viewModel.region = MKCoordinateRegion(
-						center: CLLocationCoordinate2D(latitude: 25.033964, longitude: 121.564468),
-						span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-					)
-				}
+			if let loc = viewModel.locationManager.userLocation {
+				viewModel.region = MKCoordinateRegion(center: loc, span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005))
 			}
 		} label: {
 			ControlButton(iconName: "location", fontSize: 16, padding: 11)
@@ -313,91 +300,49 @@ struct MapView: View {
 		Button {
 			isShowingInfo.toggle()
 		} label: {
-			ControlButton(iconName:"info", fontSize: 18, padding: 14)
+			ControlButton(iconName: "info", fontSize: 18, padding: 14)
 		}
 	}
 
-	// MARK: - Helpers
-
-	private func scaleFactor(for region: MKCoordinateRegion) -> CGFloat {
-		let zoomLevel = max(region.span.latitudeDelta, region.span.longitudeDelta)
-		return min(50 / zoomLevel, 1)
+	private func isWithin1km(of center: CLLocationCoordinate2D, coordinate: CLLocationCoordinate2D) -> Bool {
+		let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
+		let checkLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+		return centerLocation.distance(from: checkLocation) <= 1000
 	}
+}
 
-	private func colorFor(record: AQIRecord) -> Color {
-		let value: Double
-		
-		switch selectedMeasurement {
-		case .aqi:
-			value = Double(record.aqi)
-		case .so2:
-			value = record.so2 ?? 0
-		case .co:
-			value = record.co ?? 0
-		case .o3:
-			value = record.o3 ?? 0
-		case .pm10:
-			value = record.pm10 ?? 0
-		case .pm2_5:
-			value = record.pm2_5 ?? 0
-		case .no2:
-			value = record.no2 ?? 0
-		}
-		
-		return selectedMeasurement.color(for: value)
-	}
-
-	private func valueForPin(record: AQIRecord) -> String {
-		let value: Double?
-		switch selectedMeasurement {
-		case .aqi:
-			return "\(record.aqi)"
-		case .so2:
-			value = record.so2
-		case .co:
-			value = record.co
-		case .o3:
-			value = record.o3
-		case .pm10:
-			value = record.pm10
-		case .pm2_5:
-			value = record.pm2_5
-		case .no2:
-			value = record.no2
-		}
-
-		guard let v = value else { return "" }
-		switch selectedMeasurement {
-		case .pm10, .no2:
-			return String(format: "%.0f", v)
-		default:
-			return String(format: "%.1f", v)
+extension MeasurementType {
+	func value(in record: AQIRecord) -> Double {
+		switch self {
+		case .aqi: return Double(record.aqi)
+		case .so2: return record.so2 ?? 0
+		case .co: return record.co ?? 0
+		case .o3: return record.o3 ?? 0
+		case .pm10: return record.pm10 ?? 0
+		case .pm2_5: return record.pm2_5 ?? 0
+		case .no2: return record.no2 ?? 0
 		}
 	}
 
-	@ViewBuilder
-	private func youBikePin(for cluster: YouBikeCluster) -> some View {
-		if cluster.count == 1,
-		   let station = viewModel.youBikeStations.first(where: {
-			   $0.latitude == cluster.coordinate.latitude && $0.longitude == cluster.coordinate.longitude
-		   }) {
-
-			Button {
-				withAnimation {
-					youBikeStationToCenter = station
-				}
-			} label: {
-				YouBikePinView(count: nil)
-					.scaleEffect(youBikeStationToCenter == station ? 1.6 : 1.0)
-					.animation(.spring(response: 0.3, dampingFraction: 0.3), value: youBikeStationToCenter == station)
-			}
-			.buttonStyle(.plain)
-
-		} else {
-			YouBikePinView(count: cluster.count)
+	func displayValue(for record: AQIRecord) -> String {
+		let value = value(in: record)
+		switch self {
+		case .pm10, .no2: return String(format: "%.0f", value)
+		case .aqi: return String(Int(value))
+		default: return String(format: "%.1f", value)
 		}
 	}
 }
+
+extension TrashcanRecord: Identifiable, Hashable {
+	static func == (lhs: TrashcanRecord, rhs: TrashcanRecord) -> Bool {
+		lhs.id == rhs.id
+	}
+	func hash(into hasher: inout Hasher) {
+		hasher.combine(id)
+	}
+}
+
 
 #Preview {
 	let viewModel = AQIViewModel()
@@ -407,14 +352,4 @@ struct MapView: View {
 	)
 	return MapView()
 		.environmentObject(viewModel)
-}
-
-// Add Identifiable and Hashable conformance to TrashcanRecord
-extension TrashcanRecord: Identifiable, Hashable {
-	static func == (lhs: TrashcanRecord, rhs: TrashcanRecord) -> Bool {
-		lhs.id == rhs.id
-	}
-	func hash(into hasher: inout Hasher) {
-		hasher.combine(id)
-	}
 }
