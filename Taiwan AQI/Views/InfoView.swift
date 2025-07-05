@@ -8,25 +8,74 @@ struct InfoView: View {
 			List {
 				Section {
 					
-						Text("The AQI (Air Quality Index) is a way to measure the quality of the air you breathe, like a score based on the amounts of various pollutants in the air (typically those listed below). The values shown in this app are given by Taiwan's Ministry of Environment and run on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.*")
+					Text("The AQI (Air Quality Index) is a way to measure the quality of the air you breathe, like a score based on the amounts of various pollutants in the air (typically those listed below). The values shown in this app are given by Taiwan's Ministry of Environment and run on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.*")
 					
-					VStack(alignment: .leading) {
-						Text("AQI levels")
+					VStack(alignment: .leading, spacing: 12) {
+						Text("Air Quality Indicators")
 							.font(.title3)
 							.fontWeight(.bold)
-						ForEach(sortedAQILevels, id: \.0) { range, description in
-							HStack {
-								Circle()
-									.fill(colorForAQIRange(range: range))
-									.frame(width: 12, height: 12)
-								Text(range)
-									.fontWeight(.semibold)
-								Spacer()
-								Text(description)
-									.foregroundStyle(.secondary)
+						
+						ScrollView(.horizontal, showsIndicators: false) {
+							HStack(spacing: 16) {
+								ForEach(MeasurementType.allCases, id: \.self) { type in
+									VStack(alignment: .leading, spacing: 4) {
+										
+										Text(type.fullName)
+											.font(.headline)
+											.fontWeight(.bold)
+										
+										let tierDescriptions = [
+											"Clean",
+											"Moderate",
+											"Unhealthy for Sensitive Groups",
+											"Unhealthy",
+											"Very Unhealthy",
+											"Hazardous"
+										]
+										
+										ForEach(Array(type.thresholds.enumerated()), id: \.offset) { index, value in
+											HStack(alignment: .top) {
+												Circle()
+													.fill(type.color(for: value))
+													.frame(width: 10, height: 10)
+												
+												Text(
+													formatted(value, for: type)
+														.replacingOccurrences(of: "(", with: "")
+														.replacingOccurrences(of: ")", with: "")
+												)
+												.font(.caption)
+												Text(tierDescriptions[index])
+													.font(.caption2)
+													.foregroundColor(.secondary)
+												
+											}
+										}
+									}
+									
+									.padding()
+									.frame(maxWidth: .infinity * 0.8)
+									.frame(alignment: .leading)
+									.background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)))
+									.shadow(radius: 2)
+								}
 							}
+							.padding(8)
 						}
 					}
+
+					
+					ForEach(pollutants.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+						VStack(alignment: .leading) {
+							Text(key)
+								.font(.headline)
+							Text(value[0])
+							Text(value[1])
+								.font(.caption)
+								.foregroundStyle(.secondary)
+						}
+					}
+					
 					
 					Link(destination: URL(string: "https://airtw.moenv.gov.tw/ENG/Information/Standard/AirQualityIndicator.aspx")!, label: {
 						HStack {
@@ -36,21 +85,6 @@ struct InfoView: View {
 					})
 					.font(.subheadline)
 					
-					VStack(alignment: .leading) {
-						Text("Pollutants")
-							.font(.title3)
-							.fontWeight(.bold)
-							
-						ForEach(sortedPollutants, id: \.0) { name, description in
-							VStack(alignment: .leading) {
-								Text(name)
-									.font(.headline)
-									.fontWeight(.bold)
-								Text(description)
-							}
-							.padding(.vertical, 2)
-						}
-					}
 					
 				} header: {
 					Text("Air Quality in Taiwan")
@@ -107,9 +141,9 @@ struct InfoView: View {
 							.padding(.bottom, 8)
 					}
 					
-						
 					
-
+					
+					
 				} header: {
 					Text("Data Sources")
 						.font(.title2)
@@ -132,59 +166,31 @@ struct InfoView: View {
 			}
 		}
 	}
-
-	private let AQIlevels: [String: String] = [
-		"0-50": "Clean",
-		"51-100": "Moderate",
-		"101-150": "Unhealthy for Sensitive Groups",
-		"151-200": "Unhealthy",
-		"201-300": "Very Unhealthy",
-		"301-500": "Hazardous"
+	
+	
+	
+	
+	private let pollutants: [String: [String]] = [
+		"Carbon monoxide (CO)": ["A colorless, odorless gas from incomplete burning of fossil fuels. It reduces oxygen flow in the blood, causing dizziness, headaches, and potentially death.", "Carbon Monoxide is measured in parts per million (ppm), which means one CO molecule per million air molecules."],
+		"Nitrogen dioxide (NO₂)": ["A reddish-brown gas from burning fossil fuels. It irritates the respiratory system and contributes to ozone and acid rain formation.", "Nitrogen dioxide is measured in parts per billion (ppb), which means one NO₂ molecule per billion air molecules."],
+		"Ozone (O₃)": ["A gas formed by reactions of pollutants (like nitrogen oxides and VOCs) in sunlight. In the lower atmosphere, it's a harmful pollutant that irritates the respiratory system and damages vegetation.", "Ozone is measured in parts per billion (ppb)."],
+		"Particulate matter (PM)": ["Tiny particles of solid or liquid matter suspended in the air. This includes coarser particles (PM₁₀ are 10 micrometers or smaller) and fine particles (PM₂.₅ are 2.5 micrometers or smaller), both of which can penetrate deep into the lungs and cause health problems. Sources include vehicle exhaust, industrial emissions, and wildfires.", "Particulate matter is measured in micrograms per cubic meter (µg/m³), which means the weight of particles in a cubic meter of air."],
+		"Sulfur dioxide (SO₂)": ["A colorless gas with a pungent odor, primarily from burning fossil fuels (coal and oil) or volcanic activity. It irritates the respiratory system and contributes to acid rain.", "Sulfure Dioxide is measured in parts per billion (ppb)."]
 	]
+	
 
-	private var sortedAQILevels: [(String, String)] {
-		AQIlevels.sorted {
-			guard let val1 = $0.key.components(separatedBy: "-").first.flatMap(Int.init),
-				  let val2 = $1.key.components(separatedBy: "-").first.flatMap(Int.init) else {
-				return false
-			}
-			return val1 < val2
-		}
-	}
-
-	private let pollutants: [String: String] = [
-		"Carbon monoxide (CO)": "A colorless, odorless gas from incomplete burning of fossil fuels. It reduces oxygen flow in the blood, causing dizziness, headaches, and potentially death.",
-		"Nitrogen dioxide (NO₂)": "A reddish-brown gas from burning fossil fuels. It irritates the respiratory system and contributes to ozone and acid rain formation.",
-		"Ozone (O₃)": "A gas formed by reactions of pollutants (like nitrogen oxides and VOCs) in sunlight. In the lower atmosphere, it's a harmful pollutant that irritates the respiratory system and damages vegetation.",
-		"Particulate matter (PM)": "Tiny particles of solid or liquid matter suspended in the air. This includes coarser particles (PM₁₀ are 10 micrometers or smaller) and fine particles (PM₂.₅ are 2.5 micrometers or smaller), both of which can penetrate deep into the lungs and cause health problems. Sources include vehicle exhaust, industrial emissions, and wildfires.",
-		"Sulfur dioxide (SO₂)": "A colorless gas with a pungent odor, primarily from burning fossil fuels (coal and oil) or volcanic activity. It irritates the respiratory system and contributes to acid rain."
-	]
-
-	private var sortedPollutants: [(String, String)] {
-		pollutants.sorted { $0.key < $1.key }
-	}
-
-	func colorForAQIRange(range: String) -> Color {
-		let values = range.components(separatedBy: "-").compactMap { Int($0.trimmingCharacters(in: .whitespacesAndNewlines)) }
-		guard let lowerBound = values.first else { return .gray }
-
-		switch lowerBound {
-		case 0...50:
-			return .green
-		case 51...100:
-			return .yellow
-		case 101...150:
-			return .orange
-		case 151...200:
-			return .red
-		case 201...300:
-			return .purple
-		case 301...500:
-			return .crimson
+	
+	private func formatted(_ value: Double, for type: MeasurementType) -> String {
+		switch type {
+		case .pm10, .no2:
+			return String(format: "%.0f %@", value, type.unit)
+		case .aqi:
+			return String(format: "%.0f", value)
 		default:
-			return .gray
+			return String(format: "%.1f %@", value, type.unit)
 		}
 	}
+	
 }
 
 #Preview {

@@ -14,6 +14,22 @@ enum DisplayMode: String, CaseIterable {
 	case heatmap = "Heatmap"
 }
 
+enum MapLayerType: String, CaseIterable, Identifiable {
+	case trashCans = "Public trash cans"
+	case youBikes = "YouBike stations"
+	case aqi = "Air Quality"
+
+	var id: Self { self }
+
+	var icon: String {
+		switch self {
+		case .trashCans: return "trash"
+		case .youBikes: return "bicycle"
+		case .aqi: return "aqi.medium"
+		}
+	}
+}
+
 struct MapView: View {
 	@EnvironmentObject var viewModel: AQIViewModel
 	@Environment(\.dismiss) var dismiss
@@ -27,13 +43,13 @@ struct MapView: View {
 	@State private var youBikeStationToCenter: YouBikeStation?
 	@State private var pendingAQIRecord: AQIRecord?
 	@State private var pendingYouBikeStation: YouBikeStation?
-	
-	
+	@State private var selectedLayer: MapLayerType = .aqi
+
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
 		case imagery = "Satellite"
 		case hybrid = "Hybrid"
-		
+
 		var style: MapStyle {
 			switch self {
 			case .standard: .standard(elevation: .realistic)
@@ -42,10 +58,10 @@ struct MapView: View {
 			}
 		}
 	}
-	
+
 	@State private var selectedMapStyle: MapStyleOption = .standard
 	@State private var showAnnotations = true
-	
+
 	var body: some View {
 		ZStack {
 			mapLayer
@@ -68,6 +84,30 @@ struct MapView: View {
 		.onAppear {
 			viewModel.fetchAQIData()
 		}
+		.onChange(of: selectedLayer) { newValue in
+			withAnimation {
+				switch newValue {
+				case .aqi:
+					viewModel.showTrashcans = false
+					viewModel.showYouBikes = false
+					showAnnotations = true
+				case .trashCans:
+					if !viewModel.showTrashcans {
+						viewModel.fetchTrashcanData()
+					}
+					viewModel.showTrashcans = true
+					viewModel.showYouBikes = false
+					showAnnotations = false
+				case .youBikes:
+					if !viewModel.showYouBikes {
+						viewModel.fetchYouBikeStations()
+					}
+					viewModel.showYouBikes = true
+					viewModel.showTrashcans = false
+					showAnnotations = false
+				}
+			}
+		}
 		.sheet(item: $selectedAirQualityRecord, onDismiss: {
 			recordToCenter = nil
 		}) { record in
@@ -83,94 +123,16 @@ struct MapView: View {
 				.presentationDetents([.medium, .large])
 		}
 	}
-	
+
 	// MARK: - Map Layer
 	private var mapLayer: some View {
 		Group {
 			if viewModel.showTrashcans {
-				let clusters = viewModel.trashcanAnnotations(for: viewModel.region)
-				let center = viewModel.region.center
-				let filteredClusters = clusters.filter { cluster in
-					let clusterLocation = CLLocation(latitude: cluster.coordinate.latitude, longitude: cluster.coordinate.longitude)
-					let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
-					return clusterLocation.distance(from: centerLocation) <= 1000
-				}
-				Map(
-					coordinateRegion: $viewModel.region,
-					showsUserLocation: true,
-					annotationItems: filteredClusters
-				) { cluster in
-					MapAnnotation(coordinate: cluster.coordinate) {
-						TrashcanPinView(count: cluster.count)
-					}
-				}
+				trashcanMap
 			} else if viewModel.showYouBikes {
-				let clusters = viewModel.youBikeAnnotations(for: viewModel.region)
-				let center = viewModel.region.center
-				let filteredClusters = clusters.filter { cluster in
-					let clusterLocation = CLLocation(latitude: cluster.coordinate.latitude, longitude: cluster.coordinate.longitude)
-					let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
-					return clusterLocation.distance(from: centerLocation) <= 1000
-				}
-				Map(
-					coordinateRegion: $viewModel.region,
-					showsUserLocation: true,
-					annotationItems: filteredClusters
-				) { cluster in
-					MapAnnotation(coordinate: cluster.coordinate) {
-						if cluster.count == 1, let station = viewModel.youBikeStations.first(where: { $0.latitude == cluster.coordinate.latitude && $0.longitude == cluster.coordinate.longitude }) {
-							Button {
-								pendingYouBikeStation = station
-							} label: {
-								YouBikePinView(count: nil)
-									.scaleEffect(youBikeStationToCenter == station ? 1.6 : 1.0)
-									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: youBikeStationToCenter == station)
-							}
-							.buttonStyle(.plain)
-						} else {
-							YouBikePinView(count: cluster.count)
-						}
-					}
-				}
+				youBikeMap
 			} else {
-				Map(
-					coordinateRegion: $viewModel.region,
-					showsUserLocation: true,
-					annotationItems: viewModel.aqiRecords
-				) { record in
-					MapAnnotation(coordinate: record.coordinate) {
-						let color = colorFor(record: record)
-						Group {
-							if displayMode == .heatmap {
-								Circle()
-									.fill(
-										RadialGradient(
-											gradient: Gradient(colors: [color, color.opacity(0)]),
-											center: .center,
-											startRadius: 10,
-											endRadius: 50
-										)
-									)
-									.frame(
-										width: 100 * scaleFactor(for: viewModel.region),
-										height: 100 * scaleFactor(for: viewModel.region)
-									)
-									.opacity(0.6)
-							} else if displayMode == .pins {
-								if !valueForPin(record: record).isEmpty {
-									Button {
-										pendingAQIRecord = record
-									} label: {
-										PinView(color: color, value: valueForPin(record: record))
-											.scaleEffect(recordToCenter == record ? 1.6 : 1.0)
-											.animation(.spring(response: 0.3, dampingFraction: 0.3), value: recordToCenter == record)
-									}
-									.buttonStyle(.plain)
-								}
-							}
-						}
-					}
-				}
+				aqiMap
 			}
 		}
 		.mapStyle(selectedMapStyle.style)
@@ -179,89 +141,90 @@ struct MapView: View {
 			InfoView()
 				.presentationDragIndicator(.visible)
 		}
-		
-		.onChange(of: pendingAQIRecord) { oldRecord, newRecord in
-			guard let record = newRecord else { return }
-			// Step 1: Center
-			withAnimation(.easeInOut(duration: 0.5)) {
-				viewModel.region = MKCoordinateRegion(
-					center: CLLocationCoordinate2D(
-						latitude: record.coordinate.latitude - 0.010,
-						longitude: record.coordinate.longitude
-					),
-					span: viewModel.region.span
-				)
-			}
-			recordToCenter = record
+	}
+
+	// MARK: - Smaller map components
+
+	private var trashcanMap: some View {
+		let clusters = viewModel.trashcanAnnotations(for: viewModel.region)
+		let center = viewModel.region.center
+		let filteredClusters = clusters.filter { cluster in
+			let clusterLocation = CLLocation(latitude: cluster.coordinate.latitude, longitude: cluster.coordinate.longitude)
+			let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
+			return clusterLocation.distance(from: centerLocation) <= 1000
 		}
-		.onChange(of: recordToCenter) { oldRecord, newRecord in
-			guard let record = newRecord else { return }
-			// Step 2: Zoom
-			let targetSpan = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-			if abs(viewModel.region.span.latitudeDelta - targetSpan.latitudeDelta) > 0.0001 || abs(viewModel.region.span.longitudeDelta - targetSpan.longitudeDelta) > 0.0001 {
-				withAnimation(.easeInOut(duration: 0.5)) {
-					viewModel.region = MKCoordinateRegion(
-						center: CLLocationCoordinate2D(
-							latitude: record.coordinate.latitude - 0.010,
-							longitude: record.coordinate.longitude
-						),
-						span: targetSpan
-					)
-				}
-			}
-			// Step 3: Present sheet
-			if abs(viewModel.region.span.latitudeDelta - targetSpan.latitudeDelta) < 0.0001 && abs(viewModel.region.span.longitudeDelta - targetSpan.longitudeDelta) < 0.0001 {
-				selectedAirQualityRecord = record
-				pendingAQIRecord = nil
-			}
-		}
-		.onChange(of: selectedAirQualityRecord) { newValue in
-			if newValue == nil {
-				recordToCenter = nil
-			}
-		}
-		.onChange(of: pendingYouBikeStation) { oldStation, newStation in
-			guard let station = newStation else { return }
-			// Step 1: Center
-			withAnimation(.easeInOut(duration: 0.5)) {
-				viewModel.region = MKCoordinateRegion(
-					center: CLLocationCoordinate2D(
-						latitude: station.latitude - 0.002,
-						longitude: station.longitude
-					),
-					span: viewModel.region.span
-				)
-			}
-			youBikeStationToCenter = station
-		}
-		.onChange(of: youBikeStationToCenter) { oldStation, newStation in
-			guard let station = newStation else { return }
-			// Step 2: Zoom
-			let targetSpan = MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
-			if abs(viewModel.region.span.latitudeDelta - targetSpan.latitudeDelta) > 0.0001 || abs(viewModel.region.span.longitudeDelta - targetSpan.longitudeDelta) > 0.0001 {
-				withAnimation(.easeInOut(duration: 0.5)) {
-					viewModel.region = MKCoordinateRegion(
-						center: CLLocationCoordinate2D(
-							latitude: station.latitude - 0.002,
-							longitude: station.longitude
-						),
-						span: targetSpan
-					)
-				}
-			}
-			// Step 3: Present sheet
-			if abs(viewModel.region.span.latitudeDelta - targetSpan.latitudeDelta) < 0.0001 && abs(viewModel.region.span.longitudeDelta - targetSpan.longitudeDelta) < 0.0001 {
-				selectedYouBikeStation = station
-				pendingYouBikeStation = nil
-			}
-		}
-		.onChange(of: selectedYouBikeStation) { newValue in
-			if newValue == nil {
-				youBikeStationToCenter = nil
+		return Map(
+			coordinateRegion: $viewModel.region,
+			showsUserLocation: true,
+			annotationItems: filteredClusters
+		) { cluster in
+			MapAnnotation(coordinate: cluster.coordinate) {
+				TrashcanPinView(count: cluster.count)
 			}
 		}
 	}
-	
+
+	private var youBikeMap: some View {
+		let clusters = viewModel.youBikeAnnotations(for: viewModel.region)
+		let center = viewModel.region.center
+		let filteredClusters = clusters.filter { cluster in
+			let clusterLocation = CLLocation(latitude: cluster.coordinate.latitude, longitude: cluster.coordinate.longitude)
+			let centerLocation = CLLocation(latitude: center.latitude, longitude: center.longitude)
+			return clusterLocation.distance(from: centerLocation) <= 1000
+		}
+		return Map(
+			coordinateRegion: $viewModel.region,
+			showsUserLocation: true,
+			annotationItems: filteredClusters
+		) { cluster in
+			MapAnnotation(coordinate: cluster.coordinate) {
+				youBikePin(for: cluster)
+			}
+		}
+	}
+
+	private var aqiMap: some View {
+		Map(
+			coordinateRegion: $viewModel.region,
+			showsUserLocation: true,
+			annotationItems: viewModel.aqiRecords
+		) { record in
+			MapAnnotation(coordinate: record.coordinate) {
+				let color = colorFor(record: record)
+				Group {
+					if displayMode == .heatmap {
+						Circle()
+							.fill(
+								RadialGradient(
+									gradient: Gradient(colors: [color, color.opacity(0)]),
+									center: .center,
+									startRadius: 10,
+									endRadius: 50
+								)
+							)
+							.frame(
+								width: 100 * scaleFactor(for: viewModel.region),
+								height: 100 * scaleFactor(for: viewModel.region)
+							)
+							.opacity(0.6)
+					} else if displayMode == .pins {
+						if !valueForPin(record: record).isEmpty {
+							Button {
+								pendingAQIRecord = record
+							} label: {
+								PinView(color: color, value: valueForPin(record: record))
+									.scaleEffect(recordToCenter == record ? 1.6 : 1.0)
+									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: recordToCenter == record)
+							}
+							.buttonStyle(.plain)
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 	// MARK: - Controls
 	private var overlayControls: some View {
 		VStack {
@@ -271,7 +234,7 @@ struct MapView: View {
 				if showAnnotations {
 					LegendView(displayMode: $displayMode, selectedMeasurement: $selectedMeasurement)
 				}
-				
+
 				VStack(spacing: 2) {
 					menuButton
 					if !viewModel.showTrashcans {
@@ -281,7 +244,6 @@ struct MapView: View {
 					infoButton
 				}
 				.animation(.easeInOut(duration: 0.25), value: showAnnotations)
-
 				.padding(.trailing, 8)
 				.buttonStyle(.plain)
 			}
@@ -289,59 +251,19 @@ struct MapView: View {
 		}
 		.shadow(radius: 10)
 	}
-	
+
 	// MARK: - Control Buttons
 	private var menuButton: some View {
 		Menu {
-			ForEach(MeasurementType.allCases.reversed(), id: \.rawValue) { layer in
-				Button {
-					selectedMeasurement = layer
-					viewModel.showTrashcans = false
-					viewModel.showYouBikes = false
-					showAnnotations = true
-				} label: {
-					HStack {
-						Image(systemName: (!viewModel.showTrashcans && !viewModel.showYouBikes && layer == selectedMeasurement) ? "checkmark" : "")
-							.font(.caption)
-						Text(layer.fullName)
-					}
+			Picker("Layer", selection: $selectedLayer) {
+				ForEach(MapLayerType.allCases) { layer in
+					Label(layer.rawValue, systemImage: layer.icon)
+						.tag(layer)
 				}
 			}
+
 			Divider()
-			Button {
-				withAnimation {
-					if !viewModel.showTrashcans {
-						viewModel.fetchTrashcanData()
-					}
-					viewModel.showTrashcans = true
-					viewModel.showYouBikes = false
-					showAnnotations = false
-				}
-			} label: {
-				HStack {
-					Image(systemName: viewModel.showTrashcans ? "checkmark" : "")
-						.font(.caption)
-					Text("Public trash cans")
-				}
-			}
-			Divider()
-			Button {
-				withAnimation {
-					if !viewModel.showYouBikes {
-						viewModel.fetchYouBikeStations()
-					}
-					viewModel.showYouBikes = true
-					viewModel.showTrashcans = false
-					showAnnotations = false
-				}
-			} label: {
-				HStack {
-					Image(systemName: viewModel.showYouBikes ? "checkmark" : "")
-						.font(.caption)
-					Text("YouBike stations")
-				}
-			}
-			Divider()
+
 			Picker("Map style", selection: $selectedMapStyle) {
 				ForEach(MapStyleOption.allCases.sorted(by: { $0.rawValue < $1.rawValue }), id: \.rawValue) { mapType in
 					Text(mapType.rawValue)
@@ -349,11 +271,12 @@ struct MapView: View {
 				}
 			}
 			.pickerStyle(.menu)
+
 		} label: {
 			ControlButton(iconName: "square.3.layers.3d", fontSize: 15, padding: 11)
 		}
 	}
-	
+
 	private var locationButton: some View {
 		Button {
 			withAnimation {
@@ -374,7 +297,6 @@ struct MapView: View {
 		}
 	}
 
-	
 	private var refreshButton: some View {
 		Button {
 			if viewModel.showYouBikes {
@@ -386,7 +308,7 @@ struct MapView: View {
 			ControlButton(iconName: "arrow.clockwise", fontSize: 14, padding: 12)
 		}
 	}
-	
+
 	private var infoButton: some View {
 		Button {
 			isShowingInfo.toggle()
@@ -394,78 +316,72 @@ struct MapView: View {
 			ControlButton(iconName:"info", fontSize: 18, padding: 14)
 		}
 	}
-	
-	
+
 	// MARK: - Helpers
-	
+
 	private func scaleFactor(for region: MKCoordinateRegion) -> CGFloat {
 		let zoomLevel = max(region.span.latitudeDelta, region.span.longitudeDelta)
 		return min(50 / zoomLevel, 1)
 	}
-	
+
 	private func colorFor(record: AQIRecord) -> Color {
 		let value: Double
-		let thresholds: [Double]
 		
-		switch selectedMeasurement { // Use the bound selectedMeasurement
-			//        case .none: return .clear
+		switch selectedMeasurement {
 		case .aqi:
 			value = Double(record.aqi)
-			thresholds = [50, 100, 150, 200, 300, 400]
 		case .so2:
 			value = record.so2 ?? 0
-			thresholds = [8.0, 65.0, 160.0, 304.0, 604.0, 804.0]
 		case .co:
 			value = record.co ?? 0
-			thresholds = [4.4, 9.4, 12.4, 15.4, 30.4, 40.4]
 		case .o3:
 			value = record.o3 ?? 0
-			thresholds = [54, 70, 134, 204, 404, 504]
 		case .pm10:
 			value = record.pm10 ?? 0
-			thresholds = [30, 75, 190, 354, 424, 504]
 		case .pm2_5:
 			value = record.pm2_5 ?? 0
-			thresholds = [12.4, 30.4, 50.4, 125.4, 225.4, 325.4]
 		case .no2:
 			value = record.no2 ?? 0
-			thresholds = [21, 100, 360, 649, 1249, 1649]
 		}
 		
-		return color(for: value, thresholds: thresholds)
-	}
-	
-	private func color(for value: Double, thresholds: [Double]) -> Color {
-		if value <= thresholds[0] { return .green }
-		else if value <= thresholds[1] { return .yellow }
-		else if value <= thresholds[2] { return .orange }
-		else if value <= thresholds[3] { return .red }
-		else if value <= thresholds[4] { return .purple }
-		else if value <= thresholds[5] { return .crimson }
-		else { return .clear }
+		return selectedMeasurement.color(for: value)
 	}
 
-	
 	private func valueForPin(record: AQIRecord) -> String {
-		switch selectedMeasurement { // Use the bound selectedMeasurement
-		case .aqi: return "\(record.aqi)"
-		case .so2: return record.so2.map { String(format: "%.1f", $0) } ?? ""
-		case .co: return record.co.map { String(format: "%.1f", $0) } ?? ""
-		case .o3: return record.o3.map { String(format: "%.1f", $0) } ?? ""
-		case .pm10: return record.pm10.map { String(format: "%.0f", $0) } ?? ""
-		case .pm2_5: return record.pm2_5.map { String(format: "%.1f", $0) } ?? ""
-		case .no2: return record.no2.map { String(format: "%.0f", $0) } ?? ""
-			//        case .none: return "-"
+		let value: Double?
+		switch selectedMeasurement {
+		case .aqi:
+			return "\(record.aqi)"
+		case .so2:
+			value = record.so2
+		case .co:
+			value = record.co
+		case .o3:
+			value = record.o3
+		case .pm10:
+			value = record.pm10
+		case .pm2_5:
+			value = record.pm2_5
+		case .no2:
+			value = record.no2
+		}
+
+		guard let v = value else { return "" }
+		switch selectedMeasurement {
+		case .pm10, .no2:
+			return String(format: "%.0f", v)
+		default:
+			return String(format: "%.1f", v)
 		}
 	}
-	
+
 	@ViewBuilder
 	private func youBikePin(for cluster: YouBikeCluster) -> some View {
 		if cluster.count == 1,
 		   let station = viewModel.youBikeStations.first(where: {
 			   $0.latitude == cluster.coordinate.latitude && $0.longitude == cluster.coordinate.longitude
 		   }) {
-			
+
 			Button {
 				withAnimation {
 					youBikeStationToCenter = station
@@ -476,7 +392,7 @@ struct MapView: View {
 					.animation(.spring(response: 0.3, dampingFraction: 0.3), value: youBikeStationToCenter == station)
 			}
 			.buttonStyle(.plain)
-			
+
 		} else {
 			YouBikePinView(count: cluster.count)
 		}

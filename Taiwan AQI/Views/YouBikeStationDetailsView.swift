@@ -36,16 +36,16 @@ struct YouBikeStationDetailsView: View {
 							.font(.headline)
 					}
 					HStack {
-						Image(systemName: "arrowshape.turn.up.left")
+						Image(systemName: "arrowshape.turn.up.backward")
 							.foregroundStyle(.blue)
 							.frame(width: 40)
-						Text("Return slots: \(station.available_return_bikes)")
+						Text("Open parking docks: \(station.available_return_bikes)")
 							.font(.headline)
 					}
 				}
 				.padding(.trailing, 20)
 				.padding(.vertical)
-				.background(.secondary.opacity(0.1))
+				.background(.primary.opacity(0.1))
 				.clipShape(RoundedRectangle(cornerRadius: 8))
 				
                 Divider()

@@ -13,7 +13,6 @@ struct LegendView: View {
 	
 	var colors: [Color] {
 		switch selectedMeasurement {
-			//			case .none: return []
 		case .aqi, .so2, .co, .o3, .pm10, .pm2_5, .no2:
 			return [.green, .yellow, .orange, .red, .purple, .crimson]
 		}
@@ -34,11 +33,17 @@ struct LegendView: View {
 	
 	var body: some View {
 		VStack(alignment: .leading, spacing: 4) {
-			HStack(alignment: .bottom) {
-				
-				Text("\(selectedMeasurement.rawValue) \(selectedMeasurement.unit)")
-					.font(.subheadline)
-					.fontWeight(.semibold)
+			HStack {
+				Picker("", selection: $selectedMeasurement) {
+					ForEach(MeasurementType.allCases, id: \.self) { measurement in
+						Text("\(measurement.rawValue) \(measurement.unit)").tag(measurement)
+
+					}
+				}
+				.pickerStyle(.menu)
+//				Text("\(selectedMeasurement.rawValue) \(selectedMeasurement.unit)")
+//					.font(.subheadline)
+//					.fontWeight(.semibold)
 				Spacer()
 				Picker("Display Mode", selection: $displayMode) {
 					ForEach(DisplayMode.allCases, id: \.self) { mode in

@@ -2,13 +2,7 @@ import Foundation
 import CoreLocation
 import MapKit
 import Combine
-// Ensure YouBikeStation is visible
-// If needed, add the following line if your project setup requires it:
-// import APIService
 
-// Forward declaration (if needed, but should not be necessary if APIService.swift is in the same module):
-// struct YouBikeStation: Codable, Identifiable {}
-// Remove the above if the real struct is available.
 
 class AQIViewModel: ObservableObject {
     @Published var aqiRecords: [AQIRecord] = []

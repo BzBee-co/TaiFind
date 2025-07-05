@@ -7,7 +7,6 @@
 
 import SwiftUI
 enum MeasurementType: String, CaseIterable, Identifiable {
-//	case none = "no layer"
 	case aqi = "AQI"
 	case co = "CO"
 	case no2 = "NO₂"
@@ -20,7 +19,6 @@ enum MeasurementType: String, CaseIterable, Identifiable {
 	
 	var fullName: String {
 		switch self {
-//		case .none: return "Just the map"
 		case .aqi: return "Air Quality Index"
 		case .co: return "Carbon Monoxide"
 		case .no2: return "Nitrogen Dioxide"
@@ -33,11 +31,33 @@ enum MeasurementType: String, CaseIterable, Identifiable {
 	
 	var unit: String {
 		switch self {
-//		case .none: return ""
 		case .aqi: return ""
 		case .so2, .co: return "(ppm)"
 		case .o3, .no2: return "(ppb)"
 		case .pm10, .pm2_5: return "(µg/m³)"
 		}
+	}
+	
+	var thresholds: [Double] {
+		switch self {
+		case .aqi: return [50, 100, 150, 200, 300, 400]
+		case .so2: return [8, 65, 160, 304, 604, 804]
+		case .co: return [4.4, 9.4, 12.4, 15.4, 30.4, 40.4]
+		case .o3: return [54, 70, 134, 204, 404, 504]
+		case .pm10: return [30, 75, 190, 354, 424, 504]
+		case .pm2_5: return [12.4, 30.4, 50.4, 125.4, 225.4, 325.4]
+		case .no2: return [21, 100, 360, 649, 1249, 1649]
+		}
+	}
+
+	func color(for value: Double) -> Color {
+		let t = thresholds
+		if value <= t[0] { return .green }
+		else if value <= t[1] { return .yellow }
+		else if value <= t[2] { return .orange }
+		else if value <= t[3] { return .red }
+		else if value <= t[4] { return .purple }
+		else if value <= t[5] { return .crimson }
+		else { return .gray }
 	}
 }
