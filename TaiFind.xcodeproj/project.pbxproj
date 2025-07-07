@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 6C51454C2D98FD990024805A /* Build configuration list for PBXProject "Taiwan AQI" */;
+			buildConfigurationList = 6C51454C2D98FD990024805A /* Build configuration list for PBXProject "TaiFind" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -372,9 +372,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Taiwan AQI/Preview Content\"";
-				DEVELOPMENT_TEAM = 3CXU9CUDTQ;
+				DEVELOPMENT_TEAM = U558F4G8N6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TaiFind;
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "The app needs your location to display AQI heatmap.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "The app needs your location to display AQI heatmap.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -388,7 +389,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.antoimn.Taiwan-AQI";
+				PRODUCT_BUNDLE_IDENTIFIER = co.bzbee.TaiFind;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -405,9 +406,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Taiwan AQI/Preview Content\"";
-				DEVELOPMENT_TEAM = 3CXU9CUDTQ;
+				DEVELOPMENT_TEAM = U558F4G8N6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TaiFind;
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "The app needs your location to display AQI heatmap.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "The app needs your location to display AQI heatmap.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -421,7 +423,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.antoimn.Taiwan-AQI";
+				PRODUCT_BUNDLE_IDENTIFIER = co.bzbee.TaiFind;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -432,7 +434,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		6C51454C2D98FD990024805A /* Build configuration list for PBXProject "Taiwan AQI" */ = {
+		6C51454C2D98FD990024805A /* Build configuration list for PBXProject "TaiFind" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6C51455D2D98FD9A0024805A /* Debug */,
