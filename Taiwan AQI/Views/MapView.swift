@@ -269,6 +269,7 @@ struct MapView: View {
 					Text(type.rawValue).tag(type)
 				}
 			}
+			.pickerStyle(.menu)
 		} label: {
 			ControlButton(iconName: "square.3.layers.3d", fontSize: 15, padding: 11)
 		}
