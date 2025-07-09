@@ -57,11 +57,12 @@ struct InfoView: View {
 									.frame(maxWidth: .infinity * 0.8)
 									.frame(alignment: .leading)
 									.background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)))
-									.shadow(radius: 2)
+									.shadow(radius: 1)
 								}
 							}
 							.padding(8)
 						}
+						.padding(.horizontal, -20)
 					}
 
 					
@@ -146,6 +147,14 @@ struct InfoView: View {
 					
 				} header: {
 					Text("Data Sources")
+						.font(.title2)
+						.fontWeight(.bold)
+				}
+				
+				Section {
+					Text("Contact us at contact@bzbee.co")
+				} header: {
+					Text("Contact")
 						.font(.title2)
 						.fontWeight(.bold)
 				}
