@@ -48,20 +48,24 @@ class AQIViewModel: ObservableObject {
     
     func fetchTrashcanData() {
         trashcanLoading = true
-        APIService.fetchAllTrashcans { [weak self] records in
-            DispatchQueue.main.async {
-                self?.trashcanRecords = records
-                self?.trashcanLoading = false
+        DispatchQueue.global(qos: .userInteractive).async {
+            APIService.fetchAllTrashcans { [weak self] records in
+                DispatchQueue.main.async {
+                    self?.trashcanRecords = records
+                    self?.trashcanLoading = false
+                }
             }
         }
     }
     
     func fetchYouBikeStations() {
         youBikeLoading = true
-        APIService.fetchYouBikeStations { [weak self] stations in
-            DispatchQueue.main.async {
-                self?.youBikeStations = stations
-                self?.youBikeLoading = false
+        DispatchQueue.global(qos: .userInteractive).async {
+            APIService.fetchYouBikeStations { [weak self] stations in
+                DispatchQueue.main.async {
+                    self?.youBikeStations = stations
+                    self?.youBikeLoading = false
+                }
             }
         }
     }
