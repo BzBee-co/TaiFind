@@ -28,6 +28,20 @@ enum MapLayerType: String, CaseIterable, Identifiable {
 	}
 }
 
+struct LoadingMessageView: View {
+    var text: String
+
+    var body: some View {
+        VStack {
+            ProgressView(text)
+                .padding(30)
+                .background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
+                .shadow(radius: 10)
+            Spacer()
+        }
+    }
+}
+
 struct MapView: View {
 	@EnvironmentObject var viewModel: AQIViewModel
 	@Environment(\.dismiss) var dismiss
@@ -64,18 +78,10 @@ struct MapView: View {
 			mapLayer
 			overlayControls
 			if viewModel.showTrashcans && viewModel.trashcanLoading {
-				Color.black.opacity(0.2).ignoresSafeArea()
-				ProgressView("Loading locations…")
-					.padding(30)
-					.background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
-					.shadow(radius: 10)
+                LoadingMessageView(text: "Loading trashcan locations…")
 			}
 			if viewModel.showYouBikes && viewModel.youBikeLoading {
-				Color.black.opacity(0.2).ignoresSafeArea()
-				ProgressView("Loading YouBike stations…")
-					.padding(30)
-					.background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
-					.shadow(radius: 10)
+                LoadingMessageView(text: "Loading YouBike stations…")
 			}
 		}
 		.onAppear {
