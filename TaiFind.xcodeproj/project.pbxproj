@@ -22,6 +22,7 @@
 		6C737F132DA11F2700430A25 /* LegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F122DA11F2700430A25 /* LegendView.swift */; };
 		6C737F172DA1364300430A25 /* MeasurementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F162DA1364300430A25 /* MeasurementType.swift */; };
 		6C7B8F8A2E08107600F58FCA /* TrashcanPinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7B8F892E08107600F58FCA /* TrashcanPinView.swift */; };
+		6CC5EE0E2E28C262001BCD4C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6CC5EE0D2E28C262001BCD4C /* Localizable.xcstrings */; };
 		6CC916332DA636F9000CD663 /* ControlButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916322DA636F9000CD663 /* ControlButton.swift */; };
 		6CC916352DA64EE9000CD663 /* PinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916342DA64EE9000CD663 /* PinView.swift */; };
 		6CC916372DA656AB000CD663 /* LocationDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916362DA656AB000CD663 /* LocationDetailsView.swift */; };
@@ -46,6 +47,7 @@
 		6C737F122DA11F2700430A25 /* LegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendView.swift; sourceTree = "<group>"; };
 		6C737F162DA1364300430A25 /* MeasurementType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementType.swift; sourceTree = "<group>"; };
 		6C7B8F892E08107600F58FCA /* TrashcanPinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashcanPinView.swift; sourceTree = "<group>"; };
+		6CC5EE0D2E28C262001BCD4C /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		6CC916322DA636F9000CD663 /* ControlButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlButton.swift; sourceTree = "<group>"; };
 		6CC916342DA64EE9000CD663 /* PinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinView.swift; sourceTree = "<group>"; };
 		6CC916362DA656AB000CD663 /* LocationDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDetailsView.swift; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 		6C737F062DA11C8800430A25 /* TaiFind */ = {
 			isa = PBXGroup;
 			children = (
+				6CC5EE0D2E28C262001BCD4C /* Localizable.xcstrings */,
 				6C562E6B2E1CDAD300304B37 /* TaiFind.entitlements */,
 				6C1700222E1BE00F00525140 /* Info.plist */,
 				6C737F042DA11C8800430A25 /* Assets.xcassets */,
@@ -196,6 +199,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hant",
 			);
 			mainGroup = 6C5145482D98FD990024805A;
 			minimizedProjectReferenceProxies = 1;
@@ -216,6 +220,7 @@
 			files = (
 				6C737F072DA11C8800430A25 /* Preview Assets.xcassets in Resources */,
 				6C737F082DA11C8800430A25 /* Assets.xcassets in Resources */,
+				6CC5EE0E2E28C262001BCD4C /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,6 +312,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -363,6 +369,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

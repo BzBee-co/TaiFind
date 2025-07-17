@@ -48,7 +48,7 @@ struct LocationDetailsView: View {
 				GeometryReader { geometry in
 					VStack(alignment: .leading) {
 						VStack(alignment: .leading, spacing: 10) {
-							Text(MeasurementType.aqi.fullName)
+							Text(MeasurementType.aqi.localizedFullName)
 								.font(.headline)
 							HStack(alignment: .bottom) {
 								Text(record.value(for: .aqi) ?? "-")
@@ -74,7 +74,7 @@ struct LocationDetailsView: View {
 								let color = colorForValue(value: value, type: type)
 
 								VStack(alignment: .leading, spacing: 10) {
-									Text(type.fullName)
+									Text(type.localizedFullName)
 										.font(.headline)
 									HStack(alignment: .bottom) {
 										Text(value ?? "-")

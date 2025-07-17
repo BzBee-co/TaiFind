@@ -1,0 +1,791 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    " %@" : {
+
+    },
+    "(last updated: %@)" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "（最後更新：%@）"
+          }
+        }
+      }
+    },
+    "* Disclaimer" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "* 免責聲明"
+          }
+        }
+      }
+    },
+    "%@ %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "%lld" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
+    },
+    "A colorless gas with a pungent odor, primarily from burning fossil fuels (coal and oil) or volcanic activity. It irritates the respiratory system and contributes to acid rain." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一種無色、刺鼻的氣體，主要來自燃燒煤炭與石油，或火山活動。會刺激呼吸道並造成酸雨。"
+          }
+        }
+      }
+    },
+    "A colorless, odorless gas from incomplete burning of fossil fuels. It reduces oxygen flow in the blood, causing dizziness, headaches, and potentially death." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一種無色無味的氣體，來自化石燃料的不完全燃燒。它會減少血液中的氧氣供應，導致頭暈、頭痛，嚴重時可能致命。"
+          }
+        }
+      }
+    },
+    "A gas formed by reactions of pollutants (like nitrogen oxides and VOCs) in sunlight. In the lower atmosphere, it's a harmful pollutant that irritates the respiratory system and damages vegetation." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由氮氧化物與揮發性有機物在陽光下反應而產生的氣體。在低層大氣中是有害汙染物，會刺激呼吸系統並傷害植物。"
+          }
+        }
+      }
+    },
+    "A reddish-brown gas from burning fossil fuels. It irritates the respiratory system and contributes to ozone and acid rain formation." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一種紅棕色氣體，主要來自燃燒化石燃料。會刺激呼吸系統，並促成臭氧與酸雨的形成。"
+          }
+        }
+      }
+    },
+    "Air Quality" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "空氣品質"
+          }
+        }
+      }
+    },
+    "Air Quality in Taiwan" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台灣空氣品質"
+          }
+        }
+      }
+    },
+    "Air Quality Index" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "空氣品質指數"
+          }
+        }
+      }
+    },
+    "Air Quality Indicators" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "空氣品質指標"
+          }
+        }
+      }
+    },
+    "AQI" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "空氣品質指數"
+          }
+        }
+      }
+    },
+    "AQI_Tier_Clean" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清潔"
+          }
+        }
+      }
+    },
+    "AQI_Tier_Hazardous" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hazardous"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "危害"
+          }
+        }
+      }
+    },
+    "AQI_Tier_Moderate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moderate"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "普通"
+          }
+        }
+      }
+    },
+    "AQI_Tier_Unhealthy" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unhealthy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不健康"
+          }
+        }
+      }
+    },
+    "AQI_Tier_UnhealthySensitive" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unhealthy for Sensitive Groups"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "對敏感族群不健康"
+          }
+        }
+      }
+    },
+    "AQI_Tier_VeryUnhealthy" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Very Unhealthy"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非常不健康"
+          }
+        }
+      }
+    },
+    "Available bikes: %lld" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可用車輛：%lld"
+          }
+        }
+      }
+    },
+    "Carbon Monoxide" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一氧化碳"
+          }
+        }
+      }
+    },
+    "Carbon monoxide (CO)" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一氧化碳（CO）"
+          }
+        }
+      }
+    },
+    "Carbon Monoxide (ppm)" : {
+
+    },
+    "Carbon Monoxide is measured in parts per million (ppm), which means one CO molecule per million air molecules." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一氧化碳的單位為百萬分之一（ppm），即每百萬個空氣分子中含有一個一氧化碳分子。"
+          }
+        }
+      }
+    },
+    "CO" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CO"
+          }
+        }
+      }
+    },
+    "Data Sources" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "資料來源"
+          }
+        }
+      }
+    },
+    "Developed with ❤️ by your homie BzBee in Taiwan.\ncontact@bzbee.co" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由你的好夥伴 BzBee 在台灣開發 ❤️\ncontact@bzbee.co"
+          }
+        }
+      }
+    },
+    "Display Mode" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示模式"
+          }
+        }
+      }
+    },
+    "Disposing of domestic waste in these trash cans is not allowed and doing so may result in fines." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "這些垃圾桶不得丟棄一般家庭垃圾，違者可能會被處罰。"
+          }
+        }
+      }
+    },
+    "Finding a public trash can in Taipei City can be challenging. This app displays their location so you can easily find those closest to you.*" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在台北市找公共垃圾桶可能不太容易。本 App 顯示垃圾桶位置，讓你輕鬆找到最近的。*"
+          }
+        }
+      }
+    },
+    "Heatmap" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "熱力圖"
+          }
+        }
+      }
+    },
+    "Hybrid" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "混合"
+          }
+        }
+      }
+    },
+    "Information" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "資訊"
+          }
+        }
+      }
+    },
+    "Last updated: %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最後更新：%@"
+          }
+        }
+      }
+    },
+    "Layer" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "圖層"
+          }
+        }
+      }
+    },
+    "Learn more on Taiwan MoE's website" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "詳情請見台灣環境部網站"
+          }
+        }
+      }
+    },
+    "Loading locations…" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "載入位置中…"
+          }
+        }
+      }
+    },
+    "Loading YouBike stations…" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在載入 YouBike 站點…"
+          }
+        }
+      }
+    },
+    "main pollutant: %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主要污染物：%@"
+          }
+        }
+      }
+    },
+    "Map style" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "地圖樣式"
+          }
+        }
+      }
+    },
+    "Nitrogen Dioxide" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化氮"
+          }
+        }
+      }
+    },
+    "Nitrogen dioxide (NO₂)" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化氮（NO₂）"
+          }
+        }
+      }
+    },
+    "Nitrogen Dioxide (ppb)" : {
+
+    },
+    "Nitrogen dioxide is measured in parts per billion (ppb), which means one NO₂ molecule per billion air molecules." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化氮的單位為十億分之一（ppb），即每十億個空氣分子中含有一個二氧化氮分子。"
+          }
+        }
+      }
+    },
+    "NO₂" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NO₂"
+          }
+        }
+      }
+    },
+    "O₃" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O₃"
+          }
+        }
+      }
+    },
+    "Open parking docks: %lld" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可用停車柱：%lld"
+          }
+        }
+      }
+    },
+    "Open Taipei" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Taipei"
+          }
+        }
+      }
+    },
+    "Ozone" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "臭氧"
+          }
+        }
+      }
+    },
+    "Ozone (O₃)" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "臭氧（O₃）"
+          }
+        }
+      }
+    },
+    "Ozone (ppb)" : {
+
+    },
+    "Ozone is measured in parts per billion (ppb)." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "臭氧的單位為十億分之一（ppb）。"
+          }
+        }
+      }
+    },
+    "Particulate matter (PM)" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "懸浮微粒（PM）"
+          }
+        }
+      }
+    },
+    "Particulate matter is measured in micrograms per cubic meter (µg/m³), which means the weight of particles in a cubic meter of air." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "懸浮微粒以每立方公尺的微克（µg/m³）為單位，表示每立方公尺空氣中懸浮粒子的重量。"
+          }
+        }
+      }
+    },
+    "Pins" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "針點"
+          }
+        }
+      }
+    },
+    "PM2.5 (µg/m³)" : {
+
+    },
+    "PM10 (µg/m³)" : {
+
+    },
+    "PM₁₀" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PM₁₀ 懸浮微粒"
+          }
+        }
+      }
+    },
+    "PM₂.₅" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PM₂.₅ 懸浮微粒"
+          }
+        }
+      }
+    },
+    "Public trash cans" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "公共垃圾桶"
+          }
+        }
+      }
+    },
+    "Satellite" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "衛星"
+          }
+        }
+      }
+    },
+    "See the number of available bikes and open parking docks at each YouBike 2.0 station in Taipei City.*" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看台北市每個 YouBike 2.0 站點的可用車輛與停車柱數量。*"
+          }
+        }
+      }
+    },
+    "Selected Measurement" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇的指標"
+          }
+        }
+      }
+    },
+    "SO₂" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SO₂"
+          }
+        }
+      }
+    },
+    "Standard" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "標準"
+          }
+        }
+      }
+    },
+    "Sulfur Dioxide" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化硫"
+          }
+        }
+      }
+    },
+    "Sulfur Dioxide (ppm)" : {
+
+    },
+    "Sulfur dioxide (SO₂)" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化硫（SO₂）"
+          }
+        }
+      }
+    },
+    "Sulfur dioxide is measured in parts per billion (ppb)." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化硫的單位為十億分之一（ppb）。"
+          }
+        }
+      }
+    },
+    "Taiwan Government Open Data" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taiwan Government Open Data"
+          }
+        }
+      }
+    },
+    "The AQI (Air Quality Index) is a way to measure the quality of the air you breathe, like a score based on the amounts of various pollutants in the air (typically those listed below). The values shown in this app are given by Taiwan's Ministry of Environment and run on a scale from 0 to 500, with 0 being considered clean air and 500 being hazardous.*" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AQI（空氣品質指數）是一種用來衡量空氣品質的方式，像是根據多種污染物濃度計算出的分數（通常為下方所列污染物）。本 App 顯示的數值來自台灣環境部，範圍為 0 到 500，0 表示乾淨空氣，500 則為有害。*"
+          }
+        }
+      }
+    },
+    "The information displayed is based on the latest available data from the Taipei City Government Open Data platform. While we strive for accuracy, discrepancies may exist between the available data and real-world conditions. We are not responsible for any inaccuracies or outdated information." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本 App 所顯示的資訊來自台北市政府開放資料平台。我們致力於提供準確資訊，但實際情況可能與資料不符，對任何不準確或過時的內容，我們不負責。"
+          }
+        }
+      }
+    },
+    "This app uses datasets provided by the Taiwan Government Open Data Platform and by the Taipei City Government Open Data Platform, licensed under: Open Government Data License v1.0." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本 App 使用台灣政府與台北市政府開放資料平台所提供的資料集，並依據 Open Government Data License v1.0 授權使用。"
+          }
+        }
+      }
+    },
+    "Tiny particles of solid or liquid matter suspended in the air. This includes coarser particles (PM₁₀ are 10 micrometers or smaller) and fine particles (PM₂.₅ are 2.5 micrometers or smaller), both of which can penetrate deep into the lungs and cause health problems. Sources include vehicle exhaust, industrial emissions, and wildfires." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "空氣中懸浮的微小固體或液體粒子。包括粗懸浮微粒（PM₁₀，直徑小於等於10微米）與細懸浮微粒（PM₂.₅，直徑小於等於2.5微米），可深入肺部並對健康造成危害。來源包括車輛排放、工業污染與野火。"
+          }
+        }
+      }
+    },
+    "While we strive to keep all information accurate and up-to-date, this app makes no guarantees about the accuracy, completeness, or reliability of the data provided. The original data is provided by third parties (including the Taiwan government) and may contain errors or become outdated. Use of this data is at your own risk." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我們盡力保持所有資訊的準確與即時性，但不保證資料的準確性、完整性或可靠性。原始資料由第三方（包括台灣政府）提供，可能包含錯誤或過時。使用者需自行承擔使用風險。"
+          }
+        }
+      }
+    },
+    "YouBike" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouBike"
+          }
+        }
+      }
+    },
+    "YouBike Station Details" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouBike 站點詳情"
+          }
+        }
+      }
+    },
+    "YouBike stations" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouBike 站點"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

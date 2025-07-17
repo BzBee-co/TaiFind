@@ -2,11 +2,13 @@ import Foundation
 
 class APIService {
 	static func fetchAQI(completion: @escaping ([AQIRecord]) -> Void) {
-//		let urlString = "https://twaqicache.chabuduo.workers.dev"
-		let urlString = "https://air-quality-proxy.antoimn.workers.dev"
+		let locale = Locale.current.language.languageCode?.identifier == "zh" ? "zh" : "en"
+		let urlString = "https://air-quality-proxy.antoimn.workers.dev?locale=\(locale)"
 		guard let url = URL(string: urlString) else { return }
-		
-		URLSession.shared.dataTask(with: url) { data, response, error in
+
+		var request = URLRequest(url: url)
+
+		URLSession.shared.dataTask(with: request) { data, response, error in
 			guard let data = data, error == nil else { return }
 			do {
 				let decodedResponse = try JSONDecoder().decode(AQIData.self, from: data)
@@ -14,7 +16,6 @@ class APIService {
 					var fixedSiteName = record.sitename
 					var fixedCounty = record.county
 					
-					// Manually correct the incorrect record
 					if record.siteID == "201" {
 						fixedSiteName = "Yilan (Sanxing)"
 						fixedCounty = "Yilan County"
@@ -45,6 +46,7 @@ class APIService {
 			}
 		}.resume()
 	}
+
 	
 	// MARK: - Taipei Trashcan Data Fetching
 	static func fetchAllTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {

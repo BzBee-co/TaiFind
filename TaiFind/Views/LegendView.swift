@@ -34,12 +34,13 @@ struct LegendView: View {
 	var body: some View {
 		VStack(alignment: .leading, spacing: 4) {
 			HStack {
-				Picker("", selection: $selectedMeasurement) {
+				Picker("Selected Measurement", selection: $selectedMeasurement) {
 					ForEach(MeasurementType.allCases, id: \.self) { measurement in
-						Text("\(measurement.rawValue) \(measurement.unit)").tag(measurement)
+						Text(measurement.localizedFullName) + Text(" \(measurement.unit)")
 
 					}
 				}
+				.labelsHidden()
 				.pickerStyle(.menu)
 //				Text("\(selectedMeasurement.rawValue) \(selectedMeasurement.unit)")
 //					.font(.subheadline)
@@ -47,7 +48,7 @@ struct LegendView: View {
 				Spacer()
 				Picker("Display Mode", selection: $displayMode) {
 					ForEach(DisplayMode.allCases, id: \.self) { mode in
-						Text(mode.rawValue)
+						Text(mode.localizedName)
 							.tag(mode)
 					}
 				}

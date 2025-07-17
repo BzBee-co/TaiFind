@@ -20,18 +20,19 @@ struct InfoView: View {
 								ForEach(MeasurementType.allCases, id: \.self) { type in
 									VStack(alignment: .leading, spacing: 4) {
 										
-										Text(type.fullName)
+										Text(type.localizedFullName)
 											.font(.headline)
 											.fontWeight(.bold)
 										
 										let tierDescriptions = [
-											"Clean",
-											"Moderate",
-											"Unhealthy for Sensitive Groups",
-											"Unhealthy",
-											"Very Unhealthy",
-											"Hazardous"
+											String(localized: "AQI_Tier_Clean"),
+											String(localized: "AQI_Tier_Moderate"),
+											String(localized: "AQI_Tier_UnhealthySensitive"),
+											String(localized: "AQI_Tier_Unhealthy"),
+											String(localized: "AQI_Tier_VeryUnhealthy"),
+											String(localized: "AQI_Tier_Hazardous")
 										]
+
 										
 										ForEach(Array(type.thresholds.enumerated()), id: \.offset) { index, value in
 											HStack(alignment: .top) {
@@ -67,7 +68,7 @@ struct InfoView: View {
 
 					
 					ForEach(pollutants.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-						VStack(alignment: .leading) {
+						VStack(alignment: .leading, spacing: 6) {
 							Text(key)
 								.font(.headline)
 							Text(value[0])
@@ -149,14 +150,8 @@ struct InfoView: View {
 					Text("Data Sources")
 						.font(.title2)
 						.fontWeight(.bold)
-				}
-				
-				Section {
-					Text("Contact us at contact@bzbee.co")
-				} header: {
-					Text("Contact")
-						.font(.title2)
-						.fontWeight(.bold)
+				} footer: {
+					Text("Developed with ❤️ by your homie BzBee in Taiwan.\ncontact@bzbee.co")
 				}
 				
 			}
@@ -180,12 +175,32 @@ struct InfoView: View {
 	
 	
 	private let pollutants: [String: [String]] = [
-		"Carbon monoxide (CO)": ["A colorless, odorless gas from incomplete burning of fossil fuels. It reduces oxygen flow in the blood, causing dizziness, headaches, and potentially death.", "Carbon Monoxide is measured in parts per million (ppm), which means one CO molecule per million air molecules."],
-		"Nitrogen dioxide (NO₂)": ["A reddish-brown gas from burning fossil fuels. It irritates the respiratory system and contributes to ozone and acid rain formation.", "Nitrogen dioxide is measured in parts per billion (ppb), which means one NO₂ molecule per billion air molecules."],
-		"Ozone (O₃)": ["A gas formed by reactions of pollutants (like nitrogen oxides and VOCs) in sunlight. In the lower atmosphere, it's a harmful pollutant that irritates the respiratory system and damages vegetation.", "Ozone is measured in parts per billion (ppb)."],
-		"Particulate matter (PM)": ["Tiny particles of solid or liquid matter suspended in the air. This includes coarser particles (PM₁₀ are 10 micrometers or smaller) and fine particles (PM₂.₅ are 2.5 micrometers or smaller), both of which can penetrate deep into the lungs and cause health problems. Sources include vehicle exhaust, industrial emissions, and wildfires.", "Particulate matter is measured in micrograms per cubic meter (µg/m³), which means the weight of particles in a cubic meter of air."],
-		"Sulfur dioxide (SO₂)": ["A colorless gas with a pungent odor, primarily from burning fossil fuels (coal and oil) or volcanic activity. It irritates the respiratory system and contributes to acid rain.", "Sulfure Dioxide is measured in parts per billion (ppb)."]
+		String(localized: "Carbon monoxide (CO)"): [
+			String(localized: "A colorless, odorless gas from incomplete burning of fossil fuels. It reduces oxygen flow in the blood, causing dizziness, headaches, and potentially death."),
+			String(localized: "Carbon Monoxide is measured in parts per million (ppm), which means one CO molecule per million air molecules.")
+		],
+		
+		String(localized: "Nitrogen dioxide (NO₂)"): [
+			String(localized: "A reddish-brown gas from burning fossil fuels. It irritates the respiratory system and contributes to ozone and acid rain formation."),
+			String(localized: "Nitrogen dioxide is measured in parts per billion (ppb), which means one NO₂ molecule per billion air molecules.")
+		],
+		
+		String(localized: "Ozone (O₃)"): [
+			String(localized: "A gas formed by reactions of pollutants (like nitrogen oxides and VOCs) in sunlight. In the lower atmosphere, it's a harmful pollutant that irritates the respiratory system and damages vegetation."),
+			String(localized: "Ozone is measured in parts per billion (ppb).")
+		],
+		
+		String(localized: "Particulate matter (PM)"): [
+			String(localized: "Tiny particles of solid or liquid matter suspended in the air. This includes coarser particles (PM₁₀ are 10 micrometers or smaller) and fine particles (PM₂.₅ are 2.5 micrometers or smaller), both of which can penetrate deep into the lungs and cause health problems. Sources include vehicle exhaust, industrial emissions, and wildfires."),
+			String(localized: "Particulate matter is measured in micrograms per cubic meter (µg/m³), which means the weight of particles in a cubic meter of air.")
+		],
+		
+		String(localized: "Sulfur dioxide (SO₂)"): [
+			String(localized: "A colorless gas with a pungent odor, primarily from burning fossil fuels (coal and oil) or volcanic activity. It irritates the respiratory system and contributes to acid rain."),
+			String(localized: "Sulfur dioxide is measured in parts per billion (ppb).")
+		]
 	]
+
 	
 
 	
@@ -204,4 +219,9 @@ struct InfoView: View {
 
 #Preview {
 	InfoView()
+}
+
+#Preview("Traditional Chinese") {
+	InfoView()
+		.environment(\.locale, Locale(identifier: "zh-Hant"))
 }

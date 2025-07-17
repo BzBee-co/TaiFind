@@ -10,12 +10,28 @@ import CoreLocation
 enum DisplayMode: String, CaseIterable {
 	case pins = "Pins"
 	case heatmap = "Heatmap"
+
+	var localizedName: LocalizedStringKey {
+		switch self {
+		case .pins: return "Pins"
+		case .heatmap: return "Heatmap"
+		}
+	}
 }
+
 
 enum MapLayerType: String, CaseIterable, Identifiable {
 	case trashCans = "Public trash cans"
 	case youBikes = "YouBike stations"
 	case aqi = "Air Quality"
+	
+	var localizedName: LocalizedStringKey {
+		switch self {
+		case .trashCans: return "Public trash cans"
+		case .youBikes: return "YouBike stations"
+		case .aqi: return "Air Quality"
+		}
+	}
 
 	var id: Self { self }
 
@@ -50,6 +66,14 @@ struct MapView: View {
 		case imagery = "Satellite"
 		case hybrid = "Hybrid"
 
+		var localizedName: LocalizedStringKey {
+			switch self {
+			case .standard: return "Standard"
+			case .imagery: return "Satellite"
+			case .hybrid: return "Hybrid"
+			}
+		}
+		
 		var style: MapStyle {
 			switch self {
 			case .standard: return .standard(elevation: .realistic)
@@ -260,13 +284,13 @@ struct MapView: View {
 		Menu {
 			Picker("Layer", selection: $selectedLayer) {
 				ForEach(MapLayerType.allCases) { layer in
-					Label(layer.rawValue, systemImage: layer.icon).tag(layer)
+					Label(layer.localizedName, systemImage: layer.icon).tag(layer)
 				}
 			}
 			Divider()
 			Picker("Map style", selection: $selectedMapStyle) {
 				ForEach(MapStyleOption.allCases, id: \.self) { type in
-					Text(type.rawValue).tag(type)
+					Text(type.localizedName).tag(type)
 				}
 			}
 			.pickerStyle(.menu)
@@ -352,4 +376,15 @@ extension TrashcanRecord: Identifiable, Hashable {
 	)
 	return MapView()
 		.environmentObject(viewModel)
+}
+
+#Preview("Traditional Chinese") {
+	let viewModel = AQIViewModel()
+	viewModel.region = MKCoordinateRegion(
+		center: CLLocationCoordinate2D(latitude: 25.0336, longitude: 121.565),
+		span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+	)
+	return MapView()
+		.environmentObject(viewModel)
+		.environment(\.locale, Locale(identifier: "zh-Hant"))
 }

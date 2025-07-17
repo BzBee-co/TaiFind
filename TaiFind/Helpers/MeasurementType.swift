@@ -17,15 +17,39 @@ enum MeasurementType: String, CaseIterable, Identifiable {
 	
 	var id: String { rawValue }
 	
-	var fullName: String {
+	var localizedShortName: LocalizedStringKey {
 		switch self {
-		case .aqi: return "Air Quality Index"
+		case .aqi: return "AQI"
+		case .co: return "CO"
+		case .no2: return "NO₂"
+		case .o3: return "O₃"
+		case .pm2_5: return "PM₂.₅"
+		case .pm10: return "PM₁₀"
+		case .so2: return "SO₂"
+		}
+	}
+	
+	var localizedFullName: LocalizedStringKey {
+		switch self {
+		case .aqi: return "AQI"
 		case .co: return "Carbon Monoxide"
 		case .no2: return "Nitrogen Dioxide"
 		case .o3: return "Ozone"
-		case .pm2_5: return "PM 2.5 µm"
-		case .pm10: return "PM 10 µm"
+		case .pm2_5: return "PM₂.₅"
+		case .pm10: return "PM₁₀"
 		case .so2: return "Sulfur Dioxide"
+		}
+	}
+
+	var localizedFullNameWithUnit: LocalizedStringKey {
+		switch self {
+		case .aqi: return "AQI"
+		case .co: return "Carbon Monoxide (ppm)"
+		case .no2: return "Nitrogen Dioxide (ppb)"
+		case .o3: return "Ozone (ppb)"
+		case .pm2_5: return "PM2.5 (µg/m³)"
+		case .pm10: return "PM10 (µg/m³)"
+		case .so2: return "Sulfur Dioxide (ppm)"
 		}
 	}
 	
