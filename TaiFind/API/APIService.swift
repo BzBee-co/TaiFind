@@ -16,7 +16,7 @@ class APIService {
 					var fixedSiteName = record.sitename
 					var fixedCounty = record.county
 					
-					if record.siteID == "201" {
+					if record.siteID == "201" && locale != "zh" {
 						fixedSiteName = "Yilan (Sanxing)"
 						fixedCounty = "Yilan County"
 					}
@@ -48,41 +48,55 @@ class APIService {
 	}
 
 	
-	// MARK: - Taipei Trashcan Data Fetching
+	// MARK: - Cached Trashcan Fetching from Proxy with 1-day cache
+
+	private static let trashcanCacheKey = "cachedTrashcanData"
+	private static let trashcanCacheDateKey = "cachedTrashcanDataDate"
+	private static let trashcanURL = URL(string: "https://air-quality-proxy.antoimn.workers.dev/trashcans")!
+
 	static func fetchAllTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {
-		let baseURL = "https://data.taipei/api/v1/dataset/267d550f-c6ec-46e0-b8af-fd5a464eb098?scope=resourceAquire"
-		let limit = 200
-		var allRecords: [TrashcanRecord] = []
-		var offset = 0
-		
-		func fetchPage() {
-			let urlString = "\(baseURL)&limit=\(limit)&offset=\(offset)"
-			guard let url = URL(string: urlString) else {
-				completion(allRecords)
+		// Check if cached data exists and is fresh (within 1 day)
+		if let cachedData = UserDefaults.standard.data(forKey: trashcanCacheKey),
+		   let cacheDate = UserDefaults.standard.object(forKey: trashcanCacheDateKey) as? Date,
+		   !Calendar.current.isDateInYesterday(cacheDate),
+		   let decoded = try? JSONDecoder().decode([TrashcanRecord].self, from: cachedData) {
+			// Return cached data immediately
+			completion(decoded)
+			return
+		}
+
+		// Fetch fresh data from proxy endpoint
+		let request = URLRequest(url: trashcanURL)
+		URLSession.shared.dataTask(with: request) { data, response, error in
+			guard let data = data, error == nil else {
+				// On failure, try to return cached data anyway
+				if let cachedData = UserDefaults.standard.data(forKey: trashcanCacheKey),
+				   let decoded = try? JSONDecoder().decode([TrashcanRecord].self, from: cachedData) {
+					completion(decoded)
+				} else {
+					completion([])
+				}
 				return
 			}
-			URLSession.shared.dataTask(with: url) { data, response, error in
-				guard let data = data, error == nil else {
-					completion(allRecords)
-					return
+			do {
+				// The proxy returns a JSON array of TrashcanRecord
+				let trashcans = try JSONDecoder().decode([TrashcanRecord].self, from: data)
+				// Cache the data and date
+				UserDefaults.standard.set(data, forKey: trashcanCacheKey)
+				UserDefaults.standard.set(Date(), forKey: trashcanCacheDateKey)
+
+				completion(trashcans)
+			} catch {
+				print("Failed to decode trashcan JSON from proxy:", error)
+				// Return cached data if decoding fails
+				if let cachedData = UserDefaults.standard.data(forKey: trashcanCacheKey),
+				   let decoded = try? JSONDecoder().decode([TrashcanRecord].self, from: cachedData) {
+					completion(decoded)
+				} else {
+					completion([])
 				}
-				do {
-					let decoded = try JSONDecoder().decode(TaipeiTrashcanResponse.self, from: data)
-					let results = decoded.result.results
-					allRecords.append(contentsOf: results)
-					if results.count == limit {
-						offset += limit
-						fetchPage()
-					} else {
-						completion(allRecords)
-					}
-				} catch {
-					print("Failed to decode trashcan JSON: \(error)")
-					completion(allRecords)
-				}
-			}.resume()
-		}
-		fetchPage()
+			}
+		}.resume()
 	}
 	
 	// MARK: - YouBike Data Fetching
@@ -138,15 +152,7 @@ struct APIRecord: Codable {
 	}
 }
 
-// MARK: - Taipei Trashcan Data Structures
-struct TaipeiTrashcanResponse: Codable {
-	let result: TaipeiTrashcanResult
-}
-
-struct TaipeiTrashcanResult: Codable {
-	let results: [TrashcanRecord]
-}
-
+// MARK: - Trashcan Data Structure (flat array assumed)
 struct TrashcanRecord: Codable {
 	let id: Int
 	let district: String

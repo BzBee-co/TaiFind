@@ -1,7 +1,9 @@
+//
 //  MapView.swift
 //  Taiwan AQI
 //
 //  Created by Antoine Moreau on 2025/3/30.
+//
 
 import SwiftUI
 import MapKit
@@ -18,7 +20,6 @@ enum DisplayMode: String, CaseIterable {
 		}
 	}
 }
-
 
 enum MapLayerType: String, CaseIterable, Identifiable {
 	case trashCans = "Public trash cans"
@@ -60,6 +61,8 @@ struct MapView: View {
 	@State private var showAnnotations = true
 	@State private var bouncingRecord: AQIRecord?
 	@State private var bouncingYouBikeStation: YouBikeStation?
+	@State private var showTrashcanErrorAlert = false
+
 
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
@@ -105,7 +108,7 @@ struct MapView: View {
 		.onAppear {
 			viewModel.fetchAQIData()
 		}
-		.onChange(of: selectedLayer) { newValue in
+		.onChange(of: selectedLayer) { oldValue, newValue in
 			withAnimation {
 				switch newValue {
 				case .aqi:
@@ -129,6 +132,19 @@ struct MapView: View {
 				}
 			}
 		}
+		
+		.onChange(of: viewModel.trashcanServiceDown) { oldValue, newValue in
+			if newValue {
+				showTrashcanErrorAlert = true
+			}
+		}
+		
+		.alert("Service down", isPresented: $showTrashcanErrorAlert) {
+			Button("OK", role: .cancel) { }
+		} message: {
+			Text("The trash can service is currently unavailable. Please try again later.")
+		}
+		
 		.sheet(item: $selectedAirQualityRecord, onDismiss: {
 			withAnimation(.spring(response: 0.3, dampingFraction: 0.3)) {
 				bouncingRecord = nil
@@ -181,6 +197,7 @@ struct MapView: View {
 			}
 		}
 	}
+
 
 	private var youBikeMap: some View {
 		Map(
@@ -358,6 +375,15 @@ extension MeasurementType {
 	}
 }
 
+extension TrashCanData.TrashCan {
+	var coordinate: CLLocationCoordinate2D? {
+		guard let lat = Double(latitude), let lon = Double(longitude) else {
+			return nil
+		}
+		return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+	}
+}
+
 extension TrashcanRecord: Identifiable, Hashable {
 	static func == (lhs: TrashcanRecord, rhs: TrashcanRecord) -> Bool {
 		lhs.id == rhs.id
@@ -366,7 +392,6 @@ extension TrashcanRecord: Identifiable, Hashable {
 		hasher.combine(id)
 	}
 }
-
 
 #Preview {
 	let viewModel = AQIViewModel()

@@ -2,7 +2,14 @@
   "sourceLanguage" : "en",
   "strings" : {
     " %@" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " %@"
+          }
+        }
+      }
     },
     "(last updated: %@)" : {
       "localizations" : {
@@ -20,23 +27,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "* 免責聲明"
-          }
-        }
-      }
-    },
-    "%@ %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
           }
         }
       }
@@ -269,7 +259,14 @@
       }
     },
     "Carbon Monoxide (ppm)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一氧化碳（ppm）"
+          }
+        }
+      }
     },
     "Carbon Monoxide is measured in parts per million (ppm), which means one CO molecule per million air molecules." : {
       "localizations" : {
@@ -462,7 +459,14 @@
       }
     },
     "Nitrogen Dioxide (ppb)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化氮（ppb）"
+          }
+        }
+      }
     },
     "Nitrogen dioxide is measured in parts per billion (ppb), which means one NO₂ molecule per billion air molecules." : {
       "localizations" : {
@@ -490,6 +494,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "O₃"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "好"
           }
         }
       }
@@ -535,7 +549,14 @@
       }
     },
     "Ozone (ppb)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "臭氧（ppb）"
+          }
+        }
+      }
     },
     "Ozone is measured in parts per billion (ppb)." : {
       "localizations" : {
@@ -578,10 +599,24 @@
       }
     },
     "PM2.5 (µg/m³)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PM₂.₅ (µg/m³)"
+          }
+        }
+      }
     },
     "PM10 (µg/m³)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PM₁₀ (µg/m³)"
+          }
+        }
+      }
     },
     "PM₁₀" : {
       "localizations" : {
@@ -643,6 +678,16 @@
         }
       }
     },
+    "Service down" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服務暫時無法使用"
+          }
+        }
+      }
+    },
     "SO₂" : {
       "localizations" : {
         "zh-Hant" : {
@@ -674,7 +719,14 @@
       }
     },
     "Sulfur Dioxide (ppm)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化硫（ppm）"
+          }
+        }
+      }
     },
     "Sulfur dioxide (SO₂)" : {
       "localizations" : {
@@ -722,6 +774,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本 App 所顯示的資訊來自台北市政府開放資料平台。我們致力於提供準確資訊，但實際情況可能與資料不符，對任何不準確或過時的內容，我們不負責。"
+          }
+        }
+      }
+    },
+    "The trash can service is currently unavailable. Please try again later." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "垃圾桶資料服務目前無法連線，請稍後再試。"
           }
         }
       }

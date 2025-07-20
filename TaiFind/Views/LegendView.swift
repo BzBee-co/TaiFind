@@ -36,7 +36,7 @@ struct LegendView: View {
 			HStack {
 				Picker("Selected Measurement", selection: $selectedMeasurement) {
 					ForEach(MeasurementType.allCases, id: \.self) { measurement in
-						Text(measurement.localizedFullName) + Text(" \(measurement.unit)")
+						Text(measurement.localizedShortName) + Text(" \(measurement.unit)")
 
 					}
 				}
@@ -52,6 +52,7 @@ struct LegendView: View {
 							.tag(mode)
 					}
 				}
+				.labelsHidden()
 				.pickerStyle(.segmented)
 				.frame(maxWidth: 150)
 			}

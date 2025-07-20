@@ -16,6 +16,7 @@ class AQIViewModel: ObservableObject {
         center: CLLocationCoordinate2D(latitude: 25.0336, longitude: 121.565),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
+	@Published var trashcanServiceDown: Bool = false
     
     let locationManager = LocationManager()
     private var cancellables = Set<AnyCancellable>()
@@ -46,15 +47,25 @@ class AQIViewModel: ObservableObject {
         }
     }
     
-    func fetchTrashcanData() {
-        trashcanLoading = true
-        APIService.fetchAllTrashcans { [weak self] records in
-            DispatchQueue.main.async {
-                self?.trashcanRecords = records
-                self?.trashcanLoading = false
-            }
-        }
-    }
+	func fetchTrashcanData() {
+			trashcanLoading = true
+			trashcanServiceDown = false  // Reset on each fetch
+
+			APIService.fetchAllTrashcans { [weak self] records in
+				DispatchQueue.main.async {
+					if records.isEmpty {
+						// If no records fetched, and cache is empty, treat as service down
+						if self?.trashcanRecords.isEmpty ?? true {
+							self?.trashcanServiceDown = true
+						}
+					} else {
+						self?.trashcanRecords = records
+						self?.trashcanServiceDown = false
+					}
+					self?.trashcanLoading = false
+				}
+			}
+		}
     
     func fetchYouBikeStations() {
         youBikeLoading = true
