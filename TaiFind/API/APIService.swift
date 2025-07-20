@@ -55,46 +55,45 @@ class APIService {
 	private static let trashcanURL = URL(string: "https://air-quality-proxy.antoimn.workers.dev/trashcans")!
 
 	static func fetchAllTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {
-		// Check if cached data exists and is fresh (within 1 day)
-		if let cachedData = UserDefaults.standard.data(forKey: trashcanCacheKey),
-		   let cacheDate = UserDefaults.standard.object(forKey: trashcanCacheDateKey) as? Date,
-		   !Calendar.current.isDateInYesterday(cacheDate),
-		   let decoded = try? JSONDecoder().decode([TrashcanRecord].self, from: cachedData) {
-			// Return cached data immediately
-			completion(decoded)
+		// Always check for any cached data (fresh or stale)
+		let cachedData = UserDefaults.standard.data(forKey: trashcanCacheKey)
+		let cacheDate = UserDefaults.standard.object(forKey: trashcanCacheDateKey) as? Date
+		let cachedRecords: [TrashcanRecord]? = {
+			guard let data = cachedData else { return nil }
+			return try? JSONDecoder().decode([TrashcanRecord].self, from: data)
+		}()
+		let isCacheFresh = cacheDate != nil && !Calendar.current.isDateInYesterday(cacheDate!)
+
+		// If cache is fresh, use it immediately
+		if isCacheFresh, let cachedRecords = cachedRecords {
+			completion(cachedRecords)
 			return
 		}
 
-		// Fetch fresh data from proxy endpoint
+		// Otherwise, fetch fresh data from proxy endpoint
 		let request = URLRequest(url: trashcanURL)
 		URLSession.shared.dataTask(with: request) { data, response, error in
-			guard let data = data, error == nil else {
-				// On failure, try to return cached data anyway
-				if let cachedData = UserDefaults.standard.data(forKey: trashcanCacheKey),
-				   let decoded = try? JSONDecoder().decode([TrashcanRecord].self, from: cachedData) {
-					completion(decoded)
-				} else {
-					completion([])
+			if let data = data, error == nil {
+				do {
+					let trashcans = try JSONDecoder().decode([TrashcanRecord].self, from: data)
+					if !trashcans.isEmpty {
+						// Cache the data and date
+						UserDefaults.standard.set(data, forKey: trashcanCacheKey)
+						UserDefaults.standard.set(Date(), forKey: trashcanCacheDateKey)
+						completion(trashcans)
+						return
+					}
+					// If API returns empty, fall through to use cache if available
+				} catch {
+					print("Failed to decode trashcan JSON from proxy:", error)
+					// Fall through to use cache if available
 				}
-				return
 			}
-			do {
-				// The proxy returns a JSON array of TrashcanRecord
-				let trashcans = try JSONDecoder().decode([TrashcanRecord].self, from: data)
-				// Cache the data and date
-				UserDefaults.standard.set(data, forKey: trashcanCacheKey)
-				UserDefaults.standard.set(Date(), forKey: trashcanCacheDateKey)
-
-				completion(trashcans)
-			} catch {
-				print("Failed to decode trashcan JSON from proxy:", error)
-				// Return cached data if decoding fails
-				if let cachedData = UserDefaults.standard.data(forKey: trashcanCacheKey),
-				   let decoded = try? JSONDecoder().decode([TrashcanRecord].self, from: cachedData) {
-					completion(decoded)
-				} else {
-					completion([])
-				}
+			// If API fails or returns empty, use cache (even if stale)
+			if let cachedRecords = cachedRecords {
+				completion(cachedRecords)
+			} else {
+				completion([]) // No cache at all, signal service down
 			}
 		}.resume()
 	}
