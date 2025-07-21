@@ -1,12 +1,13 @@
 import Foundation
 
 class APIService {
+	// MARK: - Air Quality Data Fetching
 	static func fetchAQI(completion: @escaping ([AQIRecord]) -> Void) {
 		let locale = Locale.current.language.languageCode?.identifier == "zh" ? "zh" : "en"
-		let urlString = "https://air-quality-proxy.antoimn.workers.dev?locale=\(locale)"
+		let urlString = "https://air-quality-proxy.antoimn.workers.dev/air-quality?locale=\(locale)"
 		guard let url = URL(string: urlString) else { return }
 
-		var request = URLRequest(url: url)
+		let request = URLRequest(url: url)
 
 		URLSession.shared.dataTask(with: request) { data, response, error in
 			guard let data = data, error == nil else { return }
@@ -15,12 +16,12 @@ class APIService {
 				let records = decodedResponse.records.map { record in
 					var fixedSiteName = record.sitename
 					var fixedCounty = record.county
-					
-					if record.siteID == "201" {
+
+					if record.siteID == "201" && locale == "en" {
 						fixedSiteName = "Yilan (Sanxing)"
 						fixedCounty = "Yilan County"
 					}
-					
+
 					return AQIRecord(
 						siteName: fixedSiteName,
 						county: fixedCounty,
@@ -39,22 +40,51 @@ class APIService {
 						siteID: record.siteID
 					)
 				}
-
 				completion(records)
 			} catch {
-				print("Failed to decode JSON: \(error)")
+				print("Failed to decode AQI JSON: \(error)")
 			}
 		}.resume()
 	}
 
-	
-	// MARK: - Taipei Trashcan Data Fetching
+	// MARK: - Trashcan Data Fetching (from Cloudflare Worker)
+	static func fetchTrashcansViaWorker(completion: @escaping ([TrashcanRecord]) -> Void) {
+		let urlString = "https://air-quality-proxy.antoimn.workers.dev/trashcans"
+		guard let url = URL(string: urlString) else {
+			print("⚠️ Invalid Worker URL")
+			completion([])
+			return
+		}
+		URLSession.shared.dataTask(with: url) { data, response, error in
+			if let error = error {
+				print("❌ Error fetching from Worker: \(error)")
+				completion([])
+				return
+			}
+			guard let data = data else {
+				print("❌ No data from Worker")
+				completion([])
+				return
+			}
+			do {
+				let decoded = try JSONDecoder().decode([TrashcanRecord].self, from: data)
+				print("✅ Loaded trashcan data from WORKER: \(decoded.count) records")
+				completion(decoded)
+			} catch {
+				print("❌ Failed to decode trashcan JSON from Worker: \(error)")
+				completion([])
+			}
+		}.resume()
+	}
+
+
+	// MARK: - Fallback Taipei Trashcan Data Fetching (direct from Taipei open data)
 	static func fetchAllTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {
 		let baseURL = "https://data.taipei/api/v1/dataset/267d550f-c6ec-46e0-b8af-fd5a464eb098?scope=resourceAquire"
 		let limit = 200
 		var allRecords: [TrashcanRecord] = []
 		var offset = 0
-		
+
 		func fetchPage() {
 			let urlString = "\(baseURL)&limit=\(limit)&offset=\(offset)"
 			guard let url = URL(string: urlString) else {
@@ -74,6 +104,7 @@ class APIService {
 						offset += limit
 						fetchPage()
 					} else {
+						print("✅ Loaded trashcan data from FALLBACK (Taipei): \(allRecords.count) records")
 						completion(allRecords)
 					}
 				} catch {
@@ -85,6 +116,23 @@ class APIService {
 		fetchPage()
 	}
 	
+	// MARK: - something else
+	static func fetchTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {
+		fetchTrashcansViaWorker { records in
+			if !records.isEmpty {
+				print("✅ Loaded trashcan data from WORKER: \(records.count) records")
+				completion(records)
+			} else {
+				print("⚠️ Worker returned empty. Falling back to direct Taipei API")
+				fetchAllTrashcans { fallbackRecords in
+					print("✅ Loaded trashcan data from FALLBACK (Taipei): \(fallbackRecords.count) records")
+					completion(fallbackRecords)
+				}
+			}
+		}
+	}
+
+
 	// MARK: - YouBike Data Fetching
 	static func fetchYouBikeStations(completion: @escaping ([YouBikeStation]) -> Void) {
 		let urlString = "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
@@ -129,8 +177,7 @@ struct APIRecord: Codable {
 	let no2: String?
 	let publishtime: String
 	let siteID: String
-	
-	// Use CodingKeys to match JSON keys to Swift properties if needed.
+
 	enum CodingKeys: String, CodingKey {
 		case sitename, county, latitude, longitude, aqi, pollutant, status, so2, co, o3, pm10, no2, publishtime
 		case pm2_5 = "pm2.5"
@@ -138,7 +185,7 @@ struct APIRecord: Codable {
 	}
 }
 
-// MARK: - Taipei Trashcan Data Structures
+// MARK: - Trashcan Data Structures
 struct TaipeiTrashcanResponse: Codable {
 	let result: TaipeiTrashcanResult
 }
@@ -154,7 +201,7 @@ struct TrashcanRecord: Codable {
 	let longitude: String
 	let latitude: String
 	let note: String
-	
+
 	enum CodingKeys: String, CodingKey {
 		case id = "_id"
 		case district = "行政區"
@@ -165,7 +212,7 @@ struct TrashcanRecord: Codable {
 	}
 }
 
-// MARK: - YouBike Data Structure
+// MARK: - YouBike Data Structures
 struct YouBikeStation: Codable, Identifiable, Equatable {
 	var id: String { sno }
 	let sno: String
