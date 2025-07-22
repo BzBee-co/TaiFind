@@ -12,8 +12,8 @@ class APIService {
 		URLSession.shared.dataTask(with: request) { data, response, error in
 			guard let data = data, error == nil else { return }
 			do {
-				let decodedResponse = try JSONDecoder().decode(AQIData.self, from: data)
-				let records = decodedResponse.records.map { record in
+				let decodedResponse = try JSONDecoder().decode(RootResponse.self, from: data)
+				let records = decodedResponse.data.records.map { record in
 					var fixedSiteName = record.sitename
 					var fixedCounty = record.county
 
@@ -77,7 +77,6 @@ class APIService {
 		}.resume()
 	}
 
-
 	// MARK: - Fallback Taipei Trashcan Data Fetching (direct from Taipei open data)
 	static func fetchAllTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {
 		let baseURL = "https://data.taipei/api/v1/dataset/267d550f-c6ec-46e0-b8af-fd5a464eb098?scope=resourceAquire"
@@ -116,7 +115,7 @@ class APIService {
 		fetchPage()
 	}
 	
-	// MARK: - something else
+	// MARK: - Trashcan Fetching with Fallback Logic
 	static func fetchTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {
 		fetchTrashcansViaWorker { records in
 			if !records.isEmpty {
@@ -131,7 +130,6 @@ class APIService {
 			}
 		}
 	}
-
 
 	// MARK: - YouBike Data Fetching
 	static func fetchYouBikeStations(completion: @escaping ([YouBikeStation]) -> Void) {
@@ -156,7 +154,13 @@ class APIService {
 	}
 }
 
-// MARK: - Decodable Data Structures
+// MARK: - Decodable Data Structures for AQI API
+
+struct RootResponse: Codable {
+	let timestamp: Int64
+	let data: AQIData
+}
+
 struct AQIData: Codable {
 	let records: [APIRecord]
 }
@@ -186,6 +190,7 @@ struct APIRecord: Codable {
 }
 
 // MARK: - Trashcan Data Structures
+
 struct TaipeiTrashcanResponse: Codable {
 	let result: TaipeiTrashcanResult
 }
@@ -213,6 +218,7 @@ struct TrashcanRecord: Codable {
 }
 
 // MARK: - YouBike Data Structures
+
 struct YouBikeStation: Codable, Identifiable, Equatable {
 	var id: String { sno }
 	let sno: String
