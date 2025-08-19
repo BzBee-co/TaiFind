@@ -126,7 +126,7 @@ struct InfoView: View {
 				Section {
 					Text("This app uses datasets provided by the Taiwan Government Open Data Platform, the Taipei City Government Open Data Platform, and the Taichung City Government Open Data Platform, licensed under: Open Government Data License v1.0.")
 					
-					Link(destination: URL(string: "https://data.moenv.gov.tw/")!) {
+					Link(destination: URL(string: "https://data.gov.tw")!) {
 						HStack {
 							Text("Taiwan Government Open Data")
 							Image(systemName: "arrow.up.forward")
@@ -167,7 +167,7 @@ struct InfoView: View {
 						.font(.title2)
 						.fontWeight(.bold)
 				} footer: {
-					VStack(alignment: .leading) {
+					VStack {
 						Text("© \(String(Calendar.current.component(.year, from: Date()))) bzbee.co — version \(version) (\(build))")
 						Text("Developed with ❤️ by your homie BzBee in Taiwan.")
 						Text("contact@bzbee.co")

@@ -549,6 +549,7 @@
       }
     },
     "Open Taipei" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
@@ -816,7 +817,7 @@
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Taichung City Government Open Data"
+            "value" : "臺中市政府資料開放平臺"
           }
         }
       }
@@ -831,12 +832,22 @@
         }
       }
     },
+    "Taipei City Government Open Data" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "臺北市資料大平臺"
+          }
+        }
+      }
+    },
     "Taiwan Government Open Data" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Taiwan Government Open Data"
+            "value" : "政府資料開放平"
           }
         }
       }
