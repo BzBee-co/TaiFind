@@ -3,6 +3,14 @@ import SwiftUI
 struct InfoView: View {
 	@Environment(\.dismiss) var dismiss
 	
+	var version: String {
+		Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+	}
+	
+	var build: String {
+		Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+	}
+	
 	var body: some View {
 		NavigationStack {
 			List {
@@ -151,9 +159,14 @@ struct InfoView: View {
 						.font(.title2)
 						.fontWeight(.bold)
 				} footer: {
-					Text("Developed with ❤️ by your homie BzBee in Taiwan.\ncontact@bzbee.co")
+					VStack(alignment: .center) {
+						Text("© \(String(Calendar.current.component(.year, from: Date()))) bzbee.co — version \(version) (\(build))")
+						Text("Developed with ❤️ by your homie BzBee in Taiwan.")
+						Text("contact@bzbee.co")
+					}
+					
+
 				}
-				
 			}
 			.fontDesign(.rounded)
 			.navigationTitle("Information")
