@@ -47,8 +47,8 @@ enum MeasurementType: String, CaseIterable, Identifiable {
 		case .co: return "Carbon Monoxide (ppm)"
 		case .no2: return "Nitrogen Dioxide (ppb)"
 		case .o3: return "Ozone (ppb)"
-		case .pm2_5: return "PM2.5 (µg/m³)"
-		case .pm10: return "PM10 (µg/m³)"
+		case .pm2_5: return "PM₂.₅ (µg/m³)"
+		case .pm10: return "PM₁₀ (µg/m³)"
 		case .so2: return "Sulfur Dioxide (ppm)"
 		}
 	}

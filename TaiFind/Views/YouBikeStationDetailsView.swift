@@ -50,10 +50,10 @@ struct YouBikeStationDetailsView: View {
 				
                 Divider()
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Last updated: \(station.updateTime)")
+                    Text("Last updated: \(formatUpdateTime(station.updateTime))")
                         .font(.caption)
 
-                    Text("The information displayed is based on the latest available data from the Taipei City Government Open Data platform. While we strive for accuracy, discrepancies may exist between the available data and real-world conditions. We are not responsible for any inaccuracies or outdated information.")
+                    Text("The information displayed is based on the latest available data from the Taipei City/Taichung City Government Open Data platform. While we strive for accuracy, discrepancies may exist between the available data and real-world conditions. We are not responsible for any inaccuracies or outdated information.")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -75,6 +75,25 @@ struct YouBikeStationDetailsView: View {
 			}
         }
     }
+	
+	private func formatUpdateTime(_ raw: String) -> String {
+		// Try Taipei format first: yyyy-MM-dd HH:mm:ss
+		let out = DateFormatter()
+		out.dateFormat = "yyyy-MM-dd HH:mm:ss"
+		let dfTaipei = DateFormatter()
+		dfTaipei.dateFormat = "yyyy-MM-dd HH:mm:ss"
+		if let d = dfTaipei.date(from: raw) {
+			return out.string(from: d)
+		}
+		// Try Taichung format: yyyyMMddHHmmss
+		let dfTaichung = DateFormatter()
+		dfTaichung.dateFormat = "yyyyMMddHHmmss"
+		if let d = dfTaichung.date(from: raw) {
+			return out.string(from: d)
+		}
+		// Fallback to raw if unknown
+		return raw
+	}
 }
 
 #Preview {

@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     " %@" : {
-
+      "shouldTranslate" : false
     },
     "(last updated: %@)" : {
       "localizations" : {
@@ -47,6 +47,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld"
+          }
+        }
+      }
+    },
+    "© %@ bzbee.co — version %@ (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "© %1$@ bzbee.co — version %2$@ (%3$@)"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "© %1$@ bzbee.co — version %2$@ (%3$@)"
           }
         }
       }
@@ -269,7 +285,14 @@
       }
     },
     "Carbon Monoxide (ppm)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一氧化碳（ppm）"
+          }
+        }
+      }
     },
     "Carbon Monoxide is measured in parts per million (ppm), which means one CO molecule per million air molecules." : {
       "localizations" : {
@@ -291,6 +314,9 @@
         }
       }
     },
+    "contact@bzbee.co" : {
+      "shouldTranslate" : false
+    },
     "Data Sources" : {
       "localizations" : {
         "zh-Hant" : {
@@ -301,7 +327,18 @@
         }
       }
     },
+    "Developed with ❤️ by your homie BzBee in Taiwan." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由你的好夥伴 BzBee 在台灣開發 ❤️"
+          }
+        }
+      }
+    },
     "Developed with ❤️ by your homie BzBee in Taiwan.\ncontact@bzbee.co" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
@@ -462,7 +499,14 @@
       }
     },
     "Nitrogen Dioxide (ppb)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化氮（ppb）"
+          }
+        }
+      }
     },
     "Nitrogen dioxide is measured in parts per billion (ppb), which means one NO₂ molecule per billion air molecules." : {
       "localizations" : {
@@ -535,7 +579,14 @@
       }
     },
     "Ozone (ppb)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "臭氧（ppb）"
+          }
+        }
+      }
     },
     "Ozone is measured in parts per billion (ppb)." : {
       "localizations" : {
@@ -578,10 +629,26 @@
       }
     },
     "PM2.5 (µg/m³)" : {
-
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PM₂.₅ (µg/m³)"
+          }
+        }
+      }
     },
     "PM10 (µg/m³)" : {
-
+      "extractionState" : "stale",
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PM₁₀ (µg/m³)"
+          }
+        }
+      }
     },
     "PM₁₀" : {
       "localizations" : {
@@ -593,12 +660,32 @@
         }
       }
     },
+    "PM₁₀ (µg/m³)" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PM₁₀ (µg/m³)"
+          }
+        }
+      }
+    },
     "PM₂.₅" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "PM₂.₅ 懸浮微粒"
+          }
+        }
+      }
+    },
+    "PM₂.₅ (µg/m³)" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PM₂.₅ (µg/m³)"
           }
         }
       }
@@ -623,7 +710,18 @@
         }
       }
     },
+    "See the number of available bikes and open parking docks at each YouBike 2.0 station in Taipei City and Taichung City.*" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看台北市/台中市每個 YouBike 2.0 站點的可用車輛與停車柱數量。*"
+          }
+        }
+      }
+    },
     "See the number of available bikes and open parking docks at each YouBike 2.0 station in Taipei City.*" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
@@ -674,7 +772,14 @@
       }
     },
     "Sulfur Dioxide (ppm)" : {
-
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "二氧化硫（ppm）"
+          }
+        }
+      }
     },
     "Sulfur dioxide (SO₂)" : {
       "localizations" : {
@@ -692,6 +797,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "二氧化硫的單位為十億分之一（ppb）。"
+          }
+        }
+      }
+    },
+    "Taichung City" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台中市"
+          }
+        }
+      }
+    },
+    "Taichung City Government Open Data" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taichung City Government Open Data"
+          }
+        }
+      }
+    },
+    "Taipei City" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "台北市"
           }
         }
       }
@@ -717,6 +852,7 @@
       }
     },
     "The information displayed is based on the latest available data from the Taipei City Government Open Data platform. While we strive for accuracy, discrepancies may exist between the available data and real-world conditions. We are not responsible for any inaccuracies or outdated information." : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
@@ -726,12 +862,33 @@
         }
       }
     },
+    "The information displayed is based on the latest available data from the Taipei City/Taichung City Government Open Data platform. While we strive for accuracy, discrepancies may exist between the available data and real-world conditions. We are not responsible for any inaccuracies or outdated information." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本 App 所顯示的資訊來自台北/台中市政府開放資料平台。我們致力於提供準確資訊，但實際情況可能與資料不符，對任何不準確或過時的內容，我們不負責。"
+          }
+        }
+      }
+    },
     "This app uses datasets provided by the Taiwan Government Open Data Platform and by the Taipei City Government Open Data Platform, licensed under: Open Government Data License v1.0." : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "本 App 使用台灣政府與台北市政府開放資料平台所提供的資料集，並依據 Open Government Data License v1.0 授權使用。"
+          }
+        }
+      }
+    },
+    "This app uses datasets provided by the Taiwan Government Open Data Platform, the Taipei City Government Open Data Platform, and the Taichung City Government Open Data Platform, licensed under: Open Government Data License v1.0." : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本 App 使用台灣政府、臺北市政府及臺中市政府開放資料平台所提供的資料集，並依據「政府資料開放授權條款‑第一版」授權使用。"
           }
         }
       }
@@ -777,11 +934,32 @@
       }
     },
     "YouBike stations" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "YouBike 站點"
+          }
+        }
+      }
+    },
+    "YouBike Taichung" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouBike 台中"
+          }
+        }
+      }
+    },
+    "YouBike Taipei" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouBike 台北"
           }
         }
       }

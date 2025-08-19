@@ -2,13 +2,16 @@ import Foundation
 import CoreLocation
 import MapKit
 import Combine
+import SwiftUI
 
 class AQIViewModel: ObservableObject {
 	@Published var aqiRecords: [AQIRecord] = []
 	@Published var trashcanRecords: [TrashcanRecord] = []
 	@Published var youBikeStations: [YouBikeStation] = []
+	@Published var taichungYouBikeStations: [TaichungYouBikeStation] = []
 	@Published var showTrashcans: Bool = false
 	@Published var showYouBikes: Bool = false
+	@Published var youBikeCity: YouBikeCity = .taipei
 	@Published var trashcanLoading: Bool = false
 	@Published var youBikeLoading: Bool = false
 	@Published var region = MKCoordinateRegion(
@@ -17,6 +20,18 @@ class AQIViewModel: ObservableObject {
 	)
 	
 	@Published var isLoadingAirQualityData: Bool = false
+
+	enum YouBikeCity: String, CaseIterable {
+		case taipei = "Taipei City"
+		case taichung = "Taichung City"
+		
+		var localizedName: LocalizedStringKey {
+			switch self {
+			case .taipei: return "Taipei City"
+			case .taichung: return "Taichung City"
+			}
+		}
+	}
 
 
 	let locationManager = LocationManager()
@@ -63,10 +78,20 @@ class AQIViewModel: ObservableObject {
 
 	func fetchYouBikeStations() {
 		youBikeLoading = true
-		APIService.fetchYouBikeStations { [weak self] stations in
-			DispatchQueue.main.async {
-				self?.youBikeStations = stations
-				self?.youBikeLoading = false
+		switch youBikeCity {
+		case .taipei:
+			APIService.fetchYouBikeStations { [weak self] stations in
+				DispatchQueue.main.async {
+					self?.youBikeStations = stations
+					self?.youBikeLoading = false
+				}
+			}
+		case .taichung:
+			APIService.fetchTaichungYouBikeStations { [weak self] stations in
+				DispatchQueue.main.async {
+					self?.taichungYouBikeStations = stations
+					self?.youBikeLoading = false
+				}
 			}
 		}
 	}
@@ -137,12 +162,23 @@ extension AQIViewModel {
 	func youBikeAnnotations(for region: MKCoordinateRegion) -> [YouBikeCluster] {
 		let latGrid = region.span.latitudeDelta / 10
 		let lonGrid = region.span.longitudeDelta / 10
-		var clusters: [String: [YouBikeStation]] = [:]
+		var clusters: [String: [AnyYouBikeStation]] = [:]
 
-		for station in youBikeStations {
-			let key = CLLocationCoordinate2D(latitude: station.latitude, longitude: station.longitude)
-				.gridKey(latGrid: latGrid, lonGrid: lonGrid)
-			clusters[key, default: []].append(station)
+		switch youBikeCity {
+		case .taipei:
+			for station in youBikeStations {
+				let anyStation = AnyYouBikeStation.taipei(station)
+				let key = CLLocationCoordinate2D(latitude: station.latitude, longitude: station.longitude)
+					.gridKey(latGrid: latGrid, lonGrid: lonGrid)
+				clusters[key, default: []].append(anyStation)
+			}
+		case .taichung:
+			for station in taichungYouBikeStations {
+				let anyStation = AnyYouBikeStation.taichung(station)
+				let key = CLLocationCoordinate2D(latitude: station.latitude, longitude: station.longitude)
+					.gridKey(latGrid: latGrid, lonGrid: lonGrid)
+				clusters[key, default: []].append(anyStation)
+			}
 		}
 
 		return clusters.map { (key, stations) in
@@ -159,8 +195,78 @@ extension AQIViewModel {
 				updateTime: first.updateTime,
 				infoTime: first.infoTime,
 				srcUpdateTime: first.srcUpdateTime,
-				name: first.snaen
+				name: first.name
 			)
+		}
+	}
+}
+
+// MARK: - Unified YouBike Station Type
+
+enum AnyYouBikeStation {
+	case taipei(YouBikeStation)
+	case taichung(TaichungYouBikeStation)
+	
+	var latitude: Double {
+		switch self {
+		case .taipei(let station): return station.latitude
+		case .taichung(let station): return station.latitude
+		}
+	}
+	
+	var longitude: Double {
+		switch self {
+		case .taipei(let station): return station.longitude
+		case .taichung(let station): return station.longitude
+		}
+	}
+	
+	var available_rent_bikes: Int {
+		switch self {
+		case .taipei(let station): return station.available_rent_bikes
+		case .taichung(let station): return station.available_rent_bikes
+		}
+	}
+	
+	var available_return_bikes: Int {
+		switch self {
+		case .taipei(let station): return station.available_return_bikes
+		case .taichung(let station): return station.available_return_bikes
+		}
+	}
+	
+	var updateTime: String {
+		switch self {
+		case .taipei(let station): return station.updateTime
+		case .taichung(let station): return station.updateTime
+		}
+	}
+	
+	var infoTime: String {
+		switch self {
+		case .taipei(let station): return station.infoTime
+		case .taichung(let station): return station.infoTime
+		}
+	}
+	
+	var srcUpdateTime: String {
+		switch self {
+		case .taipei(let station): return station.srcUpdateTime
+		case .taichung(let station): return station.srcUpdateTime
+		}
+	}
+	
+	var name: String {
+		switch self {
+		case .taipei(let station): return station.snaen
+		case .taichung(let station): return station.snaen
+		}
+	}
+	
+	var originalStation: Any {
+		switch self {
+		case .taipei(let station): return station
+		case .taichung(let station): return station
 		}
 	}
 }

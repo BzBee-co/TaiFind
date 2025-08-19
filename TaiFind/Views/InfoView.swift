@@ -103,7 +103,7 @@ struct InfoView: View {
 				}
 				
 				Section {
-					Text("See the number of available bikes and open parking docks at each YouBike 2.0 station in Taipei City.*")
+					Text("See the number of available bikes and open parking docks at each YouBike 2.0 station in Taipei City and Taichung City.*")
 				} header: {
 					Text("YouBike")
 						.font(.title2)
@@ -124,7 +124,7 @@ struct InfoView: View {
 				}
 				
 				Section {
-					Text("This app uses datasets provided by the Taiwan Government Open Data Platform and by the Taipei City Government Open Data Platform, licensed under: Open Government Data License v1.0.")
+					Text("This app uses datasets provided by the Taiwan Government Open Data Platform, the Taipei City Government Open Data Platform, and the Taichung City Government Open Data Platform, licensed under: Open Government Data License v1.0.")
 					
 					Link(destination: URL(string: "https://data.moenv.gov.tw/")!) {
 						HStack {
@@ -136,7 +136,15 @@ struct InfoView: View {
 					
 					Link(destination: URL(string: "https://data.taipei")!) {
 						HStack {
-							Text("Open Taipei")
+							Text("Taipei City Government Open Data")
+							Image(systemName: "arrow.up.forward")
+						}
+						.font(.subheadline)
+					}
+					
+					Link(destination: URL(string: "https://opendata.taichung.gov.tw")!) {
+						HStack {
+							Text("Taichung City Government Open Data")
 							Image(systemName: "arrow.up.forward")
 						}
 						.font(.subheadline)
@@ -159,7 +167,7 @@ struct InfoView: View {
 						.font(.title2)
 						.fontWeight(.bold)
 				} footer: {
-					VStack(alignment: .center) {
+					VStack(alignment: .leading) {
 						Text("© \(String(Calendar.current.component(.year, from: Date()))) bzbee.co — version \(version) (\(build))")
 						Text("Developed with ❤️ by your homie BzBee in Taiwan.")
 						Text("contact@bzbee.co")

@@ -22,13 +22,15 @@ enum DisplayMode: String, CaseIterable {
 
 enum MapLayerType: String, CaseIterable, Identifiable {
 	case trashCans = "Public trash cans"
-	case youBikes = "YouBike stations"
+	case youBikesTaipei = "YouBike Taipei"
+	case youBikesTaichung = "YouBike Taichung"
 	case aqi = "Air Quality"
 	
 	var localizedName: LocalizedStringKey {
 		switch self {
 		case .trashCans: return "Public trash cans"
-		case .youBikes: return "YouBike stations"
+		case .youBikesTaipei: return "YouBike Taipei"
+		case .youBikesTaichung: return "YouBike Taichung"
 		case .aqi: return "Air Quality"
 		}
 	}
@@ -38,7 +40,7 @@ enum MapLayerType: String, CaseIterable, Identifiable {
 	var icon: String {
 		switch self {
 		case .trashCans: return "trash"
-		case .youBikes: return "bicycle"
+		case .youBikesTaipei, .youBikesTaichung: return "bicycle"
 		case .aqi: return "aqi.medium"
 		}
 	}
@@ -119,10 +121,25 @@ struct MapView: View {
 					viewModel.showTrashcans = true
 					viewModel.showYouBikes = false
 					showAnnotations = false
-				case .youBikes:
-					if !viewModel.showYouBikes {
-						viewModel.fetchYouBikeStations()
-					}
+				case .youBikesTaipei:
+					viewModel.youBikeCity = .taipei
+					// Center on Taipei
+					viewModel.region = MKCoordinateRegion(
+						center: CLLocationCoordinate2D(latitude: 25.0336, longitude: 121.5650),
+						span: MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08)
+					)
+					viewModel.fetchYouBikeStations()
+					viewModel.showYouBikes = true
+					viewModel.showTrashcans = false
+					showAnnotations = false
+				case .youBikesTaichung:
+					viewModel.youBikeCity = .taichung
+					// Center on Taichung
+					viewModel.region = MKCoordinateRegion(
+						center: CLLocationCoordinate2D(latitude: 24.1477, longitude: 120.6736),
+						span: MKCoordinateSpan(latitudeDelta: 0.10, longitudeDelta: 0.10)
+					)
+					viewModel.fetchYouBikeStations()
 					viewModel.showYouBikes = true
 					viewModel.showTrashcans = false
 					showAnnotations = false
@@ -191,10 +208,7 @@ struct MapView: View {
 		) { cluster in
 			MapAnnotation(coordinate: cluster.coordinate) {
 				if cluster.count == 1,
-					let station = viewModel.youBikeStations.first(where: {
-						abs($0.latitude - cluster.coordinate.latitude) < 0.00001 &&
-						abs($0.longitude - cluster.coordinate.longitude) < 0.00001
-					}) {
+					let station = findStationAtCoordinate(cluster.coordinate) {
 					Button {
 						withAnimation(.easeInOut(duration: 0.5)) {
 							youBikeStationToCenter = station
@@ -217,6 +231,35 @@ struct MapView: View {
 					YouBikePinView(count: cluster.count)
 				}
 			}
+		}
+	}
+	
+	private func findStationAtCoordinate(_ coordinate: CLLocationCoordinate2D) -> YouBikeStation? {
+		switch viewModel.youBikeCity {
+		case .taipei:
+			return viewModel.youBikeStations.first(where: {
+				abs($0.latitude - coordinate.latitude) < 0.00001 &&
+				abs($0.longitude - coordinate.longitude) < 0.00001
+			})
+		case .taichung:
+			if let s = viewModel.taichungYouBikeStations.first(where: {
+				abs($0.latitude - coordinate.latitude) < 0.00001 &&
+				abs($0.longitude - coordinate.longitude) < 0.00001
+			}) {
+				return YouBikeStation(
+					sno: s.sno,
+					sna: s.sna,
+					snaen: s.snaen,
+					longitude: s.longitude,
+					latitude: s.latitude,
+					available_rent_bikes: s.available_rent_bikes,
+					available_return_bikes: s.available_return_bikes,
+					updateTime: s.updateTime,
+					infoTime: s.infoTime,
+					srcUpdateTime: s.srcUpdateTime
+				)
+			}
+			return nil
 		}
 	}
 
@@ -284,7 +327,12 @@ struct MapView: View {
 		Menu {
 			Picker("Layer", selection: $selectedLayer) {
 				ForEach(MapLayerType.allCases) { layer in
-					Label(layer.localizedName, systemImage: layer.icon).tag(layer)
+					switch layer {
+					case .youBikesTaipei, .youBikesTaichung:
+						Label(layer.localizedName, systemImage: layer.icon).tag(layer)
+					default:
+						Label(layer.localizedName, systemImage: layer.icon).tag(layer)
+					}
 				}
 			}
 			Divider()
