@@ -167,13 +167,16 @@ struct InfoView: View {
 						.font(.title2)
 						.fontWeight(.bold)
 				} footer: {
-					VStack {
-						Text("© \(String(Calendar.current.component(.year, from: Date()))) bzbee.co — version \(version) (\(build))")
-						Text("Developed with ❤️ by your homie BzBee in Taiwan.")
-						Text("contact@bzbee.co")
-					}
 					
-
+					HStack {
+						Spacer()
+						VStack {
+							Text("© \(String(Calendar.current.component(.year, from: Date()))) bzbee.co — version \(version) (\(build))")
+							Text("Developed with ❤️ by your homie BzBee in Taipei.")
+							Text("contact@bzbee.co")
+						}
+						Spacer()
+					}
 				}
 			}
 			.fontDesign(.rounded)
