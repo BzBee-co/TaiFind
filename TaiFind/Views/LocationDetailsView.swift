@@ -99,32 +99,37 @@ struct LocationDetailsView: View {
 				}
 			}
 			.toolbar {
-				ToolbarItem(placement: .topBarLeading) {
-					VStack(alignment: .leading) {
-						HStack(alignment: .bottom) {
-							Text(record.siteName)
-								.font(.title2)
-								.fontWeight(.bold)
-							
-						}
-						HStack(alignment: .bottom, spacing: 4) {
+				ToolbarItem(placement: .principal) {
+					VStack(alignment: .leading, spacing: 2) {
+						Text(record.siteName)
+							.font(.headline)
+							.fontWeight(.semibold)
+							.lineLimit(1)
+							.truncationMode(.tail)
+						HStack(spacing: 4) {
 							if !record.county.isEmpty {
 								Text(record.county)
 							}
 							Text("(last updated: \(formattedDateTime))")
 						}
 						.font(.caption)
+						.foregroundStyle(.secondary)
+						.lineLimit(1)
+						.truncationMode(.tail)
 					}
+					.accessibilityElement(children: .combine)
+					.accessibilityLabel("\(record.siteName), \(record.county.isEmpty ? "" : record.county + ", ")last updated \(formattedDateTime)")
 				}
 				
 				ToolbarItem(placement: .topBarTrailing) {
 					Button {
 						dismiss()
 					} label: {
-						Image(systemName: "xmark.circle")
+						Image(systemName: "xmark")
 					}
 				}
 			}
+			.toolbarTitleDisplayMode(.inline)
 		}
 	}
 

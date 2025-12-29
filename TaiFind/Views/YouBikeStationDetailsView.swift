@@ -68,7 +68,7 @@ struct YouBikeStationDetailsView: View {
 					Button {
 						dismiss()
 					} label: {
-						Image(systemName: "xmark.circle")
+						Image(systemName: "xmark")
 					}
 				}
 				
