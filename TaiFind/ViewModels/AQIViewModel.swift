@@ -20,6 +20,10 @@ class AQIViewModel: ObservableObject {
 	)
 	
 	@Published var isLoadingAirQualityData: Bool = false
+	// Set on a failed AQI fetch, cleared on the next successful one. Not yet
+	// surfaced in any view — wiring up an actual error UI is a separate item —
+	// but the signal now exists instead of the fetch silently hanging forever.
+	@Published var aqiFetchError: String? = nil
 
 	enum YouBikeCity: String, CaseIterable {
 		case taipei = "Taipei City"
@@ -56,9 +60,18 @@ class AQIViewModel: ObservableObject {
 
 	func fetchAQIData() {
 		isLoadingAirQualityData = true
-		APIService.fetchAQI { [weak self] records in
+		APIService.fetchAQI { [weak self] result in
 			DispatchQueue.main.async {
-				self?.aqiRecords = records
+				switch result {
+				case .success(let records):
+					self?.aqiRecords = records
+					self?.aqiFetchError = nil
+				case .failure(let error):
+					// Keep whatever aqiRecords already has rather than clearing the
+					// map on a transient failure; just surface the error.
+					self?.aqiFetchError = error.localizedDescription
+					print("❌ AQI fetch failed: \(error.localizedDescription)")
+				}
 				self?.isLoadingAirQualityData = false
 			}
 		}
@@ -67,10 +80,15 @@ class AQIViewModel: ObservableObject {
 
 	func fetchTrashcanData() {
 		trashcanLoading = true
-		// NEW: Using the /trashcans path
+		// APIService.fetchTrashcans returns nil on failure (network error, bad
+		// decode, etc.) rather than an empty array — on failure we keep whatever
+		// trashcanRecords already has instead of wiping pins the user can already
+		// see off the map.
 		APIService.fetchTrashcans { [weak self] records in
 			DispatchQueue.main.async {
-				self?.trashcanRecords = records
+				if let records = records {
+					self?.trashcanRecords = records
+				}
 				self?.trashcanLoading = false
 			}
 		}

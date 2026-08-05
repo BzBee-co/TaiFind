@@ -1,16 +1,53 @@
 import Foundation
 
+// Errors fetchAQI can report back to callers so the UI can eventually
+// distinguish "no internet", "bad URL", "server sent garbage", etc.,
+// instead of just silently hanging in a loading state.
+enum APIServiceError: LocalizedError {
+	case invalidURL
+	case network(Error)
+	case noData
+	case decoding(Error)
+
+	var errorDescription: String? {
+		switch self {
+		case .invalidURL:
+			return "Invalid request URL."
+		case .network(let error):
+			return "Network error: \(error.localizedDescription)"
+		case .noData:
+			return "No data received from server."
+		case .decoding(let error):
+			return "Failed to read server response: \(error.localizedDescription)"
+		}
+	}
+}
+
 class APIService {
 	// MARK: - Air Quality Data Fetching
-	static func fetchAQI(completion: @escaping ([AQIRecord]) -> Void) {
+	// Always calls completion exactly once, on success or failure — previously
+	// this returned early (without calling completion at all) on an invalid URL
+	// or a decode failure, which left AQIViewModel stuck in a permanent loading
+	// state with isLoadingAirQualityData never reset back to false.
+	static func fetchAQI(completion: @escaping (Result<[AQIRecord], APIServiceError>) -> Void) {
 		let locale = Locale.current.language.languageCode?.identifier == "zh" ? "zh" : "en"
 		let urlString = "https://air-quality-proxy.antoimn.workers.dev/air-quality?locale=\(locale)"
-		guard let url = URL(string: urlString) else { return }
+		guard let url = URL(string: urlString) else {
+			completion(.failure(.invalidURL))
+			return
+		}
 
 		let request = URLRequest(url: url)
 
 		URLSession.shared.dataTask(with: request) { data, response, error in
-			guard let data = data, error == nil else { return }
+			if let error = error {
+				completion(.failure(.network(error)))
+				return
+			}
+			guard let data = data else {
+				completion(.failure(.noData))
+				return
+			}
 			do {
 				let decodedResponse = try JSONDecoder().decode(RootResponse.self, from: data)
 				let records = decodedResponse.data.records.map { record in
@@ -40,95 +77,51 @@ class APIService {
 						siteID: record.siteID
 					)
 				}
-				completion(records)
+				completion(.success(records))
 			} catch {
 				print("Failed to decode AQI JSON: \(error)")
+				completion(.failure(.decoding(error)))
 			}
 		}.resume()
 	}
 
-	// MARK: - Trashcan Data Fetching (from Cloudflare Worker)
-	static func fetchTrashcansViaWorker(completion: @escaping ([TrashcanRecord]) -> Void) {
+	// MARK: - Trashcan Data Fetching
+	// The Worker (see index.js) is now self-healing: it lazily populates and
+	// refreshes its own KV cache, so there's no need for a client-side fallback
+	// to a separate upstream API here anymore. The old fallback to Taipei's
+	// legacy v1 dataset API has been removed — it pointed at a stale endpoint
+	// and, combined with an empty Worker cache, was the original cause of
+	// trashcans not appearing on the map at all.
+	//
+	// Returns nil on failure (rather than an empty array) so callers can choose
+	// to keep showing the last-known-good data instead of wiping the map.
+	static func fetchTrashcans(completion: @escaping ([TrashcanRecord]?) -> Void) {
 		let urlString = "https://air-quality-proxy.antoimn.workers.dev/trashcans"
 		guard let url = URL(string: urlString) else {
 			print("⚠️ Invalid Worker URL")
-			completion([])
+			completion(nil)
 			return
 		}
 		URLSession.shared.dataTask(with: url) { data, response, error in
 			if let error = error {
-				print("❌ Error fetching from Worker: \(error)")
-				completion([])
+				print("❌ Error fetching trashcans from Worker: \(error)")
+				completion(nil)
 				return
 			}
 			guard let data = data else {
 				print("❌ No data from Worker")
-				completion([])
+				completion(nil)
 				return
 			}
 			do {
 				let decoded = try JSONDecoder().decode([TrashcanRecord].self, from: data)
-				print("✅ Loaded trashcan data from WORKER: \(decoded.count) records")
+				print("✅ Loaded trashcan data from Worker: \(decoded.count) records")
 				completion(decoded)
 			} catch {
 				print("❌ Failed to decode trashcan JSON from Worker: \(error)")
-				completion([])
+				completion(nil)
 			}
 		}.resume()
-	}
-
-	// MARK: - Fallback Taipei Trashcan Data Fetching (direct from Taipei open data)
-	static func fetchAllTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {
-		let baseURL = "https://data.taipei/api/v1/dataset/267d550f-c6ec-46e0-b8af-fd5a464eb098?scope=resourceAquire"
-		let limit = 200
-		var allRecords: [TrashcanRecord] = []
-		var offset = 0
-
-		func fetchPage() {
-			let urlString = "\(baseURL)&limit=\(limit)&offset=\(offset)"
-			guard let url = URL(string: urlString) else {
-				completion(allRecords)
-				return
-			}
-			URLSession.shared.dataTask(with: url) { data, response, error in
-				guard let data = data, error == nil else {
-					completion(allRecords)
-					return
-				}
-				do {
-					let decoded = try JSONDecoder().decode(TaipeiTrashcanResponse.self, from: data)
-					let results = decoded.result.results
-					allRecords.append(contentsOf: results)
-					if results.count == limit {
-						offset += limit
-						fetchPage()
-					} else {
-						print("✅ Loaded trashcan data from FALLBACK (Taipei): \(allRecords.count) records")
-						completion(allRecords)
-					}
-				} catch {
-					print("Failed to decode trashcan JSON: \(error)")
-					completion(allRecords)
-				}
-			}.resume()
-		}
-		fetchPage()
-	}
-	
-	// MARK: - Trashcan Fetching with Fallback Logic
-	static func fetchTrashcans(completion: @escaping ([TrashcanRecord]) -> Void) {
-		fetchTrashcansViaWorker { records in
-			if !records.isEmpty {
-				print("✅ Loaded trashcan data from WORKER: \(records.count) records")
-				completion(records)
-			} else {
-				print("⚠️ Worker returned empty. Falling back to direct Taipei API")
-				fetchAllTrashcans { fallbackRecords in
-					print("✅ Loaded trashcan data from FALLBACK (Taipei): \(fallbackRecords.count) records")
-					completion(fallbackRecords)
-				}
-			}
-		}
 	}
 
 	// MARK: - YouBike Data Fetching
@@ -216,14 +209,6 @@ struct APIRecord: Codable {
 }
 
 // MARK: - Trashcan Data Structures
-
-struct TaipeiTrashcanResponse: Codable {
-	let result: TaipeiTrashcanResult
-}
-
-struct TaipeiTrashcanResult: Codable {
-	let results: [TrashcanRecord]
-}
 
 struct TrashcanRecord: Codable {
 	let id: Int

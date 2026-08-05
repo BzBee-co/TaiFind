@@ -150,13 +150,26 @@ async function handleAQIRequest(url, env) {
   try {
     const locale = url.searchParams.get("locale") || "zh";
     const language = (locale === "en" || locale === "zh") ? locale : "zh";
+    
+    // Check if API key is set
+    if (!env.AIR_QUALITY_API_KEY) {
+      console.error("AIR_QUALITY_API_KEY is not set in Worker environment");
+      return Response.json({
+        timestamp: Date.now(),
+        data: {
+          records: []
+        }
+      }, { status: 200 });
+    }
+    
     const apiUrl = `${BASE_AQI_URL}&language=${language}&api_key=${env.AIR_QUALITY_API_KEY}`;
 
     console.log(`Proxying AQI request for locale=${locale}, language=${language}`);
-    console.log(`AQI API URL: ${apiUrl}`);
+    console.log(`AQI API URL: ${apiUrl.replace(env.AIR_QUALITY_API_KEY, 'REDACTED')}`);
 
     const response = await fetch(apiUrl);
     console.log(`AQI upstream status: ${response.status}`);
+    console.log(`AQI upstream headers:`, Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const text = await response.text();
@@ -171,10 +184,43 @@ async function handleAQIRequest(url, env) {
     }
 
     const json = await response.json();
+    
+    // Log the response structure to debug
+    console.log(`AQI API response type:`, Array.isArray(json) ? 'array' : typeof json);
+    if (Array.isArray(json)) {
+      console.log(`AQI API response is an array with ${json.length} items`);
+    } else {
+      console.log(`AQI API response keys:`, Object.keys(json));
+    }
 
-    // Extract records from the API response and wrap in the structure expected by the iOS app:
+    // Try multiple possible response structures
+    // The API might return:
+    // 1. [...] - array directly (this is what it actually returns!)
+    // 2. { records: [...] } - direct records
+    // 3. { data: { records: [...] } } - nested in data
+    // 4. { result: { records: [...] } } - nested in result
+    // 5. { data: [...] } - data is the array
+    let records = [];
+    
+    if (Array.isArray(json)) {
+      // The API returns an array directly
+      records = json;
+    } else if (json.records && Array.isArray(json.records)) {
+      records = json.records;
+    } else if (json.data && json.data.records && Array.isArray(json.data.records)) {
+      records = json.data.records;
+    } else if (json.result && json.result.records && Array.isArray(json.result.records)) {
+      records = json.result.records;
+    } else if (json.data && Array.isArray(json.data)) {
+      records = json.data;
+    } else {
+      console.warn(`Unexpected AQI API response structure. Full response:`, JSON.stringify(json).substring(0, 1000));
+    }
+
+    console.log(`Extracted ${records.length} AQI records from API response`);
+
+    // Wrap in the structure expected by the iOS app:
     // { timestamp: number, data: { records: [...] } }
-    const records = json.records || [];
     const wrapped = {
       timestamp: Date.now(),
       data: {
@@ -185,6 +231,7 @@ async function handleAQIRequest(url, env) {
     return Response.json(wrapped);
   } catch (err) {
     console.error("Error handling AQI request:", err);
+    console.error("Error stack:", err.stack);
     // Return valid JSON structure even on error
     return Response.json({
       timestamp: Date.now(),

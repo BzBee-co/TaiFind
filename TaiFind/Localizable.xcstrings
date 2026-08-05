@@ -337,7 +337,11 @@
         }
       }
     },
+    "Developed with ❤️ by your homie BzBee in Taipei." : {
+
+    },
     "Developed with ❤️ by your homie BzBee in Taiwan." : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
