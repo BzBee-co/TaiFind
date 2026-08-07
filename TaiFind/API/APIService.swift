@@ -93,81 +93,102 @@ class APIService {
 	// and, combined with an empty Worker cache, was the original cause of
 	// trashcans not appearing on the map at all.
 	//
-	// Returns nil on failure (rather than an empty array) so callers can choose
-	// to keep showing the last-known-good data instead of wiping the map.
-	static func fetchTrashcans(completion: @escaping ([TrashcanRecord]?) -> Void) {
+	// Reports failure via APIServiceError (rather than an empty array) so callers
+	// can choose to keep showing the last-known-good data instead of wiping the
+	// map, and so the UI can show a specific error banner (see roadmap item #7).
+	static func fetchTrashcans(completion: @escaping (Result<[TrashcanRecord], APIServiceError>) -> Void) {
 		let urlString = "https://air-quality-proxy.antoimn.workers.dev/trashcans"
 		guard let url = URL(string: urlString) else {
-			print("⚠️ Invalid Worker URL")
-			completion(nil)
+			completion(.failure(.invalidURL))
 			return
 		}
 		URLSession.shared.dataTask(with: url) { data, response, error in
 			if let error = error {
-				print("❌ Error fetching trashcans from Worker: \(error)")
-				completion(nil)
+				print("❌ Error fetching trashcans from Worker: \(error.localizedDescription)")
+				completion(.failure(.network(error)))
 				return
 			}
 			guard let data = data else {
-				print("❌ No data from Worker")
-				completion(nil)
+				completion(.failure(.noData))
 				return
 			}
 			do {
 				let decoded = try JSONDecoder().decode([TrashcanRecord].self, from: data)
 				print("✅ Loaded trashcan data from Worker: \(decoded.count) records")
-				completion(decoded)
+				completion(.success(decoded))
 			} catch {
 				print("❌ Failed to decode trashcan JSON from Worker: \(error)")
-				completion(nil)
+				completion(.failure(.decoding(error)))
 			}
 		}.resume()
 	}
 
 	// MARK: - YouBike Data Fetching
-	static func fetchYouBikeStations(completion: @escaping ([YouBikeStation]) -> Void) {
+	static func fetchYouBikeStations(completion: @escaping (Result<[YouBikeStation], APIServiceError>) -> Void) {
 		let urlString = "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json"
 		guard let url = URL(string: urlString) else {
-			completion([])
+			completion(.failure(.invalidURL))
 			return
 		}
 		URLSession.shared.dataTask(with: url) { data, response, error in
-			guard let data = data, error == nil else {
-				print("❌ Taipei YouBike fetch error: \(error?.localizedDescription ?? "unknown")")
-				completion([])
+			if let error = error {
+				print("❌ Taipei YouBike fetch error: \(error.localizedDescription)")
+				completion(.failure(.network(error)))
+				return
+			}
+			guard let data = data else {
+				completion(.failure(.noData))
 				return
 			}
 			do {
 				let stations = try JSONDecoder().decode([YouBikeStation].self, from: data)
 				print("✅ Decoded Taipei YouBike stations: \(stations.count)")
-				completion(stations)
+				completion(.success(stations))
 			} catch {
 				print("❌ Failed to decode Taipei YouBike JSON: \(error)")
-				completion([])
+				completion(.failure(.decoding(error)))
 			}
 		}.resume()
 	}
 
 	// MARK: - Taichung YouBike Data Fetching
-	static func fetchTaichungYouBikeStations(completion: @escaping ([TaichungYouBikeStation]) -> Void) {
-		let urlString = "https://datacenter.taichung.gov.tw/swagger/OpenData/bc27c2f7-6ed7-4f1a-b3cc-1a3cc9cda34e"
+	// Old URL (datacenter.taichung.gov.tw/swagger/OpenData/...) went fully dead —
+	// DNS no longer resolves the domain at all. Taichung migrated their open data
+	// platform to newdatacenter.taichung.gov.tw with a different URL pattern and
+	// a new resource ID; confirmed via data.gov.tw's dataset listing (id 136781),
+	// whose field list still matches TaichungYouBikeStation exactly.
+	static func fetchTaichungYouBikeStations(completion: @escaping (Result<[TaichungYouBikeStation], APIServiceError>) -> Void) {
+		let urlString = "https://newdatacenter.taichung.gov.tw/api/v1/no-auth/resource.download?rid=9468c0d0-e1ed-4ecc-a86f-ab5a9fd590ff"
 		guard let url = URL(string: urlString) else {
-			completion([])
+			completion(.failure(.invalidURL))
 			return
 		}
 		URLSession.shared.dataTask(with: url) { data, response, error in
-			guard let data = data, error == nil else {
-				print("❌ Taichung YouBike fetch error: \(error?.localizedDescription ?? "unknown")")
-				completion([])
+			if let error = error {
+				print("❌ Taichung YouBike fetch error: \(error.localizedDescription)")
+				completion(.failure(.network(error)))
+				return
+			}
+			guard let data = data else {
+				completion(.failure(.noData))
+				return
+			}
+			// The response envelope wasn't independently confirmed after the platform
+			// migration, so this tries the previously-known wrapped shape first
+			// ({ retCode, updated_at, retVal: [...] }), then falls back to a bare
+			// array in case the new platform dropped the wrapper.
+			if let response = try? JSONDecoder().decode(TaichungYouBikeResponse.self, from: data) {
+				print("✅ Decoded Taichung YouBike stations (wrapped): \(response.retVal.count)")
+				completion(.success(response.retVal))
 				return
 			}
 			do {
-				let response = try JSONDecoder().decode(TaichungYouBikeResponse.self, from: data)
-				print("✅ Decoded Taichung YouBike stations: \(response.retVal.count)")
-				completion(response.retVal)
+				let stations = try JSONDecoder().decode([TaichungYouBikeStation].self, from: data)
+				print("✅ Decoded Taichung YouBike stations (bare array): \(stations.count)")
+				completion(.success(stations))
 			} catch {
 				print("❌ Failed to decode Taichung YouBike JSON: \(error)")
-				completion([])
+				completion(.failure(.decoding(error)))
 			}
 		}.resume()
 	}
@@ -289,6 +310,39 @@ struct TaichungYouBikeStation: Codable, Identifiable, Equatable {
 struct TaichungBikeDetail: Codable, Equatable {
 	let yb2: String
 	let eyb: String
+
+	enum CodingKeys: String, CodingKey {
+		case yb2, eyb
+	}
+
+	init(yb2: String, eyb: String) {
+		self.yb2 = yb2
+		self.eyb = eyb
+	}
+
+	// After Taichung's platform migration (see roadmap item #6), sbi_detail is
+	// now sent as a comma-separated string ("4,0" — regular bikes, e-bikes)
+	// instead of the previous { "yb2": "...", "eyb": "..." } object. Support
+	// both shapes so this doesn't break again if it ever reverts or is
+	// inconsistent across responses.
+	init(from decoder: Decoder) throws {
+		if let single = try? decoder.singleValueContainer(),
+		   let stringValue = try? single.decode(String.self) {
+			let parts = stringValue.split(separator: ",", maxSplits: 1).map(String.init)
+			self.yb2 = parts.first ?? "0"
+			self.eyb = parts.count > 1 ? parts[1] : "0"
+			return
+		}
+		let container = try decoder.container(keyedBy: CodingKeys.self)
+		self.yb2 = try container.decode(String.self, forKey: .yb2)
+		self.eyb = try container.decode(String.self, forKey: .eyb)
+	}
+
+	func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: CodingKeys.self)
+		try container.encode(yb2, forKey: .yb2)
+		try container.encode(eyb, forKey: .eyb)
+	}
 }
 
 // Supports Taichung 'act' coming as either an Int or a String

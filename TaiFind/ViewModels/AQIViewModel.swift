@@ -20,10 +20,16 @@ class AQIViewModel: ObservableObject {
 	)
 	
 	@Published var isLoadingAirQualityData: Bool = false
-	// Set on a failed AQI fetch, cleared on the next successful one. Not yet
-	// surfaced in any view — wiring up an actual error UI is a separate item —
-	// but the signal now exists instead of the fetch silently hanging forever.
+	// Set on a failed AQI fetch, cleared on the next successful one. Surfaced via
+	// aqiErrorBanner in MapView.
 	@Published var aqiFetchError: String? = nil
+	// Same idea, for whichever YouBike city is currently selected. Taichung's
+	// endpoint in particular couldn't be independently verified as still valid
+	// (see roadmap item #6), so this is the safety net if it's gone stale/dead.
+	@Published var youBikeFetchError: String? = nil
+	// Same pattern for trashcans — completes the error-surfacing work started
+	// with AQI (#4/#5) and YouBike (#6) across all three data layers (#7).
+	@Published var trashcanFetchError: String? = nil
 
 	enum YouBikeCity: String, CaseIterable {
 		case taipei = "Taipei City"
@@ -80,14 +86,18 @@ class AQIViewModel: ObservableObject {
 
 	func fetchTrashcanData() {
 		trashcanLoading = true
-		// APIService.fetchTrashcans returns nil on failure (network error, bad
-		// decode, etc.) rather than an empty array — on failure we keep whatever
-		// trashcanRecords already has instead of wiping pins the user can already
-		// see off the map.
-		APIService.fetchTrashcans { [weak self] records in
+		// On failure, keep whatever trashcanRecords already has instead of
+		// wiping pins the user can already see off the map — just surface
+		// the error via trashcanFetchError.
+		APIService.fetchTrashcans { [weak self] result in
 			DispatchQueue.main.async {
-				if let records = records {
+				switch result {
+				case .success(let records):
 					self?.trashcanRecords = records
+					self?.trashcanFetchError = nil
+				case .failure(let error):
+					self?.trashcanFetchError = error.localizedDescription
+					print("❌ Trashcan fetch failed: \(error.localizedDescription)")
 				}
 				self?.trashcanLoading = false
 			}
@@ -98,16 +108,31 @@ class AQIViewModel: ObservableObject {
 		youBikeLoading = true
 		switch youBikeCity {
 		case .taipei:
-			APIService.fetchYouBikeStations { [weak self] stations in
+			APIService.fetchYouBikeStations { [weak self] result in
 				DispatchQueue.main.async {
-					self?.youBikeStations = stations
+					switch result {
+					case .success(let stations):
+						self?.youBikeStations = stations
+						self?.youBikeFetchError = nil
+					case .failure(let error):
+						// Keep existing stations on screen; just surface the error.
+						self?.youBikeFetchError = error.localizedDescription
+						print("❌ Taipei YouBike fetch failed: \(error.localizedDescription)")
+					}
 					self?.youBikeLoading = false
 				}
 			}
 		case .taichung:
-			APIService.fetchTaichungYouBikeStations { [weak self] stations in
+			APIService.fetchTaichungYouBikeStations { [weak self] result in
 				DispatchQueue.main.async {
-					self?.taichungYouBikeStations = stations
+					switch result {
+					case .success(let stations):
+						self?.taichungYouBikeStations = stations
+						self?.youBikeFetchError = nil
+					case .failure(let error):
+						self?.youBikeFetchError = error.localizedDescription
+						print("❌ Taichung YouBike fetch failed: \(error.localizedDescription)")
+					}
 					self?.youBikeLoading = false
 				}
 			}

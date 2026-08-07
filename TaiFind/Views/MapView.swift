@@ -103,11 +103,60 @@ struct MapView: View {
 					.background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
 					.shadow(radius: 10)
 			}
+			// Surfaces the failure signal added to fetchAQI/AQIViewModel (previously
+			// a failed or unreachable Worker just left the app hanging with no
+			// indication anything went wrong). Only shown on the AQI layer, since
+			// that's what this error pertains to.
+			if !viewModel.showTrashcans && !viewModel.showYouBikes,
+			   let error = viewModel.aqiFetchError {
+				VStack {
+					aqiErrorBanner(error)
+					Spacer()
+				}
+			}
+			// Same pattern for YouBike. Particularly relevant for Taichung, whose
+			// endpoint (roadmap item #6) couldn't be independently confirmed as
+			// still valid — if it's gone stale or dead, this is the fallback UX
+			// rather than a silent empty map.
+			if viewModel.showYouBikes, let error = viewModel.youBikeFetchError {
+				VStack {
+					youBikeErrorBanner(error)
+					Spacer()
+				}
+			}
+			// Completes the error-surfacing pattern across all three data layers
+			// (AQI, YouBike, trashcans — roadmap item #7).
+			if viewModel.showTrashcans, let error = viewModel.trashcanFetchError {
+				VStack {
+					trashcanErrorBanner(error)
+					Spacer()
+				}
+			}
+			// Trashcans only cover Taipei, and YouBike coverage is city-specific —
+			// removing the auto-recenter-on-layer-switch behavior (so panning/zoom
+			// the user already did isn't discarded) means it's now possible to
+			// select a layer while looking at an area with genuinely zero pins.
+			// These let the user know that's what's happening, rather than a
+			// silently empty map that looks identical to a loading or error state.
+			if viewModel.showTrashcans, viewModel.trashcanFetchError == nil, !viewModel.trashcanLoading,
+			   !viewModel.trashcanRecords.isEmpty, visibleTrashcanAnnotations.isEmpty {
+				VStack {
+					emptyAreaBanner("No trash cans in this area. Trash cans are only mapped in Taipei — pan the map to find one.")
+					Spacer()
+				}
+			}
+			if viewModel.showYouBikes, viewModel.youBikeFetchError == nil, !viewModel.youBikeLoading,
+			   hasYouBikeDataForCurrentCity, visibleYouBikeAnnotations.isEmpty {
+				VStack {
+					emptyAreaBanner("No YouBike stations in this area. Pan the map to \(viewModel.youBikeCity == .taichung ? "Taichung" : "Taipei").")
+					Spacer()
+				}
+			}
 		}
 		.onAppear {
 			viewModel.fetchAQIData()
 		}
-		.onChange(of: selectedLayer) { newValue in
+		.onChange(of: selectedLayer) { oldValue, newValue in
 			withAnimation {
 				switch newValue {
 				case .aqi:
@@ -123,22 +172,12 @@ struct MapView: View {
 					showAnnotations = false
 				case .youBikesTaipei:
 					viewModel.youBikeCity = .taipei
-					// Center on Taipei
-					viewModel.region = MKCoordinateRegion(
-						center: CLLocationCoordinate2D(latitude: 25.0336, longitude: 121.5650),
-						span: MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08)
-					)
 					viewModel.fetchYouBikeStations()
 					viewModel.showYouBikes = true
 					viewModel.showTrashcans = false
 					showAnnotations = false
 				case .youBikesTaichung:
 					viewModel.youBikeCity = .taichung
-					// Center on Taichung
-					viewModel.region = MKCoordinateRegion(
-						center: CLLocationCoordinate2D(latitude: 24.1477, longitude: 120.6736),
-						span: MKCoordinateSpan(latitudeDelta: 0.10, longitudeDelta: 0.10)
-					)
 					viewModel.fetchYouBikeStations()
 					viewModel.showYouBikes = true
 					viewModel.showTrashcans = false
@@ -186,12 +225,31 @@ struct MapView: View {
 		}
 	}
 
+	private var visibleTrashcanAnnotations: [TrashcanCluster] {
+		viewModel.trashcanAnnotations(for: viewModel.region)
+			.filter { isWithin1km(of: viewModel.region.center, coordinate: $0.coordinate) }
+	}
+
+	private var visibleYouBikeAnnotations: [YouBikeCluster] {
+		viewModel.youBikeAnnotations(for: viewModel.region)
+			.filter { isWithin1km(of: viewModel.region.center, coordinate: $0.coordinate) }
+	}
+
+	// Whether the currently-selected YouBike city actually has any data loaded
+	// (as opposed to visibleYouBikeAnnotations being empty just because nothing
+	// has loaded yet, or the request failed).
+	private var hasYouBikeDataForCurrentCity: Bool {
+		switch viewModel.youBikeCity {
+		case .taipei: return !viewModel.youBikeStations.isEmpty
+		case .taichung: return !viewModel.taichungYouBikeStations.isEmpty
+		}
+	}
+
 	private var trashcanMap: some View {
 		Map(
 			coordinateRegion: $viewModel.region,
 			showsUserLocation: true,
-			annotationItems: viewModel.trashcanAnnotations(for: viewModel.region)
-				.filter { isWithin1km(of: viewModel.region.center, coordinate: $0.coordinate) }
+			annotationItems: visibleTrashcanAnnotations
 		) { cluster in
 			MapAnnotation(coordinate: cluster.coordinate) {
 				TrashcanPinView(count: cluster.count)
@@ -203,8 +261,7 @@ struct MapView: View {
 		Map(
 			coordinateRegion: $viewModel.region,
 			showsUserLocation: true,
-			annotationItems: viewModel.youBikeAnnotations(for: viewModel.region)
-				.filter { isWithin1km(of: viewModel.region.center, coordinate: $0.coordinate) }
+			annotationItems: visibleYouBikeAnnotations
 		) { cluster in
 			MapAnnotation(coordinate: cluster.coordinate) {
 				if cluster.count == 1,
@@ -375,6 +432,114 @@ struct MapView: View {
 		} label: {
 			ControlButton(iconName: "info", fontSize: 18, padding: 14)
 		}
+	}
+
+	private func aqiErrorBanner(_ message: String) -> some View {
+		Button {
+			viewModel.fetchAQIData()
+		} label: {
+			HStack(spacing: 8) {
+				Image(systemName: "exclamationmark.triangle.fill")
+					.foregroundStyle(.orange)
+				Text("Couldn't update air quality data. Tap to retry.")
+					.font(.caption)
+					.fontWeight(.semibold)
+					.foregroundStyle(.primary)
+					.multilineTextAlignment(.leading)
+				Spacer()
+				if viewModel.isLoadingAirQualityData {
+					ProgressView()
+						.controlSize(.small)
+				}
+			}
+			.padding(10)
+			.background(Color(.secondarySystemBackground).opacity(0.95))
+			.clipShape(RoundedRectangle(cornerRadius: 10))
+			.shadow(radius: 2)
+		}
+		.buttonStyle(.plain)
+		.padding(.horizontal)
+		.padding(.top, 8)
+	}
+
+	private func youBikeErrorBanner(_ message: String) -> some View {
+		Button {
+			viewModel.fetchYouBikeStations()
+		} label: {
+			HStack(spacing: 8) {
+				Image(systemName: "exclamationmark.triangle.fill")
+					.foregroundStyle(.orange)
+				Text("Couldn't load \(viewModel.youBikeCity == .taichung ? "Taichung" : "Taipei") YouBike stations. Tap to retry.")
+					.font(.caption)
+					.fontWeight(.semibold)
+					.foregroundStyle(.primary)
+					.multilineTextAlignment(.leading)
+				Spacer()
+				if viewModel.youBikeLoading {
+					ProgressView()
+						.controlSize(.small)
+				}
+			}
+			.padding(10)
+			.background(Color(.secondarySystemBackground).opacity(0.95))
+			.clipShape(RoundedRectangle(cornerRadius: 10))
+			.shadow(radius: 2)
+		}
+		.buttonStyle(.plain)
+		.padding(.horizontal)
+		.padding(.top, 8)
+	}
+
+	// Informational only (not a Button, unlike the error banners) — there's
+	// nothing to retry here, the fetch succeeded, the data just isn't near the
+	// current map position. Disappears automatically as the user pans into an
+	// area that has pins, since visibleTrashcanAnnotations/visibleYouBikeAnnotations
+	// recompute live off viewModel.region.
+	private func emptyAreaBanner(_ message: String) -> some View {
+		HStack(spacing: 8) {
+			Image(systemName: "mappin.slash")
+				.foregroundStyle(.secondary)
+			Text(message)
+				.font(.caption)
+				.fontWeight(.semibold)
+				.foregroundStyle(.primary)
+				.multilineTextAlignment(.leading)
+			Spacer()
+		}
+		.padding(10)
+		.background(Color(.secondarySystemBackground).opacity(0.95))
+		.clipShape(RoundedRectangle(cornerRadius: 10))
+		.shadow(radius: 2)
+		.padding(.horizontal)
+		.padding(.top, 8)
+	}
+
+	private func trashcanErrorBanner(_ message: String) -> some View {
+		Button {
+			viewModel.fetchTrashcanData()
+		} label: {
+			HStack(spacing: 8) {
+				Image(systemName: "exclamationmark.triangle.fill")
+					.foregroundStyle(.orange)
+				Text("Couldn't load trash can locations. Tap to retry.")
+					.font(.caption)
+					.fontWeight(.semibold)
+					.foregroundStyle(.primary)
+					.multilineTextAlignment(.leading)
+				Spacer()
+				if viewModel.trashcanLoading {
+					ProgressView()
+						.controlSize(.small)
+				}
+			}
+			.padding(10)
+			.background(Color(.secondarySystemBackground).opacity(0.95))
+			.clipShape(RoundedRectangle(cornerRadius: 10))
+			.shadow(radius: 2)
+		}
+		.buttonStyle(.plain)
+		.padding(.horizontal)
+		.padding(.top, 8)
 	}
 
 	private func isWithin1km(of center: CLLocationCoordinate2D, coordinate: CLLocationCoordinate2D) -> Bool {
