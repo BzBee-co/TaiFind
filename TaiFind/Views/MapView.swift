@@ -6,6 +6,7 @@
 import SwiftUI
 import MapKit
 import CoreLocation
+import UIKit
 
 enum DisplayMode: String, CaseIterable {
 	case pins = "Pins"
@@ -54,7 +55,6 @@ struct MapView: View {
 	@State private var selectedMeasurement: MeasurementType = .aqi
 	@State private var selectedAirQualityRecord: AQIRecord?
 	@State private var recordToCenter: AQIRecord?
-	@State private var cameraPosition: MapCameraPosition = .automatic
 	@State private var selectedYouBikeStation: YouBikeStation?
 	@State private var youBikeStationToCenter: YouBikeStation?
 	@State private var selectedLayer: MapLayerType = .aqi
@@ -62,6 +62,9 @@ struct MapView: View {
 	@State private var showAnnotations = true
 	@State private var bouncingRecord: AQIRecord?
 	@State private var bouncingYouBikeStation: YouBikeStation?
+	// Shown when the location button is tapped but permission is denied/restricted —
+	// previously this case just silently did nothing (roadmap item #11).
+	@State private var isShowingLocationPermissionAlert = false
 
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
@@ -89,16 +92,32 @@ struct MapView: View {
 		ZStack {
 			mapLayer
 			overlayControls
-			if viewModel.showTrashcans && viewModel.trashcanLoading {
+			// Only block the map with the full-screen spinner when there's nothing
+			// to show yet. With on-disk caching (#9), a cached snapshot can already
+			// be on screen while a background refresh is in flight — blocking that
+			// with an overlay would hide perfectly good data for no reason.
+			if viewModel.showTrashcans && viewModel.trashcanLoading && viewModel.trashcanRecords.isEmpty {
 				Color.black.opacity(0.2).ignoresSafeArea()
 				ProgressView("Loading locations…")
 					.padding(30)
 					.background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
 					.shadow(radius: 10)
 			}
-			if viewModel.showYouBikes && viewModel.youBikeLoading {
+			if viewModel.showYouBikes && viewModel.youBikeLoading && !hasYouBikeDataForCurrentCity {
 				Color.black.opacity(0.2).ignoresSafeArea()
 				ProgressView("Loading YouBike stations…")
+					.padding(30)
+					.background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
+					.shadow(radius: 10)
+			}
+			// AQI previously had no loading indicator at all — the very first
+			// launch (before init()'s cache preload and the first live fetch both
+			// have a chance to complete) showed a totally blank map with nothing
+			// to explain why. Same "only block if nothing to show" rule as above.
+			if !viewModel.showTrashcans && !viewModel.showYouBikes,
+			   viewModel.isLoadingAirQualityData, viewModel.aqiRecords.isEmpty {
+				Color.black.opacity(0.2).ignoresSafeArea()
+				ProgressView("Loading air quality data…")
 					.padding(30)
 					.background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
 					.shadow(radius: 10)
@@ -141,14 +160,14 @@ struct MapView: View {
 			if viewModel.showTrashcans, viewModel.trashcanFetchError == nil, !viewModel.trashcanLoading,
 			   !viewModel.trashcanRecords.isEmpty, visibleTrashcanAnnotations.isEmpty {
 				VStack {
-					emptyAreaBanner("No trash cans in this area. Trash cans are only mapped in Taipei — pan the map to find one.")
+					emptyAreaBanner("No trash cans in this area. Trash cans are only mapped in Taipei. Pan the map and/or adjust zoom level to find one.")
 					Spacer()
 				}
 			}
 			if viewModel.showYouBikes, viewModel.youBikeFetchError == nil, !viewModel.youBikeLoading,
 			   hasYouBikeDataForCurrentCity, visibleYouBikeAnnotations.isEmpty {
 				VStack {
-					emptyAreaBanner("No YouBike stations in this area. Pan the map to \(viewModel.youBikeCity == .taichung ? "Taichung" : "Taipei").")
+					emptyAreaBanner("No YouBike stations in this area. Pan the map to \(viewModel.youBikeCity == .taichung ? "Taichung" : "Taipei") and/or adjust zoom level.")
 					Spacer()
 				}
 			}
@@ -245,47 +264,70 @@ struct MapView: View {
 		}
 	}
 
+	// Bridges the legacy MKCoordinateRegion (viewModel.region — still the single
+	// source of truth for the clustering math, the empty-area banners, and
+	// isWithin1km) to the MapCameraPosition the modern, non-deprecated Map API
+	// expects. Reading this always reflects the current viewModel.region;
+	// writing to it (which the Map does continuously as the user pans/zooms)
+	// writes straight back into viewModel.region — so both stay in sync without
+	// a separate @State var or any onChange plumbing. (MKCoordinateRegion isn't
+	// Equatable, which rules out driving this with .onChange(of:) directly.)
+	private var cameraPositionBinding: Binding<MapCameraPosition> {
+		Binding(
+			get: { .region(viewModel.region) },
+			set: { newPosition in
+				if let newRegion = newPosition.region {
+					viewModel.region = newRegion
+				}
+			}
+		)
+	}
+
 	private var trashcanMap: some View {
-		Map(
-			coordinateRegion: $viewModel.region,
-			showsUserLocation: true,
-			annotationItems: visibleTrashcanAnnotations
-		) { cluster in
-			MapAnnotation(coordinate: cluster.coordinate) {
-				TrashcanPinView(count: cluster.count)
+		Map(position: cameraPositionBinding) {
+			UserAnnotation()
+			ForEach(visibleTrashcanAnnotations) { cluster in
+				Annotation(
+					cluster.count == 1 ? "Trash can" : "\(cluster.count) trash cans",
+					coordinate: cluster.coordinate
+				) {
+					TrashcanPinView(count: cluster.count)
+				}
 			}
 		}
 	}
 
 	private var youBikeMap: some View {
-		Map(
-			coordinateRegion: $viewModel.region,
-			showsUserLocation: true,
-			annotationItems: visibleYouBikeAnnotations
-		) { cluster in
-			MapAnnotation(coordinate: cluster.coordinate) {
-				if cluster.count == 1,
-					let station = findStationAtCoordinate(cluster.coordinate) {
-					Button {
-						withAnimation(.easeInOut(duration: 0.5)) {
-							youBikeStationToCenter = station
-							bouncingYouBikeStation = station
-							viewModel.region = MKCoordinateRegion(
-								center: CLLocationCoordinate2D(latitude: station.latitude - 0.002, longitude: station.longitude),
-								span: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
-							)
+		Map(position: cameraPositionBinding) {
+			UserAnnotation()
+			ForEach(visibleYouBikeAnnotations) { cluster in
+				Annotation(
+					cluster.count == 1 ? cluster.name : "\(cluster.count) YouBike stations",
+					coordinate: cluster.coordinate
+				) {
+					if cluster.count == 1,
+						let station = findStationAtCoordinate(cluster.coordinate) {
+						Button {
+							withAnimation(.easeInOut(duration: 0.5)) {
+								youBikeStationToCenter = station
+								bouncingYouBikeStation = station
+								viewModel.region = MKCoordinateRegion(
+									center: CLLocationCoordinate2D(latitude: station.latitude - 0.002, longitude: station.longitude),
+									span: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
+								)
+							}
+							DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+								selectedYouBikeStation = station
+							}
+						} label: {
+							YouBikePinView(count: nil)
+								.scaleEffect(bouncingYouBikeStation == station ? 1.6 : 1.0)
+								.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingYouBikeStation == station)
 						}
-						DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-							selectedYouBikeStation = station
-						}
-					} label: {
-						YouBikePinView(count: nil)
-							.scaleEffect(bouncingYouBikeStation == station ? 1.6 : 1.0)
-							.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingYouBikeStation == station)
+						.buttonStyle(.plain)
+					} else {
+						YouBikePinView(count: cluster.count)
 					}
-					.buttonStyle(.plain)
-				} else {
-					YouBikePinView(count: cluster.count)
 				}
 			}
 		}
@@ -321,37 +363,36 @@ struct MapView: View {
 	}
 
 	private var aqiMap: some View {
-		Map(
-			coordinateRegion: $viewModel.region,
-			showsUserLocation: true,
-			annotationItems: viewModel.aqiRecords
-		) { record in
-			MapAnnotation(coordinate: record.coordinate) {
-				let color = selectedMeasurement.color(for: selectedMeasurement.value(in: record))
-				if displayMode == .heatmap {
-					Circle()
-						.fill(RadialGradient(gradient: Gradient(colors: [color, color.opacity(0)]), center: .center, startRadius: 10, endRadius: 50))
-						.frame(width: 100, height: 100)
-						.opacity(0.6)
-				} else {
-					Button {
-						withAnimation(.easeInOut(duration: 0.5)) {
-							recordToCenter = record
-							bouncingRecord = record
-							viewModel.region = MKCoordinateRegion(
-								center: CLLocationCoordinate2D(latitude: record.coordinate.latitude - 0.010, longitude: record.coordinate.longitude),
-								span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-							)
+		Map(position: cameraPositionBinding) {
+			UserAnnotation()
+			ForEach(viewModel.aqiRecords) { record in
+				Annotation(record.siteName, coordinate: record.coordinate) {
+					let color = selectedMeasurement.color(for: selectedMeasurement.value(in: record))
+					if displayMode == .heatmap {
+						Circle()
+							.fill(RadialGradient(gradient: Gradient(colors: [color, color.opacity(0)]), center: .center, startRadius: 10, endRadius: 50))
+							.frame(width: 100, height: 100)
+							.opacity(0.6)
+					} else {
+						Button {
+							withAnimation(.easeInOut(duration: 0.5)) {
+								recordToCenter = record
+								bouncingRecord = record
+								viewModel.region = MKCoordinateRegion(
+									center: CLLocationCoordinate2D(latitude: record.coordinate.latitude - 0.010, longitude: record.coordinate.longitude),
+									span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+								)
+							}
+							DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+								selectedAirQualityRecord = record
+							}
+						} label: {
+							PinView(color: color, value: selectedMeasurement.displayValue(for: record))
+								.scaleEffect(bouncingRecord == record ? 1.6 : 1.0)
+								.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingRecord == record)
 						}
-						DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-							selectedAirQualityRecord = record
-						}
-					} label: {
-						PinView(color: color, value: selectedMeasurement.displayValue(for: record))
-							.scaleEffect(bouncingRecord == record ? 1.6 : 1.0)
-							.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingRecord == record)
+						.buttonStyle(.plain)
 					}
-					.buttonStyle(.plain)
 				}
 			}
 		}
@@ -406,11 +447,36 @@ struct MapView: View {
 
 	private var locationButton: some View {
 		Button {
-			if let loc = viewModel.locationManager.userLocation {
-				viewModel.region = MKCoordinateRegion(center: loc, span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005))
+			switch viewModel.locationManager.authorizationStatus {
+			case .authorizedWhenInUse, .authorizedAlways:
+				// Authorized but userLocation can still be nil briefly (first
+				// fix hasn't arrived yet) — nothing useful to center on yet,
+				// so this stays a no-op rather than showing an alert.
+				if let loc = viewModel.locationManager.userLocation {
+					viewModel.region = MKCoordinateRegion(center: loc, span: .init(latitudeDelta: 0.005, longitudeDelta: 0.005))
+				}
+			case .denied, .restricted:
+				isShowingLocationPermissionAlert = true
+			case .notDetermined:
+				// Shouldn't normally happen post-launch (already requested in
+				// LocationManager.init()), but re-prompt rather than no-op if
+				// the system somehow hasn't resolved it yet.
+				viewModel.locationManager.requestLocationPermission()
+			@unknown default:
+				break
 			}
 		} label: {
 			ControlButton(iconName: "location", fontSize: 16, padding: 11)
+		}
+		.alert("Location Access Needed", isPresented: $isShowingLocationPermissionAlert) {
+			Button("Open Settings") {
+				if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+					UIApplication.shared.open(settingsURL)
+				}
+			}
+			Button("Cancel", role: .cancel) {}
+		} message: {
+			Text("TaiFind needs location access to show your position on the map. You can enable this in Settings.")
 		}
 	}
 

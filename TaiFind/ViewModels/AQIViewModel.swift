@@ -48,6 +48,14 @@ class AQIViewModel: ObservableObject {
 	private var cancellables = Set<AnyCancellable>()
 
 	init() {
+		// Show last-known-good data immediately on cold launch, even before the
+		// network round-trip in fetchAQIData() below completes — otherwise the
+		// map is empty until the first fetch resolves, and stays empty forever
+		// if the device is offline at launch.
+		if let cached = LocalCache.load([AQIRecord].self, forKey: Self.aqiCacheKey) {
+			aqiRecords = cached.value
+		}
+
 		fetchAQIData()
 
 		locationManager.$userLocation
@@ -64,6 +72,13 @@ class AQIViewModel: ObservableObject {
 			.store(in: &cancellables)
 	}
 
+	// Cache key constants — centralized so the save/load pairs for each data
+	// layer can't accidentally drift apart.
+	private static let aqiCacheKey = "aqi_records"
+	private static let trashcanCacheKey = "trashcan_records"
+	private static let youBikeTaipeiCacheKey = "youbike_taipei_stations"
+	private static let youBikeTaichungCacheKey = "youbike_taichung_stations"
+
 	func fetchAQIData() {
 		isLoadingAirQualityData = true
 		APIService.fetchAQI { [weak self] result in
@@ -72,9 +87,13 @@ class AQIViewModel: ObservableObject {
 				case .success(let records):
 					self?.aqiRecords = records
 					self?.aqiFetchError = nil
+					LocalCache.save(records, forKey: Self.aqiCacheKey)
 				case .failure(let error):
 					// Keep whatever aqiRecords already has rather than clearing the
-					// map on a transient failure; just surface the error.
+					// map on a transient failure; just surface the error. (If this
+					// is a cold, offline launch, aqiRecords may already hold the
+					// cached snapshot loaded in init() above — nothing further to
+					// do here in that case either.)
 					self?.aqiFetchError = error.localizedDescription
 					print("❌ AQI fetch failed: \(error.localizedDescription)")
 				}
@@ -85,6 +104,15 @@ class AQIViewModel: ObservableObject {
 
 
 	func fetchTrashcanData() {
+		// Trashcans (unlike AQI) only fetch on demand when the user toggles the
+		// layer on, so there's no init()-time preload. If this is the first
+		// time this session the layer's been opened, show the cached snapshot
+		// immediately rather than a blank map while the live fetch is in flight.
+		if trashcanRecords.isEmpty,
+		   let cached = LocalCache.load([TrashcanRecord].self, forKey: Self.trashcanCacheKey) {
+			trashcanRecords = cached.value
+		}
+
 		trashcanLoading = true
 		// On failure, keep whatever trashcanRecords already has instead of
 		// wiping pins the user can already see off the map — just surface
@@ -95,6 +123,7 @@ class AQIViewModel: ObservableObject {
 				case .success(let records):
 					self?.trashcanRecords = records
 					self?.trashcanFetchError = nil
+					LocalCache.save(records, forKey: Self.trashcanCacheKey)
 				case .failure(let error):
 					self?.trashcanFetchError = error.localizedDescription
 					print("❌ Trashcan fetch failed: \(error.localizedDescription)")
@@ -105,6 +134,20 @@ class AQIViewModel: ObservableObject {
 	}
 
 	func fetchYouBikeStations() {
+		// Same on-demand cache preload as trashcans, per city.
+		switch youBikeCity {
+		case .taipei:
+			if youBikeStations.isEmpty,
+			   let cached = LocalCache.load([YouBikeStation].self, forKey: Self.youBikeTaipeiCacheKey) {
+				youBikeStations = cached.value
+			}
+		case .taichung:
+			if taichungYouBikeStations.isEmpty,
+			   let cached = LocalCache.load([TaichungYouBikeStation].self, forKey: Self.youBikeTaichungCacheKey) {
+				taichungYouBikeStations = cached.value
+			}
+		}
+
 		youBikeLoading = true
 		switch youBikeCity {
 		case .taipei:
@@ -114,6 +157,7 @@ class AQIViewModel: ObservableObject {
 					case .success(let stations):
 						self?.youBikeStations = stations
 						self?.youBikeFetchError = nil
+						LocalCache.save(stations, forKey: Self.youBikeTaipeiCacheKey)
 					case .failure(let error):
 						// Keep existing stations on screen; just surface the error.
 						self?.youBikeFetchError = error.localizedDescription
@@ -129,6 +173,7 @@ class AQIViewModel: ObservableObject {
 					case .success(let stations):
 						self?.taichungYouBikeStations = stations
 						self?.youBikeFetchError = nil
+						LocalCache.save(stations, forKey: Self.youBikeTaichungCacheKey)
 					case .failure(let error):
 						self?.youBikeFetchError = error.localizedDescription
 						print("❌ Taichung YouBike fetch failed: \(error.localizedDescription)")
