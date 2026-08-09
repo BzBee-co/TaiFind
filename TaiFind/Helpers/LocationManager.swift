@@ -14,6 +14,10 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 	// said no" — previously nothing tracked this, so the location button just
 	// silently did nothing if permission was denied (roadmap item #11).
 	@Published var authorizationStatus: CLAuthorizationStatus
+	// Device compass heading (0° = true north), used to draw the facing-direction
+	// cone on the map. Stays nil on devices/simulators with no compass — callers
+	// should treat that as "just show a plain dot, no cone" rather than an error.
+	@Published var heading: CLLocationDirection?
 	private var lastUpdatedLocation: CLLocation?
 	
 	override init() {
@@ -23,6 +27,9 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 		locationManager.desiredAccuracy = kCLLocationAccuracyBest
 		locationManager.requestWhenInUseAuthorization()
 		locationManager.startUpdatingLocation()
+		if CLLocationManager.headingAvailable() {
+			locationManager.startUpdatingHeading()
+		}
 	}
 	
 	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -63,6 +70,14 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 		}
 		if status == .authorizedWhenInUse || status == .authorizedAlways {
 			locationManager.startUpdatingLocation()
+		}
+	}
+
+	func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+		// trueHeading is negative when invalid (no valid true-north reading yet,
+		// e.g. right after launch) — fall back to magneticHeading in that case.
+		DispatchQueue.main.async {
+			self.heading = newHeading.trueHeading >= 0 ? newHeading.trueHeading : newHeading.magneticHeading
 		}
 	}
 

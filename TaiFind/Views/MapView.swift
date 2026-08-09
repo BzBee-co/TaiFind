@@ -65,6 +65,13 @@ struct MapView: View {
 	// Shown when the location button is tapped but permission is denied/restricted —
 	// previously this case just silently did nothing (roadmap item #11).
 	@State private var isShowingLocationPermissionAlert = false
+	// Lets the standalone MapCompass (placed manually below, in a custom position)
+	// bind to whichever of the three Map instances is currently on screen.
+	@Namespace private var mapScope
+	// The map's own current rotation, tracked continuously so the heading cone
+	// can counter-rotate against it and keep pointing the correct real-world
+	// direction even if the user manually twists the map.
+	@State private var mapHeading: Double = 0
 
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
@@ -237,6 +244,13 @@ struct MapView: View {
 			}
 		}
 		.mapStyle(selectedMapStyle.style)
+		.mapControls {
+			MapScaleView()
+			MapPitchToggle()
+			// MapCompass deliberately omitted here — placed manually below in
+			// overlayControls' ZStack instead, positioned lower on screen per
+			// request rather than the system default top-right corner.
+		}
 		.edgesIgnoringSafeArea(.all)
 		.sheet(isPresented: $isShowingInfo) {
 			InfoView()
@@ -292,17 +306,36 @@ struct MapView: View {
 	// own panning/zooming. .onEnd (rather than .continuous) means clustering
 	// and the visible-annotation lists only recompute once a gesture settles,
 	// not on every intermediate frame while dragging — cheaper, and avoids
-	// pins/clusters visibly reshuffling mid-drag.
+	// pins/clusters visibly reshuffling mid-drag. Heading is tracked separately
+	// at .continuous frequency since it's just a Double (no expensive recompute
+	// triggered by it) and needs to stay smooth while the user rotates the map.
 	private func syncRegionOnCameraChange<V: View>(_ view: V) -> some View {
-		view.onMapCameraChange(frequency: .onEnd) { context in
-			viewModel.region = context.region
+		view
+			.onMapCameraChange(frequency: .onEnd) { context in
+				viewModel.region = context.region
+			}
+			.onMapCameraChange(frequency: .continuous) { context in
+				mapHeading = context.camera.heading
+			}
+	}
+
+	// Shared across all three map layers so the custom heading-cone annotation
+	// (see UserHeadingView.swift) isn't duplicated three times. Nothing is added
+	// if userLocation is nil (permission not granted yet, or no fix yet) —
+	// matches UserAnnotation()'s old behavior of just not showing anything.
+	@MapContentBuilder
+	private var userLocationContent: some MapContent {
+		if let userLocation = viewModel.locationManager.userLocation {
+			Annotation("Your location", coordinate: userLocation) {
+				UserHeadingView(heading: viewModel.locationManager.heading, mapHeading: mapHeading)
+			}
 		}
 	}
 
 	private var trashcanMap: some View {
 		syncRegionOnCameraChange(
-			Map(position: cameraPositionBinding) {
-				UserAnnotation()
+			Map(position: cameraPositionBinding, scope: mapScope) {
+				userLocationContent
 				ForEach(visibleTrashcanAnnotations) { cluster in
 					Annotation(
 						cluster.count == 1 ? "Trash can" : "\(cluster.count) trash cans",

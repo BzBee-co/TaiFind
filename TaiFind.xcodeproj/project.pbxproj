@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6C3597CE30282B86002431F0 /* LocalCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3597CD30282B86002431F0 /* LocalCache.swift */; };
+		6C3597D030287A72002431F0 /* UserHeadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3597CF30287A72002431F0 /* UserHeadingView.swift */; };
 		6C464CDF2E12532D00243B19 /* YouBikePinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C464CDE2E12532D00243B19 /* YouBikePinView.swift */; };
 		6C464CE12E1261A000243B19 /* YouBikeStationDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C464CE02E1261A000243B19 /* YouBikeStationDetailsView.swift */; };
 		6C59FE7E2DA3B52E00A49559 /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C59FE7D2DA3B52E00A49559 /* InfoView.swift */; };
@@ -32,6 +33,7 @@
 /* Begin PBXFileReference section */
 		6C1700222E1BE00F00525140 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6C3597CD30282B86002431F0 /* LocalCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCache.swift; sourceTree = "<group>"; };
+		6C3597CF30287A72002431F0 /* UserHeadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserHeadingView.swift; sourceTree = "<group>"; };
 		6C464CDE2E12532D00243B19 /* YouBikePinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouBikePinView.swift; sourceTree = "<group>"; };
 		6C464CE02E1261A000243B19 /* YouBikeStationDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouBikeStationDetailsView.swift; sourceTree = "<group>"; };
 		6C5145512D98FD990024805A /* TaiFind.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaiFind.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -95,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				6C737EF72DA11C8800430A25 /* LocationManager.swift */,
+				6C3597CF30287A72002431F0 /* UserHeadingView.swift */,
 				6C3597CD30282B86002431F0 /* LocalCache.swift */,
 				6C737F162DA1364300430A25 /* MeasurementType.swift */,
 			);
@@ -244,6 +247,7 @@
 				6CC916332DA636F9000CD663 /* ControlButton.swift in Sources */,
 				6C737F0A2DA11C8800430A25 /* LocationManager.swift in Sources */,
 				6C464CDF2E12532D00243B19 /* YouBikePinView.swift in Sources */,
+				6C3597D030287A72002431F0 /* UserHeadingView.swift in Sources */,
 				6C737F0B2DA11C8800430A25 /* AQIRecord.swift in Sources */,
 				6C737F172DA1364300430A25 /* MeasurementType.swift in Sources */,
 				6C737F132DA11F2700430A25 /* LegendView.swift in Sources */,
