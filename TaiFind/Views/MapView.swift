@@ -268,10 +268,15 @@ struct MapView: View {
 	// source of truth for the clustering math, the empty-area banners, and
 	// isWithin1km) to the MapCameraPosition the modern, non-deprecated Map API
 	// expects. Reading this always reflects the current viewModel.region;
-	// writing to it (which the Map does continuously as the user pans/zooms)
-	// writes straight back into viewModel.region — so both stay in sync without
-	// a separate @State var or any onChange plumbing. (MKCoordinateRegion isn't
-	// Equatable, which rules out driving this with .onChange(of:) directly.)
+	// writing to it (e.g. from the tap-to-center pin handlers below) writes
+	// straight back into viewModel.region.
+	//
+	// NOTE: this binding's `set` is only reliably invoked for *programmatic*
+	// camera moves (like the tap-to-center handlers). It is NOT a channel for
+	// observing the user's own interactive pan/zoom gestures — that requires
+	// .onMapCameraChange below. Without it, viewModel.region (and therefore
+	// every pin/cluster filtered off it) stays frozen at whatever it was last
+	// set to programmatically, ignoring anything the user does by hand.
 	private var cameraPositionBinding: Binding<MapCameraPosition> {
 		Binding(
 			get: { .region(viewModel.region) },
@@ -283,54 +288,69 @@ struct MapView: View {
 		)
 	}
 
-	private var trashcanMap: some View {
-		Map(position: cameraPositionBinding) {
-			UserAnnotation()
-			ForEach(visibleTrashcanAnnotations) { cluster in
-				Annotation(
-					cluster.count == 1 ? "Trash can" : "\(cluster.count) trash cans",
-					coordinate: cluster.coordinate
-				) {
-					TrashcanPinView(count: cluster.count)
-				}
-			}
+	// The actual channel for keeping viewModel.region in sync with the user's
+	// own panning/zooming. .onEnd (rather than .continuous) means clustering
+	// and the visible-annotation lists only recompute once a gesture settles,
+	// not on every intermediate frame while dragging — cheaper, and avoids
+	// pins/clusters visibly reshuffling mid-drag.
+	private func syncRegionOnCameraChange<V: View>(_ view: V) -> some View {
+		view.onMapCameraChange(frequency: .onEnd) { context in
+			viewModel.region = context.region
 		}
 	}
 
-	private var youBikeMap: some View {
-		Map(position: cameraPositionBinding) {
-			UserAnnotation()
-			ForEach(visibleYouBikeAnnotations) { cluster in
-				Annotation(
-					cluster.count == 1 ? cluster.name : "\(cluster.count) YouBike stations",
-					coordinate: cluster.coordinate
-				) {
-					if cluster.count == 1,
-						let station = findStationAtCoordinate(cluster.coordinate) {
-						Button {
-							withAnimation(.easeInOut(duration: 0.5)) {
-								youBikeStationToCenter = station
-								bouncingYouBikeStation = station
-								viewModel.region = MKCoordinateRegion(
-									center: CLLocationCoordinate2D(latitude: station.latitude - 0.002, longitude: station.longitude),
-									span: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
-								)
-							}
-							DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-								selectedYouBikeStation = station
-							}
-						} label: {
-							YouBikePinView(count: nil)
-								.scaleEffect(bouncingYouBikeStation == station ? 1.6 : 1.0)
-								.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingYouBikeStation == station)
-						}
-						.buttonStyle(.plain)
-					} else {
-						YouBikePinView(count: cluster.count)
+	private var trashcanMap: some View {
+		syncRegionOnCameraChange(
+			Map(position: cameraPositionBinding) {
+				UserAnnotation()
+				ForEach(visibleTrashcanAnnotations) { cluster in
+					Annotation(
+						cluster.count == 1 ? "Trash can" : "\(cluster.count) trash cans",
+						coordinate: cluster.coordinate
+					) {
+						TrashcanPinView(count: cluster.count)
 					}
 				}
 			}
-		}
+		)
+	}
+
+	private var youBikeMap: some View {
+		syncRegionOnCameraChange(
+			Map(position: cameraPositionBinding) {
+				UserAnnotation()
+				ForEach(visibleYouBikeAnnotations) { cluster in
+					Annotation(
+						cluster.count == 1 ? cluster.name : "\(cluster.count) YouBike stations",
+						coordinate: cluster.coordinate
+					) {
+						if cluster.count == 1,
+							let station = findStationAtCoordinate(cluster.coordinate) {
+							Button {
+								withAnimation(.easeInOut(duration: 0.5)) {
+									youBikeStationToCenter = station
+									bouncingYouBikeStation = station
+									viewModel.region = MKCoordinateRegion(
+										center: CLLocationCoordinate2D(latitude: station.latitude - 0.002, longitude: station.longitude),
+										span: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
+									)
+								}
+								DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+									selectedYouBikeStation = station
+								}
+							} label: {
+								YouBikePinView(count: nil)
+									.scaleEffect(bouncingYouBikeStation == station ? 1.6 : 1.0)
+									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingYouBikeStation == station)
+							}
+							.buttonStyle(.plain)
+						} else {
+							YouBikePinView(count: cluster.count)
+						}
+					}
+				}
+			}
+		)
 	}
 	
 	private func findStationAtCoordinate(_ coordinate: CLLocationCoordinate2D) -> YouBikeStation? {
@@ -363,39 +383,41 @@ struct MapView: View {
 	}
 
 	private var aqiMap: some View {
-		Map(position: cameraPositionBinding) {
-			UserAnnotation()
-			ForEach(viewModel.aqiRecords) { record in
-				Annotation(record.siteName, coordinate: record.coordinate) {
-					let color = selectedMeasurement.color(for: selectedMeasurement.value(in: record))
-					if displayMode == .heatmap {
-						Circle()
-							.fill(RadialGradient(gradient: Gradient(colors: [color, color.opacity(0)]), center: .center, startRadius: 10, endRadius: 50))
-							.frame(width: 100, height: 100)
-							.opacity(0.6)
-					} else {
-						Button {
-							withAnimation(.easeInOut(duration: 0.5)) {
-								recordToCenter = record
-								bouncingRecord = record
-								viewModel.region = MKCoordinateRegion(
-									center: CLLocationCoordinate2D(latitude: record.coordinate.latitude - 0.010, longitude: record.coordinate.longitude),
-									span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-								)
+		syncRegionOnCameraChange(
+			Map(position: cameraPositionBinding) {
+				UserAnnotation()
+				ForEach(viewModel.aqiRecords) { record in
+					Annotation(record.siteName, coordinate: record.coordinate) {
+						let color = selectedMeasurement.color(for: selectedMeasurement.value(in: record))
+						if displayMode == .heatmap {
+							Circle()
+								.fill(RadialGradient(gradient: Gradient(colors: [color, color.opacity(0)]), center: .center, startRadius: 10, endRadius: 50))
+								.frame(width: 100, height: 100)
+								.opacity(0.6)
+						} else {
+							Button {
+								withAnimation(.easeInOut(duration: 0.5)) {
+									recordToCenter = record
+									bouncingRecord = record
+									viewModel.region = MKCoordinateRegion(
+										center: CLLocationCoordinate2D(latitude: record.coordinate.latitude - 0.010, longitude: record.coordinate.longitude),
+										span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+									)
+								}
+								DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+									selectedAirQualityRecord = record
+								}
+							} label: {
+								PinView(color: color, value: selectedMeasurement.displayValue(for: record))
+									.scaleEffect(bouncingRecord == record ? 1.6 : 1.0)
+									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingRecord == record)
 							}
-							DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-								selectedAirQualityRecord = record
-							}
-						} label: {
-							PinView(color: color, value: selectedMeasurement.displayValue(for: record))
-								.scaleEffect(bouncingRecord == record ? 1.6 : 1.0)
-								.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingRecord == record)
+							.buttonStyle(.plain)
 						}
-						.buttonStyle(.plain)
 					}
 				}
 			}
-		}
+		)
 	}
 
 	private var overlayControls: some View {
