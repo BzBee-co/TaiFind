@@ -37,7 +37,6 @@ struct LegendView: View {
 				Picker("Selected Measurement", selection: $selectedMeasurement) {
 					ForEach(MeasurementType.allCases, id: \.self) { measurement in
 						Text(measurement.localizedFullName) + Text(" \(measurement.unit)")
-
 					}
 				}
 				.labelsHidden()
@@ -83,7 +82,8 @@ struct LegendView: View {
 			}
 		}
 		.padding(6)
-		.background(Color(.secondarySystemBackground).opacity(0.8))
+		.background(Color(.secondarySystemBackground))
+		.overlay(RoundedRectangle(cornerRadius: 8).stroke(.tertiary, lineWidth: 1))
 		.cornerRadius(8)
 	}
 }

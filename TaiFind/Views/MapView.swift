@@ -65,13 +65,8 @@ struct MapView: View {
 	// Shown when the location button is tapped but permission is denied/restricted —
 	// previously this case just silently did nothing (roadmap item #11).
 	@State private var isShowingLocationPermissionAlert = false
-	// Lets the standalone MapCompass (placed manually below, in a custom position)
-	// bind to whichever of the three Map instances is currently on screen.
+	@State private var userHeading: CLLocationDirection = 0
 	@Namespace private var mapScope
-	// The map's own current rotation, tracked continuously so the heading cone
-	// can counter-rotate against it and keep pointing the correct real-world
-	// direction even if the user manually twists the map.
-	@State private var mapHeading: Double = 0
 
 	enum MapStyleOption: String, CaseIterable {
 		case standard = "Standard"
@@ -98,6 +93,7 @@ struct MapView: View {
 	var body: some View {
 		ZStack {
 			mapLayer
+			compassOverlay
 			overlayControls
 			// Only block the map with the full-screen spinner when there's nothing
 			// to show yet. With on-disk caching (#9), a cached snapshot can already
@@ -179,8 +175,12 @@ struct MapView: View {
 				}
 			}
 		}
+		.mapScope(mapScope)
 		.onAppear {
 			viewModel.fetchAQIData()
+		}
+		.onReceive(viewModel.locationManager.$heading) { heading in
+			userHeading = heading
 		}
 		.onChange(of: selectedLayer) { oldValue, newValue in
 			withAnimation {
@@ -244,20 +244,27 @@ struct MapView: View {
 			}
 		}
 		.mapStyle(selectedMapStyle.style)
-		.mapControls {
-			MapScaleView()
-			MapPitchToggle()
-			// MapCompass deliberately omitted here — placed manually below in
-			// overlayControls' ZStack instead, positioned lower on screen per
-			// request rather than the system default top-right corner.
-		}
 		.edgesIgnoringSafeArea(.all)
 		.sheet(isPresented: $isShowingInfo) {
 			InfoView()
 				.presentationDragIndicator(.visible)
 		}
 	}
+	
+	private var compassOverlay: some View {
+		VStack {
+			HStack {
+				Spacer()
 
+				MapCompass(scope: mapScope)
+					.mapControlVisibility(.automatic)
+					.padding(.top, 100)
+					.padding(.trailing, 8)
+			}
+
+			Spacer()
+		}
+	}
 	private var visibleTrashcanAnnotations: [TrashcanCluster] {
 		viewModel.trashcanAnnotations(for: viewModel.region)
 			.filter { isWithin1km(of: viewModel.region.center, coordinate: $0.coordinate) }
@@ -306,36 +313,67 @@ struct MapView: View {
 	// own panning/zooming. .onEnd (rather than .continuous) means clustering
 	// and the visible-annotation lists only recompute once a gesture settles,
 	// not on every intermediate frame while dragging — cheaper, and avoids
-	// pins/clusters visibly reshuffling mid-drag. Heading is tracked separately
-	// at .continuous frequency since it's just a Double (no expensive recompute
-	// triggered by it) and needs to stay smooth while the user rotates the map.
+	// pins/clusters visibly reshuffling mid-drag. Device heading is tracked
+	// separately through LocationManager and rotates only the custom user-location
+	// annotation; it never changes the map camera.
 	private func syncRegionOnCameraChange<V: View>(_ view: V) -> some View {
-		view
-			.onMapCameraChange(frequency: .onEnd) { context in
-				viewModel.region = context.region
-			}
-			.onMapCameraChange(frequency: .continuous) { context in
-				mapHeading = context.camera.heading
-			}
+		view.onMapCameraChange(frequency: .onEnd) { context in
+			viewModel.region = context.region
+		}
 	}
 
-	// Shared across all three map layers so the custom heading-cone annotation
-	// (see UserHeadingView.swift) isn't duplicated three times. Nothing is added
-	// if userLocation is nil (permission not granted yet, or no fix yet) —
-	// matches UserAnnotation()'s old behavior of just not showing anything.
-	@MapContentBuilder
-	private var userLocationContent: some MapContent {
-		if let userLocation = viewModel.locationManager.userLocation {
-			Annotation("Your location", coordinate: userLocation) {
-				UserHeadingView(heading: viewModel.locationManager.heading, mapHeading: mapHeading)
+	// Named constants for what were previously magic numbers (0.6, 1.6, 0.3, 0.3)
+	// scattered across the per-layer tap handlers below.
+	private enum PinInteraction {
+		static let centerAnimation = Animation.easeInOut(duration: 0.5)
+		static let bounceAnimation = Animation.spring(response: 0.3, dampingFraction: 0.3)
+		static let bounceScale: CGFloat = 1.6
+		static let sheetPresentDelay: TimeInterval = 0.6
+	}
+
+	// Shared by youBikeMap and aqiMap — both previously had their own near-identical
+	// copy of "bounce the pin, recenter the map, then present a detail sheet after
+	// the animation finishes" with the same magic numbers duplicated in each place.
+	// Trashcan pins don't use this: they aren't individually tappable at all (see
+	// roadmap item — there's no per-can detail worth showing, just a shared address/
+	// fine-notice message identical across all 691 records).
+	@ViewBuilder
+	private func bouncingPinButton<Item: Equatable, Pin: View>(
+		item: Item,
+		coordinate: CLLocationCoordinate2D,
+		centerLatitudeOffset: CLLocationDegrees,
+		centerSpan: MKCoordinateSpan,
+		accessibilityLabel: String,
+		bouncing: Binding<Item?>,
+		centering: Binding<Item?>,
+		selection: Binding<Item?>,
+		@ViewBuilder pin: () -> Pin
+	) -> some View {
+		Button {
+			withAnimation(PinInteraction.centerAnimation) {
+				centering.wrappedValue = item
+				bouncing.wrappedValue = item
+				viewModel.region = MKCoordinateRegion(
+					center: CLLocationCoordinate2D(latitude: coordinate.latitude + centerLatitudeOffset, longitude: coordinate.longitude),
+					span: centerSpan
+				)
 			}
+			DispatchQueue.main.asyncAfter(deadline: .now() + PinInteraction.sheetPresentDelay) {
+				selection.wrappedValue = item
+			}
+		} label: {
+			pin()
+				.scaleEffect(bouncing.wrappedValue == item ? PinInteraction.bounceScale : 1.0)
+				.animation(PinInteraction.bounceAnimation, value: bouncing.wrappedValue == item)
 		}
+		.buttonStyle(.plain)
+		.accessibilityLabel(accessibilityLabel)
 	}
 
 	private var trashcanMap: some View {
 		syncRegionOnCameraChange(
 			Map(position: cameraPositionBinding, scope: mapScope) {
-				userLocationContent
+				userLocationAnnotation
 				ForEach(visibleTrashcanAnnotations) { cluster in
 					Annotation(
 						cluster.count == 1 ? "Trash can" : "\(cluster.count) trash cans",
@@ -345,13 +383,14 @@ struct MapView: View {
 					}
 				}
 			}
+			.mapControlVisibility(.hidden)
 		)
 	}
 
 	private var youBikeMap: some View {
 		syncRegionOnCameraChange(
-			Map(position: cameraPositionBinding) {
-				UserAnnotation()
+			Map(position: cameraPositionBinding, scope: mapScope) {
+				userLocationAnnotation
 				ForEach(visibleYouBikeAnnotations) { cluster in
 					Annotation(
 						cluster.count == 1 ? cluster.name : "\(cluster.count) YouBike stations",
@@ -359,30 +398,25 @@ struct MapView: View {
 					) {
 						if cluster.count == 1,
 							let station = findStationAtCoordinate(cluster.coordinate) {
-							Button {
-								withAnimation(.easeInOut(duration: 0.5)) {
-									youBikeStationToCenter = station
-									bouncingYouBikeStation = station
-									viewModel.region = MKCoordinateRegion(
-										center: CLLocationCoordinate2D(latitude: station.latitude - 0.002, longitude: station.longitude),
-										span: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
-									)
-								}
-								DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-									selectedYouBikeStation = station
-								}
-							} label: {
+							bouncingPinButton(
+								item: station,
+								coordinate: cluster.coordinate,
+								centerLatitudeOffset: -0.002,
+								centerSpan: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055),
+								accessibilityLabel: "\(cluster.name.replacingOccurrences(of: "YouBike2.0_", with: "")), \(station.available_rent_bikes) bikes available, \(station.available_return_bikes) docks open",
+								bouncing: $bouncingYouBikeStation,
+								centering: $youBikeStationToCenter,
+								selection: $selectedYouBikeStation
+							) {
 								YouBikePinView(count: nil)
-									.scaleEffect(bouncingYouBikeStation == station ? 1.6 : 1.0)
-									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingYouBikeStation == station)
 							}
-							.buttonStyle(.plain)
 						} else {
 							YouBikePinView(count: cluster.count)
 						}
 					}
 				}
 			}
+				.mapControlVisibility(.hidden)
 		)
 	}
 	
@@ -417,8 +451,8 @@ struct MapView: View {
 
 	private var aqiMap: some View {
 		syncRegionOnCameraChange(
-			Map(position: cameraPositionBinding) {
-				UserAnnotation()
+			Map(position: cameraPositionBinding, scope: mapScope) {
+				userLocationAnnotation
 				ForEach(viewModel.aqiRecords) { record in
 					Annotation(record.siteName, coordinate: record.coordinate) {
 						let color = selectedMeasurement.color(for: selectedMeasurement.value(in: record))
@@ -428,28 +462,23 @@ struct MapView: View {
 								.frame(width: 100, height: 100)
 								.opacity(0.6)
 						} else {
-							Button {
-								withAnimation(.easeInOut(duration: 0.5)) {
-									recordToCenter = record
-									bouncingRecord = record
-									viewModel.region = MKCoordinateRegion(
-										center: CLLocationCoordinate2D(latitude: record.coordinate.latitude - 0.010, longitude: record.coordinate.longitude),
-										span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-									)
-								}
-								DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-									selectedAirQualityRecord = record
-								}
-							} label: {
+							bouncingPinButton(
+								item: record,
+								coordinate: record.coordinate,
+								centerLatitudeOffset: -0.010,
+								centerSpan: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05),
+								accessibilityLabel: "\(record.siteName), \(selectedMeasurement.rawValue) \(selectedMeasurement.displayValue(for: record)), \(record.status)",
+								bouncing: $bouncingRecord,
+								centering: $recordToCenter,
+								selection: $selectedAirQualityRecord
+							) {
 								PinView(color: color, value: selectedMeasurement.displayValue(for: record))
-									.scaleEffect(bouncingRecord == record ? 1.6 : 1.0)
-									.animation(.spring(response: 0.3, dampingFraction: 0.3), value: bouncingRecord == record)
 							}
-							.buttonStyle(.plain)
 						}
 					}
 				}
 			}
+				.mapControlVisibility(.hidden)
 		)
 	}
 
@@ -498,6 +527,7 @@ struct MapView: View {
 		} label: {
 			ControlButton(iconName: "square.3.layers.3d", fontSize: 15, padding: 11)
 		}
+		.accessibilityLabel("Map layers and style")
 	}
 
 	private var locationButton: some View {
@@ -523,6 +553,7 @@ struct MapView: View {
 		} label: {
 			ControlButton(iconName: "location", fontSize: 16, padding: 11)
 		}
+		.accessibilityLabel("Center on my location")
 		.alert("Location Access Needed", isPresented: $isShowingLocationPermissionAlert) {
 			Button("Open Settings") {
 				if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
@@ -545,6 +576,7 @@ struct MapView: View {
 		} label: {
 			ControlButton(iconName: "arrow.clockwise", fontSize: 14, padding: 12)
 		}
+		.accessibilityLabel("Refresh data")
 	}
 
 	private var infoButton: some View {
@@ -553,6 +585,7 @@ struct MapView: View {
 		} label: {
 			ControlButton(iconName: "info", fontSize: 18, padding: 14)
 		}
+		.accessibilityLabel("Information")
 	}
 
 	private func aqiErrorBanner(_ message: String) -> some View {
@@ -668,6 +701,50 @@ struct MapView: View {
 		let checkLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
 		return centerLocation.distance(from: checkLocation) <= 1000
 	}
+	
+	@MapContentBuilder
+	private var userLocationAnnotation: some MapContent {
+		if let coordinate = viewModel.locationManager.userLocation {
+			Annotation("Your location", coordinate: coordinate, anchor: .center) {
+				UserHeadingCone(heading: userHeading)
+			}
+		}
+	}
+}
+
+private struct UserHeadingCone: View {
+	let heading: CLLocationDirection
+
+	var body: some View {
+		ZStack {
+			Image(systemName: "cone.fill")
+				.font(.system(size: 34, weight: .semibold))
+				.symbolRenderingMode(.monochrome)
+				.foregroundStyle(
+					LinearGradient(
+						gradient: Gradient(stops: [
+							.init(color: .blue.opacity(0.28), location: 0.0),
+							.init(color: .blue.opacity(0.28), location: 0.5),
+							.init(color: .blue.opacity(0.05), location: 1.0)
+						]),
+						startPoint: .top,
+						endPoint: .bottom
+					)
+				)
+				.offset(x: 0, y: 10)
+
+			Circle()
+				.fill(.blue)
+				.frame(width: 16, height: 16)
+				.overlay {
+					Circle()
+						.stroke(.white, lineWidth: 3)
+				}
+		}
+		// 0° is north/up; 90° points east/right on the fixed north-up map.
+		.rotationEffect(.degrees(heading + 180))
+		.accessibilityLabel("Your location and heading")
+	}
 }
 
 extension MeasurementType {
@@ -721,4 +798,8 @@ extension TrashcanRecord: Identifiable, Hashable {
 	return MapView()
 		.environmentObject(viewModel)
 		.environment(\.locale, Locale(identifier: "zh-Hant"))
+}
+
+#Preview("Heading View") {
+	UserHeadingCone(heading: 45)
 }
