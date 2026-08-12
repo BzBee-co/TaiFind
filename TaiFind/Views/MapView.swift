@@ -65,6 +65,7 @@ struct MapView: View {
 	// Shown when the location button is tapped but permission is denied/restricted —
 	// previously this case just silently did nothing (roadmap item #11).
 	@State private var isShowingLocationPermissionAlert = false
+	@State private var isShowingFavorites = false
 	@State private var userHeading: CLLocationDirection = 0
 	@Namespace private var mapScope
 
@@ -93,7 +94,8 @@ struct MapView: View {
 	var body: some View {
 		ZStack {
 			mapLayer
-			compassOverlay
+			// the compass does not move to adjust to map being rotated. Needs fixing before we make it visible
+//			 compassOverlay
 			overlayControls
 			// Only block the map with the full-screen spinner when there's nothing
 			// to show yet. With on-disk caching (#9), a cached snapshot can already
@@ -175,9 +177,11 @@ struct MapView: View {
 				}
 			}
 		}
-		.mapScope(mapScope)
 		.onAppear {
 			viewModel.fetchAQIData()
+		}
+		.onOpenURL { url in
+			handleDeepLink(url)
 		}
 		.onReceive(viewModel.locationManager.$heading) { heading in
 			userHeading = heading
@@ -496,6 +500,7 @@ struct MapView: View {
 						refreshButton
 					}
 					locationButton
+					favoritesButton
 					infoButton
 				}
 				.buttonStyle(.plain)
@@ -586,6 +591,78 @@ struct MapView: View {
 			ControlButton(iconName: "info", fontSize: 18, padding: 14)
 		}
 		.accessibilityLabel("Information")
+	}
+
+	private var favoritesButton: some View {
+		Button {
+			isShowingFavorites = true
+		} label: {
+			ControlButton(iconName: "star.fill", fontSize: 15, padding: 11)
+		}
+		.accessibilityLabel("Favorites")
+		.sheet(isPresented: $isShowingFavorites) {
+			FavoritesListView { favorite in
+				navigateTo(type: favorite.type, stationID: favorite.stationID)
+			}
+			.presentationDragIndicator(.visible)
+		}
+	}
+
+	// Switches to the correct layer and recenters the map on a station —
+	// used both by the in-app Favorites list (tap a row) and by widget deep
+	// links (tap a favorite in the widget, which opens the app via .onOpenURL
+	// below). Deliberately doesn't force-open the station's detail sheet —
+	// just gets the user looking at the right pin; they can tap it themselves
+	// if they want the full detail view.
+	private func navigateTo(type: FavoriteType, stationID: String) {
+		switch type {
+		case .aqi:
+			selectedLayer = .aqi
+			if let record = viewModel.aqiRecords.first(where: { $0.siteID == stationID }) {
+				withAnimation(PinInteraction.centerAnimation) {
+					viewModel.region = MKCoordinateRegion(
+						center: record.coordinate,
+						span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+					)
+				}
+			}
+		case .youBikeTaipei:
+			selectedLayer = .youBikesTaipei
+			if let station = viewModel.youBikeStations.first(where: { $0.sno == stationID }) {
+				withAnimation(PinInteraction.centerAnimation) {
+					viewModel.region = MKCoordinateRegion(
+						center: CLLocationCoordinate2D(latitude: station.latitude, longitude: station.longitude),
+						span: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
+					)
+				}
+			}
+		case .youBikeTaichung:
+			selectedLayer = .youBikesTaichung
+			if let station = viewModel.taichungYouBikeStations.first(where: { $0.sno == stationID }) {
+				withAnimation(PinInteraction.centerAnimation) {
+					viewModel.region = MKCoordinateRegion(
+						center: CLLocationCoordinate2D(latitude: station.latitude, longitude: station.longitude),
+						span: MKCoordinateSpan(latitudeDelta: 0.0075, longitudeDelta: 0.0055)
+					)
+				}
+			}
+		}
+	}
+
+	// Parses "taifind://station/<type>/<stationID>" from a widget tap and
+	// routes to the same navigateTo(...) the in-app Favorites list uses.
+	// Malformed/unrecognized URLs are ignored rather than crashing — a stale
+	// or manually-typed URL shouldn't be able to take down the app.
+	private func handleDeepLink(_ url: URL) {
+		guard url.scheme == "taifind",
+			  url.host == "station",
+			  let type = FavoriteType(urlPathComponent: url.pathComponents.dropFirst().first ?? "") else {
+			return
+		}
+		let stationID = url.pathComponents.dropFirst(2).first ?? ""
+		guard !stationID.isEmpty else { return }
+		if isShowingFavorites { isShowingFavorites = false }
+		navigateTo(type: type, stationID: stationID)
 	}
 
 	private func aqiErrorBanner(_ message: String) -> some View {

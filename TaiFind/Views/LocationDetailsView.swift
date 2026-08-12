@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct LocationDetailsView: View {
+	@EnvironmentObject var viewModel: AQIViewModel
 	@Environment(\.dismiss) private var dismiss
 	let record: AQIRecord // Receive the selected AQIRecord
 
@@ -121,6 +122,16 @@ struct LocationDetailsView: View {
 					.accessibilityLabel("\(record.siteName), \(record.county.isEmpty ? "" : record.county + ", ")last updated \(formattedDateTime)")
 				}
 				
+				ToolbarItem(placement: .topBarTrailing) {
+					Button {
+						viewModel.toggleFavorite(type: .aqi, stationID: record.siteID, displayName: record.siteName)
+					} label: {
+						Image(systemName: viewModel.isFavorite(type: .aqi, stationID: record.siteID) ? "star.fill" : "star")
+							.foregroundStyle(.yellow)
+					}
+					.accessibilityLabel(viewModel.isFavorite(type: .aqi, stationID: record.siteID) ? "Remove from favorites" : "Add to favorites")
+				}
+
 				ToolbarItem(placement: .topBarTrailing) {
 					Button {
 						dismiss()

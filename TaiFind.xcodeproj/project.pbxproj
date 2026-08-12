@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6C19C4113029AC0800CF65A9 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C19C4103029AC0800CF65A9 /* AppGroup.swift */; };
 		6C3597CE30282B86002431F0 /* LocalCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3597CD30282B86002431F0 /* LocalCache.swift */; };
 		6C3597D030287A72002431F0 /* UserHeadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3597CF30287A72002431F0 /* UserHeadingView.swift */; };
 		6C464CDF2E12532D00243B19 /* YouBikePinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C464CDE2E12532D00243B19 /* YouBikePinView.swift */; };
@@ -23,15 +24,54 @@
 		6C737F112DA11C8800430A25 /* Taiwan_AQIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F052DA11C8800430A25 /* Taiwan_AQIApp.swift */; };
 		6C737F132DA11F2700430A25 /* LegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F122DA11F2700430A25 /* LegendView.swift */; };
 		6C737F172DA1364300430A25 /* MeasurementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F162DA1364300430A25 /* MeasurementType.swift */; };
+		6C78DFA3302C1C9100AD0F0B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6C737F042DA11C8800430A25 /* Assets.xcassets */; };
 		6C7B8F8A2E08107600F58FCA /* TrashcanPinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7B8F892E08107600F58FCA /* TrashcanPinView.swift */; };
 		6CC5EE0E2E28C262001BCD4C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6CC5EE0D2E28C262001BCD4C /* Localizable.xcstrings */; };
 		6CC916332DA636F9000CD663 /* ControlButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916322DA636F9000CD663 /* ControlButton.swift */; };
 		6CC916352DA64EE9000CD663 /* PinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916342DA64EE9000CD663 /* PinView.swift */; };
 		6CC916372DA656AB000CD663 /* LocationDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916362DA656AB000CD663 /* LocationDetailsView.swift */; };
+		6CCA783E302C1A0900C4D618 /* MeasurementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F162DA1364300430A25 /* MeasurementType.swift */; };
+		6CD429C53029EF9000E60A0C /* FavoriteStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD429C43029EF9000E60A0C /* FavoriteStation.swift */; };
+		6CD429C73029EFB800E60A0C /* FavoritesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD429C63029EFB800E60A0C /* FavoritesStore.swift */; };
+		6CD429C93029EFDA00E60A0C /* FavoritesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD429C83029EFDA00E60A0C /* FavoritesListView.swift */; };
+		6CD429D13029F1DF00E60A0C /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CD429D03029F1DF00E60A0C /* WidgetKit.framework */; };
+		6CD429D33029F1DF00E60A0C /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CD429D23029F1DF00E60A0C /* SwiftUI.framework */; };
+		6CD429E23029F1E000E60A0C /* TaiFindWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6CD429CE3029F1DF00E60A0C /* TaiFindWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		6CD429E93029F29F00E60A0C /* FavoriteStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD429C43029EF9000E60A0C /* FavoriteStation.swift */; };
+		6CD429EA3029F2A900E60A0C /* FavoritesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD429C63029EFB800E60A0C /* FavoritesStore.swift */; };
+		6CD429EB3029F2C100E60A0C /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C19C4103029AC0800CF65A9 /* AppGroup.swift */; };
+		6CD429EC3029F2C100E60A0C /* LocalCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3597CD30282B86002431F0 /* LocalCache.swift */; };
+		6CD429ED3029F2C100E60A0C /* AQIRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737EF92DA11C8800430A25 /* AQIRecord.swift */; };
+		6CD429EE3029F2F900E60A0C /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737EF52DA11C8800430A25 /* APIService.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6CD429E03029F1E000E60A0C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6C5145492D98FD990024805A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6CD429CD3029F1DF00E60A0C;
+			remoteInfo = TaiFindWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6CD429E73029F1E000E60A0C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				6CD429E23029F1E000E60A0C /* TaiFindWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		6C1700222E1BE00F00525140 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		6C19C4103029AC0800CF65A9 /* AppGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroup.swift; sourceTree = "<group>"; };
 		6C3597CD30282B86002431F0 /* LocalCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCache.swift; sourceTree = "<group>"; };
 		6C3597CF30287A72002431F0 /* UserHeadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserHeadingView.swift; sourceTree = "<group>"; };
 		6C464CDE2E12532D00243B19 /* YouBikePinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouBikePinView.swift; sourceTree = "<group>"; };
@@ -55,7 +95,35 @@
 		6CC916322DA636F9000CD663 /* ControlButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlButton.swift; sourceTree = "<group>"; };
 		6CC916342DA64EE9000CD663 /* PinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinView.swift; sourceTree = "<group>"; };
 		6CC916362DA656AB000CD663 /* LocationDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDetailsView.swift; sourceTree = "<group>"; };
+		6CD429C43029EF9000E60A0C /* FavoriteStation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteStation.swift; sourceTree = "<group>"; };
+		6CD429C63029EFB800E60A0C /* FavoritesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesStore.swift; sourceTree = "<group>"; };
+		6CD429C83029EFDA00E60A0C /* FavoritesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesListView.swift; sourceTree = "<group>"; };
+		6CD429CE3029F1DF00E60A0C /* TaiFindWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TaiFindWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6CD429D03029F1DF00E60A0C /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		6CD429D23029F1DF00E60A0C /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		6CD429E83029F20A00E60A0C /* TaiFindWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TaiFindWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6CD429E33029F1E000E60A0C /* Exceptions for "TaiFindWidget" folder in "TaiFindWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 6CD429CD3029F1DF00E60A0C /* TaiFindWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		6CD429D43029F1DF00E60A0C /* TaiFindWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6CD429E33029F1E000E60A0C /* Exceptions for "TaiFindWidget" folder in "TaiFindWidgetExtension" target */,
+			);
+			path = TaiFindWidget;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		6C51454E2D98FD990024805A /* Frameworks */ = {
@@ -65,14 +133,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6CD429CB3029F1DF00E60A0C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6CD429D33029F1DF00E60A0C /* SwiftUI.framework in Frameworks */,
+				6CD429D13029F1DF00E60A0C /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		6C5145482D98FD990024805A = {
 			isa = PBXGroup;
 			children = (
+				6CD429E83029F20A00E60A0C /* TaiFindWidgetExtension.entitlements */,
 				6C737F062DA11C8800430A25 /* TaiFind */,
 				6C737EFC2DA11C8800430A25 /* Preview Content */,
+				6CD429D43029F1DF00E60A0C /* TaiFindWidget */,
+				6CD429CF3029F1DF00E60A0C /* Frameworks */,
 				6C5145522D98FD990024805A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -81,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				6C5145512D98FD990024805A /* TaiFind.app */,
+				6CD429CE3029F1DF00E60A0C /* TaiFindWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,9 +177,11 @@
 		6C737EF82DA11C8800430A25 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				6C19C4103029AC0800CF65A9 /* AppGroup.swift */,
 				6C737EF72DA11C8800430A25 /* LocationManager.swift */,
 				6C3597CF30287A72002431F0 /* UserHeadingView.swift */,
 				6C3597CD30282B86002431F0 /* LocalCache.swift */,
+				6CD429C63029EFB800E60A0C /* FavoritesStore.swift */,
 				6C737F162DA1364300430A25 /* MeasurementType.swift */,
 			);
 			path = Helpers;
@@ -108,6 +191,7 @@
 			isa = PBXGroup;
 			children = (
 				6C737EF92DA11C8800430A25 /* AQIRecord.swift */,
+				6CD429C43029EF9000E60A0C /* FavoriteStation.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -133,6 +217,7 @@
 			children = (
 				6C737F002DA11C8800430A25 /* ContentView.swift */,
 				6C737F012DA11C8800430A25 /* MapView.swift */,
+				6CD429C83029EFDA00E60A0C /* FavoritesListView.swift */,
 				6C464CE02E1261A000243B19 /* YouBikeStationDetailsView.swift */,
 				6CC916362DA656AB000CD663 /* LocationDetailsView.swift */,
 				6CC916342DA64EE9000CD663 /* PinView.swift */,
@@ -152,14 +237,23 @@
 				6C562E6B2E1CDAD300304B37 /* TaiFind.entitlements */,
 				6C1700222E1BE00F00525140 /* Info.plist */,
 				6C737F042DA11C8800430A25 /* Assets.xcassets */,
+				6C737F052DA11C8800430A25 /* Taiwan_AQIApp.swift */,
 				6C737EF62DA11C8800430A25 /* API */,
 				6C737EF82DA11C8800430A25 /* Helpers */,
 				6C737EFA2DA11C8800430A25 /* Models */,
 				6C737EFE2DA11C8800430A25 /* ViewModels */,
 				6C737F032DA11C8800430A25 /* Views */,
-				6C737F052DA11C8800430A25 /* Taiwan_AQIApp.swift */,
 			);
 			path = TaiFind;
+			sourceTree = "<group>";
+		};
+		6CD429CF3029F1DF00E60A0C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6CD429D03029F1DF00E60A0C /* WidgetKit.framework */,
+				6CD429D23029F1DF00E60A0C /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -172,10 +266,12 @@
 				6C51454D2D98FD990024805A /* Sources */,
 				6C51454E2D98FD990024805A /* Frameworks */,
 				6C51454F2D98FD990024805A /* Resources */,
+				6CD429E73029F1E000E60A0C /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				6CD429E13029F1E000E60A0C /* PBXTargetDependency */,
 			);
 			name = TaiFind;
 			packageProductDependencies = (
@@ -184,6 +280,28 @@
 			productReference = 6C5145512D98FD990024805A /* TaiFind.app */;
 			productType = "com.apple.product-type.application";
 		};
+		6CD429CD3029F1DF00E60A0C /* TaiFindWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6CD429E43029F1E000E60A0C /* Build configuration list for PBXNativeTarget "TaiFindWidgetExtension" */;
+			buildPhases = (
+				6CD429CA3029F1DF00E60A0C /* Sources */,
+				6CD429CB3029F1DF00E60A0C /* Frameworks */,
+				6CD429CC3029F1DF00E60A0C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				6CD429D43029F1DF00E60A0C /* TaiFindWidget */,
+			);
+			name = TaiFindWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = TaiFindWidgetExtension;
+			productReference = 6CD429CE3029F1DF00E60A0C /* TaiFindWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -191,11 +309,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					6C5145502D98FD990024805A = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					6CD429CD3029F1DF00E60A0C = {
+						CreatedOnToolsVersion = 26.6;
 					};
 				};
 			};
@@ -215,6 +336,7 @@
 			projectRoot = "";
 			targets = (
 				6C5145502D98FD990024805A /* TaiFind */,
+				6CD429CD3029F1DF00E60A0C /* TaiFindWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -230,6 +352,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6CD429CC3029F1DF00E60A0C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6C78DFA3302C1C9100AD0F0B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -240,8 +370,12 @@
 				6C7B8F8A2E08107600F58FCA /* TrashcanPinView.swift in Sources */,
 				6CC916372DA656AB000CD663 /* LocationDetailsView.swift in Sources */,
 				6C737F092DA11C8800430A25 /* APIService.swift in Sources */,
+				6CD429C73029EFB800E60A0C /* FavoritesStore.swift in Sources */,
+				6C19C4113029AC0800CF65A9 /* AppGroup.swift in Sources */,
 				6C59FE7E2DA3B52E00A49559 /* InfoView.swift in Sources */,
+				6CD429C93029EFDA00E60A0C /* FavoritesListView.swift in Sources */,
 				6CC916352DA64EE9000CD663 /* PinView.swift in Sources */,
+				6CD429C53029EF9000E60A0C /* FavoriteStation.swift in Sources */,
 				6C3597CE30282B86002431F0 /* LocalCache.swift in Sources */,
 				6C464CE12E1261A000243B19 /* YouBikeStationDetailsView.swift in Sources */,
 				6CC916332DA636F9000CD663 /* ControlButton.swift in Sources */,
@@ -258,7 +392,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6CD429CA3029F1DF00E60A0C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6CD429E93029F29F00E60A0C /* FavoriteStation.swift in Sources */,
+				6CD429EA3029F2A900E60A0C /* FavoritesStore.swift in Sources */,
+				6CD429EE3029F2F900E60A0C /* APIService.swift in Sources */,
+				6CD429EB3029F2C100E60A0C /* AppGroup.swift in Sources */,
+				6CD429EC3029F2C100E60A0C /* LocalCache.swift in Sources */,
+				6CCA783E302C1A0900C4D618 /* MeasurementType.swift in Sources */,
+				6CD429ED3029F2C100E60A0C /* AQIRecord.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6CD429E13029F1E000E60A0C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6CD429CD3029F1DF00E60A0C /* TaiFindWidgetExtension */;
+			targetProxy = 6CD429E03029F1E000E60A0C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		6C51455D2D98FD9A0024805A /* Debug */ = {
@@ -458,6 +614,72 @@
 			};
 			name = Release;
 		};
+		6CD429E53029F1E000E60A0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TaiFindWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U558F4G8N6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TaiFindWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TaiFindWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bzbee.TaiFind.TaiFindWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6CD429E63029F1E000E60A0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TaiFindWidgetExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U558F4G8N6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TaiFindWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TaiFindWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bzbee.TaiFind.TaiFindWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -475,6 +697,15 @@
 			buildConfigurations = (
 				6C5145602D98FD9A0024805A /* Debug */,
 				6C5145612D98FD9A0024805A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6CD429E43029F1E000E60A0C /* Build configuration list for PBXNativeTarget "TaiFindWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6CD429E53029F1E000E60A0C /* Debug */,
+				6CD429E63029F1E000E60A0C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

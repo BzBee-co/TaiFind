@@ -25,8 +25,21 @@ enum LocalCache {
 		let data: T
 	}
 
+	// Shared with the widget extension via App Group, so both processes read
+	// the exact same cached snapshots — this is what makes it possible for a
+	// widget to show real data without doing its own network fetch. Falls
+	// back to the app's own sandboxed caches directory if the App Group
+	// container is ever unavailable (e.g. entitlement misconfigured) —
+	// degrades gracefully rather than crashing; in that fallback case the
+	// widget just won't see this particular cache until it's fixed.
 	private static var cacheDirectory: URL {
-		FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+		if let groupContainer = AppGroup.containerURL?.appendingPathComponent("Cache", isDirectory: true) {
+			try? FileManager.default.createDirectory(at: groupContainer, withIntermediateDirectories: true)
+			return groupContainer
+		}
+
+		print("⚠️ LocalCache: App Group container unavailable — falling back to local caches directory (widget won't see this data)")
+		return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
 	}
 
 	private static func fileURL(for key: String) -> URL {

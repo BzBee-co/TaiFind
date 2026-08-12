@@ -30,6 +30,9 @@ class AQIViewModel: ObservableObject {
 	// Same pattern for trashcans — completes the error-surfacing work started
 	// with AQI (#4/#5) and YouBike (#6) across all three data layers (#7).
 	@Published var trashcanFetchError: String? = nil
+	// User-starred stations, persisted via FavoritesStore to the shared App
+	// Group container so a widget extension can read them too.
+	@Published var favorites: [FavoriteStation] = []
 
 	enum YouBikeCity: String, CaseIterable {
 		case taipei = "Taipei City"
@@ -52,9 +55,11 @@ class AQIViewModel: ObservableObject {
 		// network round-trip in fetchAQIData() below completes — otherwise the
 		// map is empty until the first fetch resolves, and stays empty forever
 		// if the device is offline at launch.
-		if let cached = LocalCache.load([AQIRecord].self, forKey: Self.aqiCacheKey) {
+		if let cached = LocalCache.load([AQIRecord].self, forKey: CacheKeys.aqiRecords) {
 			aqiRecords = cached.value
 		}
+
+		favorites = FavoritesStore.load()
 
 		fetchAQIData()
 
@@ -72,12 +77,33 @@ class AQIViewModel: ObservableObject {
 			.store(in: &cancellables)
 	}
 
-	// Cache key constants — centralized so the save/load pairs for each data
-	// layer can't accidentally drift apart.
-	private static let aqiCacheKey = "aqi_records"
-	private static let trashcanCacheKey = "trashcan_records"
-	private static let youBikeTaipeiCacheKey = "youbike_taipei_stations"
-	private static let youBikeTaichungCacheKey = "youbike_taichung_stations"
+	// Cache key constants moved to the shared CacheKeys enum (AppGroup.swift)
+	// so the widget extension reads the exact same keys the app writes.
+
+	// MARK: - Favorites
+
+	func isFavorite(type: FavoriteType, stationID: String) -> Bool {
+		favorites.contains { $0.type == type && $0.stationID == stationID }
+	}
+
+	func toggleFavorite(type: FavoriteType, stationID: String, displayName: String) {
+		if let index = favorites.firstIndex(where: { $0.type == type && $0.stationID == stationID }) {
+			favorites.remove(at: index)
+		} else {
+			favorites.append(FavoriteStation(type: type, stationID: stationID, displayName: displayName))
+		}
+		FavoritesStore.save(favorites)
+	}
+
+	func removeFavorite(_ favorite: FavoriteStation) {
+		favorites.removeAll { $0.id == favorite.id }
+		FavoritesStore.save(favorites)
+	}
+
+	func removeFavorites(at offsets: IndexSet) {
+		favorites.remove(atOffsets: offsets)
+		FavoritesStore.save(favorites)
+	}
 
 	func fetchAQIData() {
 		isLoadingAirQualityData = true
@@ -87,7 +113,7 @@ class AQIViewModel: ObservableObject {
 				case .success(let records):
 					self?.aqiRecords = records
 					self?.aqiFetchError = nil
-					LocalCache.save(records, forKey: Self.aqiCacheKey)
+					LocalCache.save(records, forKey: CacheKeys.aqiRecords)
 				case .failure(let error):
 					// Keep whatever aqiRecords already has rather than clearing the
 					// map on a transient failure; just surface the error. (If this
@@ -109,7 +135,7 @@ class AQIViewModel: ObservableObject {
 		// time this session the layer's been opened, show the cached snapshot
 		// immediately rather than a blank map while the live fetch is in flight.
 		if trashcanRecords.isEmpty,
-		   let cached = LocalCache.load([TrashcanRecord].self, forKey: Self.trashcanCacheKey) {
+		   let cached = LocalCache.load([TrashcanRecord].self, forKey: CacheKeys.trashcanRecords) {
 			trashcanRecords = cached.value
 		}
 
@@ -123,7 +149,7 @@ class AQIViewModel: ObservableObject {
 				case .success(let records):
 					self?.trashcanRecords = records
 					self?.trashcanFetchError = nil
-					LocalCache.save(records, forKey: Self.trashcanCacheKey)
+					LocalCache.save(records, forKey: CacheKeys.trashcanRecords)
 				case .failure(let error):
 					self?.trashcanFetchError = error.localizedDescription
 					print("❌ Trashcan fetch failed: \(error.localizedDescription)")
@@ -138,12 +164,12 @@ class AQIViewModel: ObservableObject {
 		switch youBikeCity {
 		case .taipei:
 			if youBikeStations.isEmpty,
-			   let cached = LocalCache.load([YouBikeStation].self, forKey: Self.youBikeTaipeiCacheKey) {
+			   let cached = LocalCache.load([YouBikeStation].self, forKey: CacheKeys.youBikeTaipeiStations) {
 				youBikeStations = cached.value
 			}
 		case .taichung:
 			if taichungYouBikeStations.isEmpty,
-			   let cached = LocalCache.load([TaichungYouBikeStation].self, forKey: Self.youBikeTaichungCacheKey) {
+			   let cached = LocalCache.load([TaichungYouBikeStation].self, forKey: CacheKeys.youBikeTaichungStations) {
 				taichungYouBikeStations = cached.value
 			}
 		}
@@ -157,7 +183,7 @@ class AQIViewModel: ObservableObject {
 					case .success(let stations):
 						self?.youBikeStations = stations
 						self?.youBikeFetchError = nil
-						LocalCache.save(stations, forKey: Self.youBikeTaipeiCacheKey)
+						LocalCache.save(stations, forKey: CacheKeys.youBikeTaipeiStations)
 					case .failure(let error):
 						// Keep existing stations on screen; just surface the error.
 						self?.youBikeFetchError = error.localizedDescription
@@ -173,7 +199,7 @@ class AQIViewModel: ObservableObject {
 					case .success(let stations):
 						self?.taichungYouBikeStations = stations
 						self?.youBikeFetchError = nil
-						LocalCache.save(stations, forKey: Self.youBikeTaichungCacheKey)
+						LocalCache.save(stations, forKey: CacheKeys.youBikeTaichungStations)
 					case .failure(let error):
 						self?.youBikeFetchError = error.localizedDescription
 						print("❌ Taichung YouBike fetch failed: \(error.localizedDescription)")
