@@ -45,7 +45,7 @@ struct YouBikeStationDetailsView: View {
 							.font(.headline)
 					}
 					HStack {
-						Image(systemName: "arrowshape.turn.up.backward")
+						Image(systemName: "parkingsign.circle")
 							.foregroundStyle(.blue)
 							.frame(width: 40)
 						Text("Open parking docks: \(station.available_return_bikes)")

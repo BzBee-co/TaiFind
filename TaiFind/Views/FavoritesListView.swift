@@ -18,21 +18,25 @@ struct FavoritesListView: View {
 				if viewModel.favorites.isEmpty {
 					ContentUnavailableView(
 						"No Favorites Yet",
-						systemImage: "star",
-						description: Text("Tap the star on any air quality or YouBike station to add it here.")
+						systemImage: "star.fill",
+						description: Text("Tap the star on any air quality or YouBike station to add it here. Favorites can be added to your Home Screen as Widgets, so you can see the latest air quality and YouBike information without having to open the app.")
 					)
 				} else {
 					List {
-						ForEach(viewModel.favorites) { favorite in
-							Button {
-								dismiss()
-								onSelect(favorite)
-							} label: {
-								FavoriteRow(favorite: favorite)
+						Section {
+							ForEach(viewModel.favorites) { favorite in
+								Button {
+									dismiss()
+									onSelect(favorite)
+								} label: {
+									FavoriteRow(favorite: favorite)
+								}
+								.buttonStyle(.plain)
 							}
-							.buttonStyle(.plain)
+							.onDelete(perform: viewModel.removeFavorites)
+						} footer: {
+							Text("When viewing a station's details, tap the star to add it to your favorites. Tap again to remove it, or swipe left below.")
 						}
-						.onDelete(perform: viewModel.removeFavorites)
 					}
 				}
 			}

@@ -3,6 +3,7 @@ import CoreLocation
 import MapKit
 import Combine
 import SwiftUI
+import UIKit
 
 class AQIViewModel: ObservableObject {
 	@Published var aqiRecords: [AQIRecord] = []
@@ -55,13 +56,15 @@ class AQIViewModel: ObservableObject {
 		// network round-trip in fetchAQIData() below completes — otherwise the
 		// map is empty until the first fetch resolves, and stays empty forever
 		// if the device is offline at launch.
-		if let cached = LocalCache.load([AQIRecord].self, forKey: CacheKeys.aqiRecords) {
+		if let cached = LocalCache.load([AQIRecord].self, forKey: CacheKeys.aqiRecords),
+		   !cached.value.isEmpty {
 			aqiRecords = cached.value
 		}
 
 		favorites = FavoritesStore.load()
 
 		fetchAQIData()
+		refreshYouBikeCacheForWidgetIfNeeded()
 
 		locationManager.$userLocation
 			.compactMap { $0 }
@@ -73,6 +76,12 @@ class AQIViewModel: ObservableObject {
 					center: newLocation,
 					span: MKCoordinateSpan(latitudeDelta: latitudeDelta, longitudeDelta: longitudeDelta)
 				)
+			}
+			.store(in: &cancellables)
+
+		NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+			.sink { [weak self] _ in
+				self?.refreshYouBikeCacheForWidgetIfNeeded()
 			}
 			.store(in: &cancellables)
 	}
@@ -87,12 +96,16 @@ class AQIViewModel: ObservableObject {
 	}
 
 	func toggleFavorite(type: FavoriteType, stationID: String, displayName: String) {
+		let wasFavorite = isFavorite(type: type, stationID: stationID)
 		if let index = favorites.firstIndex(where: { $0.type == type && $0.stationID == stationID }) {
 			favorites.remove(at: index)
 		} else {
 			favorites.append(FavoriteStation(type: type, stationID: stationID, displayName: displayName))
 		}
 		FavoritesStore.save(favorites)
+		if !wasFavorite, type == .youBikeTaipei || type == .youBikeTaichung {
+			refreshYouBikeCacheForWidgetIfNeeded()
+		}
 	}
 
 	func removeFavorite(_ favorite: FavoriteStation) {
@@ -109,21 +122,26 @@ class AQIViewModel: ObservableObject {
 		isLoadingAirQualityData = true
 		APIService.fetchAQI { [weak self] result in
 			DispatchQueue.main.async {
+				guard let self else { return }
 				switch result {
 				case .success(let records):
-					self?.aqiRecords = records
-					self?.aqiFetchError = nil
+					self.aqiRecords = records
+					self.aqiFetchError = nil
 					LocalCache.save(records, forKey: CacheKeys.aqiRecords)
 				case .failure(let error):
-					// Keep whatever aqiRecords already has rather than clearing the
-					// map on a transient failure; just surface the error. (If this
-					// is a cold, offline launch, aqiRecords may already hold the
-					// cached snapshot loaded in init() above — nothing further to
-					// do here in that case either.)
-					self?.aqiFetchError = error.localizedDescription
-					print("❌ AQI fetch failed: \(error.localizedDescription)")
+					// Keep whatever aqiRecords already has (including the init()-time
+					// LocalCache preload) rather than clearing the map. Only surface
+					// the banner when there's genuinely nothing to show — an empty
+					// upstream response must not overwrite a good cached snapshot.
+					if self.aqiRecords.isEmpty {
+						self.aqiFetchError = error.localizedDescription
+						print("❌ AQI fetch failed: \(error.localizedDescription)")
+					} else {
+						self.aqiFetchError = nil
+						print("⚠️ AQI fetch failed but showing cached data: \(error.localizedDescription)")
+					}
 				}
-				self?.isLoadingAirQualityData = false
+				self.isLoadingAirQualityData = false
 			}
 		}
 	}
@@ -184,6 +202,7 @@ class AQIViewModel: ObservableObject {
 						self?.youBikeStations = stations
 						self?.youBikeFetchError = nil
 						LocalCache.save(stations, forKey: CacheKeys.youBikeTaipeiStations)
+						WidgetReloader.reloadFavoritesWidget()
 					case .failure(let error):
 						// Keep existing stations on screen; just surface the error.
 						self?.youBikeFetchError = error.localizedDescription
@@ -200,12 +219,25 @@ class AQIViewModel: ObservableObject {
 						self?.taichungYouBikeStations = stations
 						self?.youBikeFetchError = nil
 						LocalCache.save(stations, forKey: CacheKeys.youBikeTaichungStations)
+						WidgetReloader.reloadFavoritesWidget()
 					case .failure(let error):
 						self?.youBikeFetchError = error.localizedDescription
 						print("❌ Taichung YouBike fetch failed: \(error.localizedDescription)")
 					}
 					self?.youBikeLoading = false
 				}
+			}
+		}
+	}
+
+	/// Keeps the shared YouBike cache warm for widget favorites — runs on launch,
+	/// foreground, and when a YouBike favorite is added.
+	func refreshYouBikeCacheForWidgetIfNeeded() {
+		guard YouBikeWidgetRefresh.hasYouBikeFavorites(favorites) else { return }
+
+		YouBikeWidgetRefresh.refreshCachedYouBikeData(for: favorites) {
+			DispatchQueue.main.async {
+				WidgetReloader.reloadFavoritesWidget()
 			}
 		}
 	}

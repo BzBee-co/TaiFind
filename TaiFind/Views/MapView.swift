@@ -127,14 +127,18 @@ struct MapView: View {
 					.background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
 					.shadow(radius: 10)
 			}
-			// Surfaces the failure signal added to fetchAQI/AQIViewModel (previously
-			// a failed or unreachable Worker just left the app hanging with no
-			// indication anything went wrong). Only shown on the AQI layer, since
-			// that's what this error pertains to.
+			// Surfaces fetch failures and empty upstream responses on the AQI layer.
+			// When cached data is still on screen (preferred fallback), aqiFetchError
+			// stays nil and this banner is hidden.
 			if !viewModel.showTrashcans && !viewModel.showYouBikes,
-			   let error = viewModel.aqiFetchError {
+			   !viewModel.isLoadingAirQualityData,
+			   viewModel.aqiRecords.isEmpty {
 				VStack {
-					aqiErrorBanner(error)
+					if viewModel.aqiFetchError != nil {
+						aqiErrorBanner(viewModel.aqiFetchError ?? "")
+					} else {
+						emptyAreaBanner("No air quality data yet. Pull to refresh or tap the refresh button.")
+					}
 					Spacer()
 				}
 			}
@@ -597,7 +601,7 @@ struct MapView: View {
 		Button {
 			isShowingFavorites = true
 		} label: {
-			ControlButton(iconName: "star.fill", fontSize: 15, padding: 11)
+			ControlButton(iconName: "star", fontSize: 15, padding: 11)
 		}
 		.accessibilityLabel("Favorites")
 		.sheet(isPresented: $isShowingFavorites) {

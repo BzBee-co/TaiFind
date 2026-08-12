@@ -8,6 +8,10 @@ enum APIServiceError: LocalizedError {
 	case network(Error)
 	case noData
 	case decoding(Error)
+	/// Upstream responded successfully but with zero stations — e.g. the English
+	/// MOENV feed currently returns [] while zh still works. Must not be treated
+	/// as a successful refresh or it wipes on-disk cache and shows a blank map.
+	case emptyRecords
 
 	var errorDescription: String? {
 		switch self {
@@ -19,6 +23,8 @@ enum APIServiceError: LocalizedError {
 			return "No data received from server."
 		case .decoding(let error):
 			return "Failed to read server response: \(error.localizedDescription)"
+		case .emptyRecords:
+			return "Air quality data is temporarily unavailable."
 		}
 	}
 }
@@ -76,6 +82,10 @@ class APIService {
 						publishtime: record.publishtime,
 						siteID: record.siteID
 					)
+				}
+				guard !records.isEmpty else {
+					completion(.failure(.emptyRecords))
+					return
 				}
 				completion(.success(records))
 			} catch {

@@ -43,6 +43,10 @@
 		6CD429EC3029F2C100E60A0C /* LocalCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3597CD30282B86002431F0 /* LocalCache.swift */; };
 		6CD429ED3029F2C100E60A0C /* AQIRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737EF92DA11C8800430A25 /* AQIRecord.swift */; };
 		6CD429EE3029F2F900E60A0C /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737EF52DA11C8800430A25 /* APIService.swift */; };
+		6CE001022E400001002431F0 /* YouBikeWidgetRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CE001012E400001002431F0 /* YouBikeWidgetRefresh.swift */; };
+		6CE001032E400002002431F0 /* YouBikeWidgetRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CE001012E400001002431F0 /* YouBikeWidgetRefresh.swift */; };
+		6CE001052E400003002431F0 /* WidgetReloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CE001042E400003002431F0 /* WidgetReloader.swift */; };
+		6CE001062E400004002431F0 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CD429D03029F1DF00E60A0C /* WidgetKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,6 +106,8 @@
 		6CD429D03029F1DF00E60A0C /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		6CD429D23029F1DF00E60A0C /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		6CD429E83029F20A00E60A0C /* TaiFindWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TaiFindWidgetExtension.entitlements; sourceTree = "<group>"; };
+		6CE001012E400001002431F0 /* YouBikeWidgetRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouBikeWidgetRefresh.swift; sourceTree = "<group>"; };
+		6CE001042E400003002431F0 /* WidgetReloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetReloader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -130,6 +136,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6CE001062E400004002431F0 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,6 +189,8 @@
 				6C3597CF30287A72002431F0 /* UserHeadingView.swift */,
 				6C3597CD30282B86002431F0 /* LocalCache.swift */,
 				6CD429C63029EFB800E60A0C /* FavoritesStore.swift */,
+				6CE001012E400001002431F0 /* YouBikeWidgetRefresh.swift */,
+				6CE001042E400003002431F0 /* WidgetReloader.swift */,
 				6C737F162DA1364300430A25 /* MeasurementType.swift */,
 			);
 			path = Helpers;
@@ -389,6 +398,8 @@
 				6C737F0E2DA11C8800430A25 /* ContentView.swift in Sources */,
 				6C737F0F2DA11C8800430A25 /* MapView.swift in Sources */,
 				6C737F112DA11C8800430A25 /* Taiwan_AQIApp.swift in Sources */,
+				6CE001022E400001002431F0 /* YouBikeWidgetRefresh.swift in Sources */,
+				6CE001052E400003002431F0 /* WidgetReloader.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -403,6 +414,7 @@
 				6CD429EC3029F2C100E60A0C /* LocalCache.swift in Sources */,
 				6CCA783E302C1A0900C4D618 /* MeasurementType.swift in Sources */,
 				6CD429ED3029F2C100E60A0C /* AQIRecord.swift in Sources */,
+				6CE001032E400002002431F0 /* YouBikeWidgetRefresh.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
