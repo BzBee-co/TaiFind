@@ -1,0 +1,444 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6C59FE7E2DA3B52E00A49559 /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C59FE7D2DA3B52E00A49559 /* InfoView.swift */; };
+		6C737F072DA11C8800430A25 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6C737EFB2DA11C8800430A25 /* Preview Assets.xcassets */; };
+		6C737F082DA11C8800430A25 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6C737F042DA11C8800430A25 /* Assets.xcassets */; };
+		6C737F092DA11C8800430A25 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737EF52DA11C8800430A25 /* APIService.swift */; };
+		6C737F0A2DA11C8800430A25 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737EF72DA11C8800430A25 /* LocationManager.swift */; };
+		6C737F0B2DA11C8800430A25 /* AQIRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737EF92DA11C8800430A25 /* AQIRecord.swift */; };
+		6C737F0C2DA11C8800430A25 /* AQIViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737EFD2DA11C8800430A25 /* AQIViewModel.swift */; };
+		6C737F0E2DA11C8800430A25 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F002DA11C8800430A25 /* ContentView.swift */; };
+		6C737F0F2DA11C8800430A25 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F012DA11C8800430A25 /* MapView.swift */; };
+		6C737F112DA11C8800430A25 /* Taiwan_AQIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F052DA11C8800430A25 /* Taiwan_AQIApp.swift */; };
+		6C737F132DA11F2700430A25 /* LegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F122DA11F2700430A25 /* LegendView.swift */; };
+		6C737F172DA1364300430A25 /* MeasurementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F162DA1364300430A25 /* MeasurementType.swift */; };
+		6CC916332DA636F9000CD663 /* ControlButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916322DA636F9000CD663 /* ControlButton.swift */; };
+		6CC916352DA64EE9000CD663 /* PinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916342DA64EE9000CD663 /* PinView.swift */; };
+		6CC916372DA656AB000CD663 /* LocationDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916362DA656AB000CD663 /* LocationDetailsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		6C5145512D98FD990024805A /* Taiwan AQI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Taiwan AQI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C59FE7D2DA3B52E00A49559 /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
+		6C737EF52DA11C8800430A25 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		6C737EF72DA11C8800430A25 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		6C737EF92DA11C8800430A25 /* AQIRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AQIRecord.swift; sourceTree = "<group>"; };
+		6C737EFB2DA11C8800430A25 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		6C737EFD2DA11C8800430A25 /* AQIViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AQIViewModel.swift; sourceTree = "<group>"; };
+		6C737F002DA11C8800430A25 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6C737F012DA11C8800430A25 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		6C737F042DA11C8800430A25 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6C737F052DA11C8800430A25 /* Taiwan_AQIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Taiwan_AQIApp.swift; sourceTree = "<group>"; };
+		6C737F122DA11F2700430A25 /* LegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendView.swift; sourceTree = "<group>"; };
+		6C737F162DA1364300430A25 /* MeasurementType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementType.swift; sourceTree = "<group>"; };
+		6CC916322DA636F9000CD663 /* ControlButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlButton.swift; sourceTree = "<group>"; };
+		6CC916342DA64EE9000CD663 /* PinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinView.swift; sourceTree = "<group>"; };
+		6CC916362DA656AB000CD663 /* LocationDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDetailsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6C51454E2D98FD990024805A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6C5145482D98FD990024805A = {
+			isa = PBXGroup;
+			children = (
+				6C737F062DA11C8800430A25 /* Taiwan AQI */,
+				6C5145522D98FD990024805A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6C5145522D98FD990024805A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6C5145512D98FD990024805A /* Taiwan AQI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6C737EF62DA11C8800430A25 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				6C737EF52DA11C8800430A25 /* APIService.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		6C737EF82DA11C8800430A25 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				6C737EF72DA11C8800430A25 /* LocationManager.swift */,
+				6C737F162DA1364300430A25 /* MeasurementType.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		6C737EFA2DA11C8800430A25 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6C737EF92DA11C8800430A25 /* AQIRecord.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6C737EFC2DA11C8800430A25 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				6C737EFB2DA11C8800430A25 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		6C737EFE2DA11C8800430A25 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				6C737EFD2DA11C8800430A25 /* AQIViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		6C737F032DA11C8800430A25 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6C737F002DA11C8800430A25 /* ContentView.swift */,
+				6C737F012DA11C8800430A25 /* MapView.swift */,
+				6CC916362DA656AB000CD663 /* LocationDetailsView.swift */,
+				6CC916342DA64EE9000CD663 /* PinView.swift */,
+				6C737F122DA11F2700430A25 /* LegendView.swift */,
+				6CC916322DA636F9000CD663 /* ControlButton.swift */,
+				6C59FE7D2DA3B52E00A49559 /* InfoView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		6C737F062DA11C8800430A25 /* Taiwan AQI */ = {
+			isa = PBXGroup;
+			children = (
+				6C737EF62DA11C8800430A25 /* API */,
+				6C737EF82DA11C8800430A25 /* Helpers */,
+				6C737EFA2DA11C8800430A25 /* Models */,
+				6C737EFC2DA11C8800430A25 /* Preview Content */,
+				6C737EFE2DA11C8800430A25 /* ViewModels */,
+				6C737F032DA11C8800430A25 /* Views */,
+				6C737F042DA11C8800430A25 /* Assets.xcassets */,
+				6C737F052DA11C8800430A25 /* Taiwan_AQIApp.swift */,
+			);
+			path = "Taiwan AQI";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6C5145502D98FD990024805A /* Taiwan AQI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6C51455F2D98FD9A0024805A /* Build configuration list for PBXNativeTarget "Taiwan AQI" */;
+			buildPhases = (
+				6C51454D2D98FD990024805A /* Sources */,
+				6C51454E2D98FD990024805A /* Frameworks */,
+				6C51454F2D98FD990024805A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Taiwan AQI";
+			packageProductDependencies = (
+			);
+			productName = "Taiwan AQI";
+			productReference = 6C5145512D98FD990024805A /* Taiwan AQI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6C5145492D98FD990024805A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					6C5145502D98FD990024805A = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = 6C51454C2D98FD990024805A /* Build configuration list for PBXProject "Taiwan AQI" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6C5145482D98FD990024805A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6C5145522D98FD990024805A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6C5145502D98FD990024805A /* Taiwan AQI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6C51454F2D98FD990024805A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6C737F072DA11C8800430A25 /* Preview Assets.xcassets in Resources */,
+				6C737F082DA11C8800430A25 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6C51454D2D98FD990024805A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6CC916372DA656AB000CD663 /* LocationDetailsView.swift in Sources */,
+				6C737F092DA11C8800430A25 /* APIService.swift in Sources */,
+				6C59FE7E2DA3B52E00A49559 /* InfoView.swift in Sources */,
+				6CC916352DA64EE9000CD663 /* PinView.swift in Sources */,
+				6CC916332DA636F9000CD663 /* ControlButton.swift in Sources */,
+				6C737F0A2DA11C8800430A25 /* LocationManager.swift in Sources */,
+				6C737F0B2DA11C8800430A25 /* AQIRecord.swift in Sources */,
+				6C737F172DA1364300430A25 /* MeasurementType.swift in Sources */,
+				6C737F132DA11F2700430A25 /* LegendView.swift in Sources */,
+				6C737F0C2DA11C8800430A25 /* AQIViewModel.swift in Sources */,
+				6C737F0E2DA11C8800430A25 /* ContentView.swift in Sources */,
+				6C737F0F2DA11C8800430A25 /* MapView.swift in Sources */,
+				6C737F112DA11C8800430A25 /* Taiwan_AQIApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6C51455D2D98FD9A0024805A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		6C51455E2D98FD9A0024805A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6C5145602D98FD9A0024805A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Taiwan AQI/Preview Content\"";
+				DEVELOPMENT_TEAM = 3CXU9CUDTQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "The app needs your location to display AQI heatmap.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "The app needs your location to display AQI heatmap.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.antoimn.Taiwan-AQI";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6C5145612D98FD9A0024805A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Taiwan AQI/Preview Content\"";
+				DEVELOPMENT_TEAM = 3CXU9CUDTQ;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "The app needs your location to display AQI heatmap.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "The app needs your location to display AQI heatmap.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.antoimn.Taiwan-AQI";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6C51454C2D98FD990024805A /* Build configuration list for PBXProject "Taiwan AQI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C51455D2D98FD9A0024805A /* Debug */,
+				6C51455E2D98FD9A0024805A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6C51455F2D98FD9A0024805A /* Build configuration list for PBXNativeTarget "Taiwan AQI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6C5145602D98FD9A0024805A /* Debug */,
+				6C5145612D98FD9A0024805A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6C5145492D98FD990024805A /* Project object */;
+}
