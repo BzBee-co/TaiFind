@@ -10,6 +10,7 @@
 		6C19C4113029AC0800CF65A9 /* AppGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C19C4103029AC0800CF65A9 /* AppGroup.swift */; };
 		6C3597CE30282B86002431F0 /* LocalCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3597CD30282B86002431F0 /* LocalCache.swift */; };
 		6C3597D030287A72002431F0 /* UserHeadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C3597CF30287A72002431F0 /* UserHeadingView.swift */; };
+		6C3B1B45302D5BC1002D960F /* WidgetReloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CE001042E400003002431F0 /* WidgetReloader.swift */; };
 		6C464CDF2E12532D00243B19 /* YouBikePinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C464CDE2E12532D00243B19 /* YouBikePinView.swift */; };
 		6C464CE12E1261A000243B19 /* YouBikeStationDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C464CE02E1261A000243B19 /* YouBikeStationDetailsView.swift */; };
 		6C59FE7E2DA3B52E00A49559 /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C59FE7D2DA3B52E00A49559 /* InfoView.swift */; };
@@ -410,6 +411,7 @@
 				6CD429E93029F29F00E60A0C /* FavoriteStation.swift in Sources */,
 				6CD429EA3029F2A900E60A0C /* FavoritesStore.swift in Sources */,
 				6CD429EE3029F2F900E60A0C /* APIService.swift in Sources */,
+				6C3B1B45302D5BC1002D960F /* WidgetReloader.swift in Sources */,
 				6CD429EB3029F2C100E60A0C /* AppGroup.swift in Sources */,
 				6CD429EC3029F2C100E60A0C /* LocalCache.swift in Sources */,
 				6CCA783E302C1A0900C4D618 /* MeasurementType.swift in Sources */,

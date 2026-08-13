@@ -172,7 +172,7 @@ struct InfoView: View {
 						Spacer()
 						VStack {
 							Text("© \(String(Calendar.current.component(.year, from: Date()))) bzbee.co — version \(version) (\(build))")
-							Text("Developed with ❤️ by your homie BzBee in Taipei.")
+							Text("Developed with ❤️ by your homie BZBee in Taipei.")
 							Text("contact@bzbee.co")
 						}
 						Spacer()

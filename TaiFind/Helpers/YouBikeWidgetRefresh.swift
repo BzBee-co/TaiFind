@@ -60,8 +60,14 @@ enum YouBikeWidgetRefresh {
 
 enum WidgetDataAge {
 	static func formatted(since date: Date) -> String {
+		// If the date is in the past but within the last second, show a friendlier string.
+		let now = Date()
+		if now.timeIntervalSince(date) < 5 && now >= date {
+			return String(localized: "Just now")
+		}
+
 		let formatter = RelativeDateTimeFormatter()
 		formatter.unitsStyle = .abbreviated
-		return formatter.localizedString(for: date, relativeTo: Date())
+		return formatter.localizedString(for: date, relativeTo: now)
 	}
 }

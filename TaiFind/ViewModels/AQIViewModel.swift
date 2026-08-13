@@ -118,6 +118,11 @@ class AQIViewModel: ObservableObject {
 		FavoritesStore.save(favorites)
 	}
 
+	func moveFavorites(from source: IndexSet, to destination: Int) {
+		favorites.move(fromOffsets: source, toOffset: destination)
+		FavoritesStore.save(favorites)
+	}
+
 	func fetchAQIData() {
 		isLoadingAirQualityData = true
 		APIService.fetchAQI { [weak self] result in
