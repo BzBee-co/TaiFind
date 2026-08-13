@@ -431,12 +431,21 @@ private struct FavoriteRow: View {
 					spacing: 10
 				)
 			} else {
-				Image(systemName: status.iconName)
-					.foregroundStyle(.white)
-					.frame(width: 30, height: 30)
-					.padding(4)
-					.background(status.tintColor)
-					.clipShape(Circle())
+				HStack {
+					Image(systemName: status.iconName)
+						.foregroundStyle(.white)
+						.frame(width: 30, height: 30)
+						.padding(4)
+						.background(status.tintColor)
+						.clipShape(Circle())
+					if let aqiValue = status.aqiValue, let comment = status.aqiStatus {
+						VStack(alignment: .leading) {
+							Text("\(aqiValue)")
+								.fontWeight(.bold)
+								.foregroundStyle(status.tintColor)
+						}
+					}
+				}
 			}
 			VStack(alignment: .leading, spacing: 1) {
 				Text(status.favorite.displayName)
