@@ -282,30 +282,24 @@ private enum FavoriteTileMetrics {
 	static let valueFont: Font = .title3.bold()
 }
 
-/// Icon row + value row with fixed heights so mixed YouBike/AQI tiles in a
-/// medium widget keep their numbers on the same baseline.
+/// Icon row + value row, sized for YouBike's two side-by-side metrics
+/// (bikes/docks). AQI has its own larger, simpler AQITileMetrics instead —
+/// forcing a single number through this two-column layout left a visible
+/// gap where the (YouBike-only) refresh button would otherwise sit.
 private struct FavoriteTileMetricsHeader: View {
 	let status: FavoriteStatus
 	
 	var body: some View {
 		VStack(alignment: .leading, spacing: FavoriteTileMetrics.rowSpacing) {
 			HStack(spacing: FavoriteTileMetrics.columnSpacing) {
-				if status.isYouBike {
-					metricIcon("bicycle", color: .indigo)
-					metricIcon("parkingsign.circle", color: .indigo)
-				} else {
-					metricIcon(status.iconName, color: status.tintColor)
-				}
+				metricIcon("bicycle", color: .indigo)
+				metricIcon("parkingsign.circle", color: .indigo)
 			}
 			.frame(height: FavoriteTileMetrics.iconRowHeight, alignment: .leading)
 			
 			HStack(spacing: FavoriteTileMetrics.columnSpacing) {
-				if status.isYouBike {
-					metricValue(status.bikesAvailable)
-					metricValue(status.docksAvailable)
-				} else if let aqiValue = status.aqiValue {
-					metricValue(aqiValue, color: status.tintColor)
-				}
+				metricValue(status.bikesAvailable)
+				metricValue(status.docksAvailable)
 			}
 		}
 	}
@@ -326,23 +320,40 @@ private struct FavoriteTileMetricsHeader: View {
 			.minimumScaleFactor(0.7)
 			.lineLimit(1)
 	}
+}
+
+/// AQI's single-metric equivalent of FavoriteTileMetricsHeader — deliberately
+/// much larger since there's only one number to show, so it can take up the
+/// same visual weight YouBike's two-column-plus-refresh-button block does,
+/// instead of sitting small with empty space below it.
+private struct AQITileMetrics: View {
+	let status: FavoriteStatus
 	
-	private func metricValue(_ value: Int, color: Color) -> some View {
-		metricValue(Optional(value), color: color)
+	var body: some View {
+		VStack(alignment: .center, spacing: 4) {
+			Image(systemName: status.iconName)
+				.font(.system(size: 30, weight: .semibold))
+				.foregroundStyle(status.tintColor)
+			Text(status.aqiValue.map(String.init) ?? "—")
+				.font(.system(size: 40, weight: .bold, design: .rounded))
+				.foregroundStyle(status.aqiValue != nil ? status.tintColor : .secondary)
+				.minimumScaleFactor(0.6)
+				.lineLimit(1)
+		}
 	}
 }
 
 private struct YouBikeRefreshButton: View {
-    let favorite: FavoriteStation
-    var body: some View {
-        Button(intent: RefreshYouBikeStationIntent(favorite: favorite)) {
-            Image(systemName: "arrow.clockwise")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.secondary)
-                .frame(width: FavoriteTileMetrics.iconRowHeight, height: FavoriteTileMetrics.iconRowHeight)
-        }
+	let favorite: FavoriteStation
+	var body: some View {
+		Button(intent: RefreshYouBikeStationIntent(favorite: favorite)) {
+			Image(systemName: "arrow.clockwise")
+				.font(.system(size: 11, weight: .semibold))
+				.foregroundStyle(.secondary)
+				.frame(width: FavoriteTileMetrics.iconRowHeight, height: FavoriteTileMetrics.iconRowHeight)
+		}
 		.buttonStyle(.bordered)
-    }
+	}
 }
 
 private struct YouBikeAvailabilityMetrics: View {
@@ -386,9 +397,11 @@ private struct FavoriteTile: View {
 	
 	var body: some View {
 		VStack(alignment: .leading, spacing: 6) {
-			FavoriteTileMetricsHeader(status: status)
 			if status.isYouBike {
+				FavoriteTileMetricsHeader(status: status)
 				YouBikeRefreshButton(favorite: status.favorite)
+			} else {
+				AQITileMetrics(status: status)
 			}
 			Spacer(minLength: 0)
 			Text(status.favorite.displayName)
@@ -491,4 +504,3 @@ struct TaiFindWidget: Widget {
 } timeline: {
 	FavoritesEntry(date: .now, favorites: FavoritesProvider.placeholderFavorites, isLiveDataUnavailable: false)
 }
-
