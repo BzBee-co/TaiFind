@@ -36,7 +36,7 @@ struct FavoritesListView: View {
 							.onDelete(perform: viewModel.removeFavorites)
 							.onMove(perform: viewModel.moveFavorites)
 						} footer: {
-							Text("When viewing a station's details, tap the star to add it to your favorites. Tap again to remove it, or swipe left below.")
+							Text("When viewing a station's details, tap the star to add it to your favorites. Tap again to remove it, or swipe left above.")
 						}
 					}
 				}

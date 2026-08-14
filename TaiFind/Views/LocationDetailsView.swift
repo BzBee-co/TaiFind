@@ -41,7 +41,6 @@ struct LocationDetailsView: View {
 								.foregroundStyle(.secondary)
 								.padding(.horizontal)
 								.padding(.top, 4)
-
 							Spacer()
 						}
 					}
@@ -95,6 +94,10 @@ struct LocationDetailsView: View {
 								.clipShape(RoundedRectangle(cornerRadius: 8))
 							}
 						}
+						Text("last updated: \(formattedDateTime)")
+							.font(.caption)
+							.foregroundStyle(.secondary)
+							.padding(.top)
 					}
 					.padding()
 				}
@@ -110,13 +113,13 @@ struct LocationDetailsView: View {
 						HStack(spacing: 4) {
 							if !record.county.isEmpty {
 								Text(record.county)
+									.font(.caption)
+									.foregroundStyle(.secondary)
+									.lineLimit(1)
+									.truncationMode(.tail)
 							}
-							Text("(last updated: \(formattedDateTime))")
+							Spacer()
 						}
-						.font(.caption)
-						.foregroundStyle(.secondary)
-						.lineLimit(1)
-						.truncationMode(.tail)
 					}
 					.accessibilityElement(children: .combine)
 					.accessibilityLabel("\(record.siteName), \(record.county.isEmpty ? "" : record.county + ", ")last updated \(formattedDateTime)")

@@ -4,39 +4,12 @@
     " %@" : {
       "shouldTranslate" : false
     },
-    "(last updated: %@)" : {
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "（最後更新：%@）"
-          }
-        }
-      }
-    },
     "* Disclaimer" : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "* 免責聲明"
-          }
-        }
-      }
-    },
-    "%@ %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ %2$@"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ %2$@"
           }
         }
       }
@@ -149,17 +122,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "台灣空氣品質"
-          }
-        }
-      }
-    },
-    "Air Quality Index" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "空氣品質指數"
           }
         }
       }
@@ -409,45 +371,12 @@
         }
       }
     },
-    "Developed with ❤️ by your homie BzBee in Taipei." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "由你的好夥伴 BzBee 在台北開發 ❤️"
-          }
-        }
-      }
-    },
     "Developed with ❤️ by your homie BZBee in Taipei." : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "由你的好夥伴 BZBee 在台北開發 ❤️"
-          }
-        }
-      }
-    },
-    "Developed with ❤️ by your homie BzBee in Taiwan." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "由你的好夥伴 BzBee 在台灣開發 ❤️"
-          }
-        }
-      }
-    },
-    "Developed with ❤️ by your homie BzBee in Taiwan.\ncontact@bzbee.co" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "由你的好夥伴 BzBee 在台灣開發 ❤️\ncontact@bzbee.co"
           }
         }
       }
@@ -532,6 +461,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "剛剛"
+          }
+        }
+      }
+    },
+    "last updated: %@" : {
+      "localizations" : {
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最後更新：%@"
           }
         }
       }
@@ -734,17 +673,6 @@
         }
       }
     },
-    "Open Taipei" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open Taipei"
-          }
-        }
-      }
-    },
     "Ozone" : {
       "localizations" : {
         "zh-Hant" : {
@@ -811,28 +739,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "針點"
-          }
-        }
-      }
-    },
-    "PM2.5 (µg/m³)" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PM₂.₅ (µg/m³)"
-          }
-        }
-      }
-    },
-    "PM10 (µg/m³)" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PM₁₀ (µg/m³)"
           }
         }
       }
@@ -925,17 +831,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "查看台北市/台中市每個 YouBike 2.0 站點的可用車輛與停車柱數量。*"
-          }
-        }
-      }
-    },
-    "See the number of available bikes and open parking docks at each YouBike 2.0 station in Taipei City.*" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看台北市每個 YouBike 2.0 站點的可用車輛與停車柱數量。*"
           }
         }
       }
@@ -1094,34 +989,12 @@
         }
       }
     },
-    "The information displayed is based on the latest available data from the Taipei City Government Open Data platform. While we strive for accuracy, discrepancies may exist between the available data and real-world conditions. We are not responsible for any inaccuracies or outdated information." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "本 App 所顯示的資訊來自台北市政府開放資料平台。我們致力於提供準確資訊，但實際情況可能與資料不符，對任何不準確或過時的內容，我們不負責。"
-          }
-        }
-      }
-    },
     "The information displayed is based on the latest available data from the Taipei City/Taichung City Government Open Data platform. While we strive for accuracy, discrepancies may exist between the available data and real-world conditions. We are not responsible for any inaccuracies or outdated information." : {
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "本 App 所顯示的資訊來自台北/台中市政府開放資料平台。我們致力於提供準確資訊，但實際情況可能與資料不符，對任何不準確或過時的內容，我們不負責。"
-          }
-        }
-      }
-    },
-    "This app uses datasets provided by the Taiwan Government Open Data Platform and by the Taipei City Government Open Data Platform, licensed under: Open Government Data License v1.0." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "本 App 使用台灣政府與台北市政府開放資料平台所提供的資料集，並依據 Open Government Data License v1.0 授權使用。"
           }
         }
       }
@@ -1146,14 +1019,14 @@
         }
       }
     },
-    "When viewing a station's details, tap the star to add it to your favorites. Tap again to remove it, or swipe left below." : {
-      "comment" : "A footer for the list of favorites, describing how to remove a favorite.",
+    "When viewing a station's details, tap the star to add it to your favorites. Tap again to remove it, or swipe left above." : {
+      "comment" : "A description of how to add and remove a favorite station.",
       "isCommentAutoGenerated" : true,
       "localizations" : {
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "查看站點詳細資訊時，點選星號即可加入收藏。再次點選即可移除，或在下方往左滑動。"
+            "value" : "查看站點詳細資訊時，點選星號即可加入收藏。再次點選即可移除，或在上方往左滑動。"
           }
         }
       }
@@ -1184,17 +1057,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "YouBike 站點詳情"
-          }
-        }
-      }
-    },
-    "YouBike stations" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouBike 站點"
           }
         }
       }
