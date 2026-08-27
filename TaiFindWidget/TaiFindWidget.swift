@@ -174,8 +174,8 @@ struct FavoritesProvider: TimelineProvider {
 	}
 	
 	static let placeholderFavorites: [FavoriteStatus] = [
-		FavoriteStatus(favorite: FavoriteStation(type: .aqi, stationID: "12", displayName: "Zhongshan"), aqiValue: 46, aqiStatus: "Good", bikesAvailable: nil, docksAvailable: nil, dataUpdatedAt: Date().addingTimeInterval(-120)),
-		FavoriteStatus(favorite: FavoriteStation(type: .youBikeTaipei, stationID: "500101001", displayName: "NTU Main Gate"), aqiValue: nil, aqiStatus: nil, bikesAvailable: 6, docksAvailable: 10, dataUpdatedAt: Date().addingTimeInterval(-180))
+		FavoriteStatus(favorite: FavoriteStation(type: .youBikeTaipei, stationID: "500101001", displayName: "NTU Main Gate"), aqiValue: nil, aqiStatus: nil, bikesAvailable: 6, docksAvailable: 10, dataUpdatedAt: Date().addingTimeInterval(-3)),
+		FavoriteStatus(favorite: FavoriteStation(type: .aqi, stationID: "12", displayName: "Zhongshan"), aqiValue: 46, aqiStatus: "Good", bikesAvailable: nil, docksAvailable: nil, dataUpdatedAt: Date().addingTimeInterval(-120))
 	]
 }
 
@@ -330,7 +330,7 @@ private struct AQITileMetrics: View {
 	let status: FavoriteStatus
 	
 	var body: some View {
-		VStack(alignment: .center, spacing: 4) {
+		HStack(alignment: .center, spacing: 6) {
 			Image(systemName: status.iconName)
 				.font(.system(size: 30, weight: .semibold))
 				.foregroundStyle(status.tintColor)
@@ -347,6 +347,19 @@ private struct YouBikeRefreshButton: View {
 	let favorite: FavoriteStation
 	var body: some View {
 		Button(intent: RefreshYouBikeStationIntent(favorite: favorite)) {
+			Image(systemName: "arrow.clockwise")
+				.font(.system(size: 11, weight: .semibold))
+				.foregroundStyle(.secondary)
+				.frame(width: FavoriteTileMetrics.iconRowHeight, height: FavoriteTileMetrics.iconRowHeight)
+		}
+		.buttonStyle(.bordered)
+	}
+}
+
+private struct AQIRefreshButton: View {
+	let favorite: FavoriteStation
+	var body: some View {
+		Button(intent: RefreshAQIStationIntent(favorite: favorite)) {
 			Image(systemName: "arrow.clockwise")
 				.font(.system(size: 11, weight: .semibold))
 				.foregroundStyle(.secondary)
@@ -402,6 +415,7 @@ private struct FavoriteTile: View {
 				YouBikeRefreshButton(favorite: status.favorite)
 			} else {
 				AQITileMetrics(status: status)
+				AQIRefreshButton(favorite: status.favorite)
 			}
 			Spacer(minLength: 0)
 			Text(status.favorite.displayName)
@@ -467,6 +481,14 @@ private struct FavoriteRow: View {
 						.frame(width: 28, height: 28)
 				}
 				.buttonStyle(.bordered)
+			} else {
+				Button(intent: RefreshAQIStationIntent(favorite: status.favorite)) {
+					Image(systemName: "arrow.clockwise")
+						.font(.system(size: 13, weight: .semibold))
+						.foregroundStyle(.secondary)
+						.frame(width: 28, height: 28)
+				}
+				.buttonStyle(.bordered)
 			}
 		}
 	}
@@ -511,5 +533,14 @@ struct TaiFindWidget: Widget {
 #Preview("Large", as: .systemLarge) {
 	TaiFindWidget()
 } timeline: {
-	FavoritesEntry(date: .now, favorites: FavoritesProvider.placeholderFavorites, isLiveDataUnavailable: false)
+	FavoritesEntry(
+		date: .now,
+		favorites: [
+			FavoriteStatus(favorite: FavoriteStation(type: .youBikeTaipei, stationID: "500101001", displayName: "NTU Main Gate"), aqiValue: nil, aqiStatus: nil, bikesAvailable: 6, docksAvailable: 10, dataUpdatedAt: .now.addingTimeInterval(-180)),
+			FavoriteStatus(favorite: FavoriteStation(type: .youBikeTaipei, stationID: "500101002", displayName: "RenAi Rd. & FuXing Rd."), aqiValue: nil, aqiStatus: nil, bikesAvailable: 15, docksAvailable: 12, dataUpdatedAt: .now.addingTimeInterval(-5)),
+			FavoriteStatus(favorite: FavoriteStation(type: .youBikeTaipei, stationID: "701801002", displayName: "Dunhua & Bade Rd."), aqiValue: nil, aqiStatus: nil, bikesAvailable: 38, docksAvailable: 9, dataUpdatedAt: .now.addingTimeInterval(-90)),
+			FavoriteStatus(favorite: FavoriteStation(type: .aqi, stationID: "12", displayName: "Zhongshan"), aqiValue: 46, aqiStatus: "Good", bikesAvailable: nil, docksAvailable: nil, dataUpdatedAt: .now.addingTimeInterval(-120)),
+			FavoriteStatus(favorite: FavoriteStation(type: .aqi, stationID: "09", displayName: "Guting"), aqiValue: 69, aqiStatus: "Moderate", bikesAvailable: nil, docksAvailable: nil, dataUpdatedAt: .now.addingTimeInterval(-120)),
+		],
+		isLiveDataUnavailable: false)
 }

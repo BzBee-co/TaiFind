@@ -27,6 +27,8 @@
 		6C737F172DA1364300430A25 /* MeasurementType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C737F162DA1364300430A25 /* MeasurementType.swift */; };
 		6C78DFA3302C1C9100AD0F0B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6C737F042DA11C8800430A25 /* Assets.xcassets */; };
 		6C7B8F8A2E08107600F58FCA /* TrashcanPinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7B8F892E08107600F58FCA /* TrashcanPinView.swift */; };
+		6C893180303FE89C00532848 /* AQIWidgetRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C89317F303FE89C00532848 /* AQIWidgetRefresh.swift */; };
+		6C893181303FE89C00532848 /* AQIWidgetRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C89317F303FE89C00532848 /* AQIWidgetRefresh.swift */; };
 		6CC5EE0E2E28C262001BCD4C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6CC5EE0D2E28C262001BCD4C /* Localizable.xcstrings */; };
 		6CC916332DA636F9000CD663 /* ControlButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916322DA636F9000CD663 /* ControlButton.swift */; };
 		6CC916352DA64EE9000CD663 /* PinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CC916342DA64EE9000CD663 /* PinView.swift */; };
@@ -96,6 +98,7 @@
 		6C737F122DA11F2700430A25 /* LegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendView.swift; sourceTree = "<group>"; };
 		6C737F162DA1364300430A25 /* MeasurementType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementType.swift; sourceTree = "<group>"; };
 		6C7B8F892E08107600F58FCA /* TrashcanPinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrashcanPinView.swift; sourceTree = "<group>"; };
+		6C89317F303FE89C00532848 /* AQIWidgetRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AQIWidgetRefresh.swift; sourceTree = "<group>"; };
 		6CC5EE0D2E28C262001BCD4C /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		6CC916322DA636F9000CD663 /* ControlButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlButton.swift; sourceTree = "<group>"; };
 		6CC916342DA64EE9000CD663 /* PinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinView.swift; sourceTree = "<group>"; };
@@ -112,6 +115,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6C89318B303FE93D00532848 /* Exceptions for "TaiFindWidget" folder in "TaiFind" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				RefreshAQIStationIntent.swift,
+			);
+			target = 6C5145502D98FD990024805A /* TaiFind */;
+		};
 		6CD429E33029F1E000E60A0C /* Exceptions for "TaiFindWidget" folder in "TaiFindWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -125,6 +135,7 @@
 		6CD429D43029F1DF00E60A0C /* TaiFindWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				6C89318B303FE93D00532848 /* Exceptions for "TaiFindWidget" folder in "TaiFind" target */,
 				6CD429E33029F1E000E60A0C /* Exceptions for "TaiFindWidget" folder in "TaiFindWidgetExtension" target */,
 			);
 			path = TaiFindWidget;
@@ -191,6 +202,7 @@
 				6C3597CD30282B86002431F0 /* LocalCache.swift */,
 				6CD429C63029EFB800E60A0C /* FavoritesStore.swift */,
 				6CE001012E400001002431F0 /* YouBikeWidgetRefresh.swift */,
+				6C89317F303FE89C00532848 /* AQIWidgetRefresh.swift */,
 				6CE001042E400003002431F0 /* WidgetReloader.swift */,
 				6C737F162DA1364300430A25 /* MeasurementType.swift */,
 			);
@@ -389,6 +401,7 @@
 				6C3597CE30282B86002431F0 /* LocalCache.swift in Sources */,
 				6C464CE12E1261A000243B19 /* YouBikeStationDetailsView.swift in Sources */,
 				6CC916332DA636F9000CD663 /* ControlButton.swift in Sources */,
+				6C893180303FE89C00532848 /* AQIWidgetRefresh.swift in Sources */,
 				6C737F0A2DA11C8800430A25 /* LocationManager.swift in Sources */,
 				6C464CDF2E12532D00243B19 /* YouBikePinView.swift in Sources */,
 				6C3597D030287A72002431F0 /* UserHeadingView.swift in Sources */,
@@ -408,6 +421,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C893181303FE89C00532848 /* AQIWidgetRefresh.swift in Sources */,
 				6CD429E93029F29F00E60A0C /* FavoriteStation.swift in Sources */,
 				6CD429EA3029F2A900E60A0C /* FavoritesStore.swift in Sources */,
 				6CD429EE3029F2F900E60A0C /* APIService.swift in Sources */,
@@ -561,7 +575,7 @@
 				CODE_SIGN_ENTITLEMENTS = TaiFind/TaiFind.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_TEAM = U558F4G8N6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -581,7 +595,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2608;
+				MARKETING_VERSION = 2.2608.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bzbee.TaiFind;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -600,7 +614,7 @@
 				CODE_SIGN_ENTITLEMENTS = TaiFind/TaiFind.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_TEAM = U558F4G8N6;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -620,7 +634,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2608;
+				MARKETING_VERSION = 2.2608.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bzbee.TaiFind;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -638,7 +652,7 @@
 				CODE_SIGN_ENTITLEMENTS = TaiFindWidgetExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_TEAM = U558F4G8N6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TaiFindWidget/Info.plist;
@@ -650,7 +664,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.2608;
+				MARKETING_VERSION = 2.2608.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bzbee.TaiFind.TaiFindWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -671,7 +685,7 @@
 				CODE_SIGN_ENTITLEMENTS = TaiFindWidgetExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 16;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_TEAM = U558F4G8N6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TaiFindWidget/Info.plist;
@@ -683,7 +697,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.2608;
+				MARKETING_VERSION = 2.2608.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.bzbee.TaiFind.TaiFindWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
